@@ -1,34 +1,38 @@
-#' Base auditR class
-#' @description Basic class for all of the auditR modules, with several functions
-#' - auditR$new(data = NULL) that creates a new auditR object
-#' - auditR$load() a stub that does nothing (for loading data)
-#' - auditR$process() a stub that does nothing (for processing data)
-#' - auditR$report() that prints the data (for reporting data)
-#' @field data
-#' @param data optional data used during initialization to more easily copy an object without having to
-#' reload data
+#' auditR
 #'
-#' @return all functions return the object invisibly
+#' @description Base S3 class for auditR.
+#' @usage new_auditR(x = new_env())
+#'
+#' @rdname auditR
 #' @export
 #'
-#' @examples
-auditR = R6::R6Class("auditR",
-  public = list(
-    data = NULL,
+new_auditR = function(x = new.env(),class=character()) {
+  structure(x,class=c(class,"auditR",class(x)))
+}
 
-    initialize = function(data = NULL) {
-      self$data = data
-      invisible(self)
-    },
-    load = function() {
-      invisible(self)
-    },
-    process = function() {
-      invisible(self)
-    },
-    report = function() {
-      print(self$data)
-      invisible(self)
-    }
-  )
-)
+#' @export
+input = function(x) {
+  UseMethod("input")
+}
+
+#' @export
+process = function(x) {
+  UseMethod("process")
+}
+
+#' @export
+print.auditR = function(x) {
+  print(paste(class(x)[1],"with contents:"))
+  purrr::map2(names(x),as.list(x),~{print(.x);print(.y)})
+}
+
+#' @export
+output = function(x) {
+  UseMethod("output")
+}
+
+#' @export
+write.auditR = function(x) {
+  NextMethod()
+}
+
