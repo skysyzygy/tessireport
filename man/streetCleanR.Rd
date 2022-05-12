@@ -4,7 +4,7 @@
 \alias{new_streetCleanR}
 \title{streetCleanR}
 \usage{
-new_streetCleanR(x=new.env())
+new_streetCleanR(x = new.env())
 }
 \arguments{
 \item{x}{an environment of data}

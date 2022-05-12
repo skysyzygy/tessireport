@@ -1,8 +1,10 @@
 #' auditR
 #'
 #' @description Base S3 class for auditR.
-#' @usage new_auditR(x = new_env())
 #'
+#' @param x an environment
+#' @param class an optional additional subclass
+#'#'
 #' @rdname auditR
 #' @export
 #'
@@ -21,7 +23,7 @@ process = function(x) {
 }
 
 #' @export
-print.auditR = function(x) {
+print.auditR = function(x,...) {
   print(paste(class(x)[1],"with contents:"))
   purrr::map2(names(x),as.list(x),~{print(.x);print(.y)})
 }

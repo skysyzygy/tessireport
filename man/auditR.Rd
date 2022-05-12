@@ -4,7 +4,13 @@
 \alias{new_auditR}
 \title{auditR}
 \usage{
-new_auditR(x = new_env())
+new_auditR(x = new.env(), class = character())
+}
+\arguments{
+\item{x}{an environment}
+
+\item{class}{an optional additional subclass
+#'}
 }
 \description{
 Base S3 class for auditR.

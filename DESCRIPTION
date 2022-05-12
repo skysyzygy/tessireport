@@ -18,16 +18,17 @@ BugReports: https://github.com/skysyzygy/tessiAuditR/issues
 Imports: 
     data.table,
     dplyr,
+    ff,
+    ffbase,
     lubridate,
+    magrittr,
     postmastr,
     purrr,
     R6,
     stringi,
+    stringr,
     tidyr
 Suggests: 
     covr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Depends: 
-    stringr,
-    ffbase
