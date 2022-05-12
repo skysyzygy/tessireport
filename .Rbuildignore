@@ -1,2 +1,5 @@
 ^tessiAuditR\.Rproj$
 ^\.Rproj\.user$
+^README\.Rmd$
+^LICENSE\.md$
+^codecov\.yml$
