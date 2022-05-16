@@ -15,15 +15,16 @@ new_streetCleanR = function(x=new.env()) {
 streetCleanR = new_streetCleanR()
 
 #' @export
-#' @importFrom ffbase unpack.ffdf subset.ffdf
-#' @importFrom ff delete
-input.streetCleanR = function(x) {
-  addressStreamFull <- timestamp <- primary_ind <- as.ram2 <- NULL
+#' @import ffbase ff
+input.streetCleanR = function(x,test=F) {
+  addressStreamFull <- primary_ind <- as.ram2 <- NULL
+  stopifnot(is.auditR(x))
   streamDir = "//bam-fs-10/home$/jolson/My Documents/R/stream"
   source(file.path(Sys.getenv("R_USER"),"tools","as.ram.R"))
   unpack.ffdf(file.path(streamDir,"addressStreamFull.gz"))
-  x$addressStream = subset.ffdf(addressStreamFull,timestamp>lubridate::today()-lubridate::ddays(14) &
-                     primary_ind=='y') %>% as.ram2 %>% setDT
+  i = ffwhich(addressStreamFull,timestamp>lubridate::today()-lubridate::ddays(14) & primary_ind=='y')
+  i = sample(i,length(i)*ifelse(test,.1,1))
+  x$addressStream = addressStreamFull[i,] %>% as.ram2 %>% setDT
   delete(addressStreamFull)
   invisible(x)
 }

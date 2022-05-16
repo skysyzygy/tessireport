@@ -13,12 +13,17 @@ new_auditR = function(x = new.env(),class=character()) {
 }
 
 #' @export
-input = function(x) {
+is.auditR = function(x) {
+  "auditR" %in% class(x)
+}
+
+#' @export
+input = function(x,...) {
   UseMethod("input")
 }
 
 #' @export
-process = function(x) {
+process = function(x,...) {
   UseMethod("process")
 }
 
@@ -29,12 +34,12 @@ print.auditR = function(x,...) {
 }
 
 #' @export
-output = function(x) {
+output = function(x,...) {
   UseMethod("output")
 }
 
 #' @export
-write.auditR = function(x) {
+write.auditR = function(x,..) {
   NextMethod()
 }
 
