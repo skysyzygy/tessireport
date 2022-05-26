@@ -7,25 +7,14 @@
 #' @rdname streetCleanR
 #' @export
 #'
-new_streetCleanR = function(x=new.env()) {
-  new_auditR(x,class="streetCleanR")
-}
-
-#' @export
-streetCleanR = new_streetCleanR()
+new_streetCleanR = function(x=new.env()) new_auditR(x,class="streetCleanR")
 
 #' @export
 #' @import ffbase ff
+#' @importFrom tessilake as.ram2
 input.streetCleanR = function(x) {
   addressStreamFull <- primary_ind <- as.ram2 <- NULL
-  stopifnot(is.auditR(x))
-  streamDir = "//bam-fs-10/home$/jolson/My Documents/R/stream"
-  source(file.path(Sys.getenv("R_USER"),"tools","as.ram.R"))
-  unpack.ffdf(file.path(streamDir,"addressStreamFull.gz"))
-  i = ffwhich(addressStreamFull,timestamp>lubridate::today()-lubridate::ddays(14) & primary_ind=='y')
-  x$addressStream = addressStreamFull[i,] %>% as.ram2 %>% setDT
-  delete(addressStreamFull)
-  invisible(x)
+
 }
 
 #' process.streetCleanR

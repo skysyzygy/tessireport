@@ -4,28 +4,25 @@
 #'
 #' @param x an environment
 #' @param class an optional additional subclass
-#'#'
+#'
 #' @rdname auditR
 #' @export
 #'
 new_auditR = function(x = new.env(),class=character()) {
+  stopifnot(is.environment(x))
   structure(x,class=c(class,"auditR",class(x)))
 }
 
 #' @export
-is.auditR = function(x) {
-  "auditR" %in% class(x)
-}
+is.auditR = function(x) inherits(x,"auditR")
+
 
 #' @export
-input = function(x,...) {
-  UseMethod("input")
-}
+read = function(x,...) UseMethod("read")
 
 #' @export
-process = function(x,...) {
-  UseMethod("process")
-}
+process = function(x,...) UseMethod("process")
+
 
 #' @export
 print.auditR = function(x,...) {
@@ -34,12 +31,8 @@ print.auditR = function(x,...) {
 }
 
 #' @export
-output = function(x,...) {
-  UseMethod("output")
-}
+output = function(x,...) UseMethod("output")
 
 #' @export
-write.auditR = function(x,..) {
-  NextMethod()
-}
+write.auditR = function(x,...) NextMethod()
 
