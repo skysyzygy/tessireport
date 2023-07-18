@@ -1,4 +1,4 @@
 library(testthat)
-library(tessiAuditR)
+library(tessireport)
 
-test_check("tessiAuditR")
+test_check("tessireport")
