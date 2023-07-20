@@ -12,6 +12,10 @@ NULL
 new_unsubscribe_report <- \() new_report(class="unsubscribe_report")
 
 #' @describeIn unsubscribe_report reads unsubscribe_report data
+#' Loads data from
+#' * p2: unsubscribes and hard bounces by list (uses p2_stream_enriched from tessistream)
+#' * tessi: emails, addresses, logins, memberships, constituencies, MGOs (attributes)
+
 #' @importFrom checkmate assert_class assert_integerish
 #' @importFrom tessilake read_cache read_tessi
 #' @importFrom dplyr filter collect
@@ -53,6 +57,11 @@ read.unsubscribe_report <- function(report, customers) {
 }
 
 #' @describeIn unsubscribe_report process unsubscribe_report data
+#' * Checks if emails are unsubscribed, bounced, or don't exist
+#' * Checks if mailing addresses have a NCOA flag or don't exist
+#' * Checks if the customer primary login doesn't match the primary email
+#' * Checks if customers are inactive
+#' * Adds identifying info: MGO, constituencies, membership expiration date and level
 #' @importFrom dplyr left_join if_else
 #' @export
 process.unsubscribe_report <- function(report) {

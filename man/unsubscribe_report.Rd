@@ -24,8 +24,20 @@ Reports on unsubscribes and bad addresses for a group of customers
 \section{Methods (by generic)}{
 \itemize{
 \item \code{read(unsubscribe_report)}: reads unsubscribe_report data
+Loads data from
+\itemize{
+\item p2: unsubscribes and hard bounces by list (uses p2_stream_enriched from tessistream)
+\item tessi: emails, addresses, logins, memberships, constituencies, MGOs (attributes)
+}
 
 \item \code{process(unsubscribe_report)}: process unsubscribe_report data
+\itemize{
+\item Checks if emails are unsubscribed, bounced, or don't exist
+\item Checks if mailing addresses have a NCOA flag or don't exist
+\item Checks if the customer primary login doesn't match the primary email
+\item Checks if customers are inactive
+\item Adds identifying info: MGO, constituencies, membership expiration date and level
+}
 
 }}
 \section{Functions}{
