@@ -2,15 +2,15 @@
 #'
 #' @description Base S3 class for report.
 #'
-#' @param x an environment
+#' @param x a list
 #' @param class an optional additional subclass
 #'
 #' @rdname report
 #' @name report
 #' @export
 #'
-new_report = function(x = new.env(),class=character()) {
-  stopifnot(is.environment(x))
+new_report = function(x = list(),class=character()) {
+  stopifnot(is.list(x))
   structure(x,class=c(class,"report",class(x)))
 }
 
@@ -29,8 +29,12 @@ process = function(x,...) UseMethod("process")
 #' @export
 #' @describeIn report prints the names and contents of the report object
 print.report = function(x,...) {
-  print(paste(class(x)[1],"with contents:"))
-  purrr::map2(names(x),as.list(x),~{print(.x);print(.y)})
+  cli::cli_h1(paste(class(x)[1],"with contents:"))
+  cli::cli_ul()
+  purrr::imap(x,~{
+    cli::cli_li(cli::col_cyan(.y))
+    cli::cli_bullets(c(" " = paste0(names(.x),collapse=", ")))
+    })
 }
 
 #' @export
