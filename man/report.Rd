@@ -5,10 +5,16 @@
 \alias{new_report}
 \alias{is_report}
 \alias{read}
+\alias{read.report}
 \alias{process}
+\alias{process.report}
 \alias{print.report}
 \alias{output}
+\alias{output.report}
 \alias{write}
+\alias{write.report}
+\alias{run}
+\alias{run.report}
 \title{report}
 \usage{
 new_report(x = list(), class = character())
@@ -17,13 +23,25 @@ is_report(x)
 
 read(x, ...)
 
+\method{read}{report}(x, ...)
+
 process(x, ...)
+
+\method{process}{report}(x, ...)
 
 \method{print}{report}(x, ...)
 
 output(x, ...)
 
+\method{output}{report}(x, ...)
+
 write(x, ...)
+
+\method{write}{report}(x, ...)
+
+run(x, ...)
+
+\method{run}{report}(x, ...)
 }
 \arguments{
 \item{x}{a list}
@@ -35,7 +53,17 @@ Base S3 class for report.
 }
 \section{Methods (by generic)}{
 \itemize{
+\item \code{read(report)}: does thing but print a warning, intended to be overloaded by subclass
+
+\item \code{process(report)}: does thing but print a warning, intended to be overloaded by subclass
+
 \item \code{print(report)}: prints the names and contents of the report object
+
+\item \code{output(report)}: does thing but print a warning, intended to be overloaded by subclass
+
+\item \code{write(report)}: does thing but print a warning, intended to be overloaded by subclass
+
+\item \code{run(report)}: run all methods in order: read -> process -> output -> write
 
 }}
 \section{Functions}{
@@ -49,5 +77,7 @@ Base S3 class for report.
 \item \code{output()}: generic fucntion to dispatch for data output
 
 \item \code{write()}: generic function to dispatch for data saving
+
+\item \code{run()}: generic function to dispatch for report running
 
 }}
