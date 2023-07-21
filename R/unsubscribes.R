@@ -9,19 +9,19 @@
 NULL
 
 #' @describeIn unsubscribe_report creates a new unsubscribe_report object
-new_unsubscribe_report <- \() new_report(class="unsubscribe_report")
+unsubscribe_report <- \() new_report(class="unsubscribe_report")
 
 #' @describeIn unsubscribe_report reads unsubscribe_report data
 #' Loads data from
 #' * p2: unsubscribes and hard bounces by list (uses p2_stream_enriched from tessistream)
 #' * tessi: emails, addresses, logins, memberships, constituencies, MGOs (attributes)
-
+#' @param ... not used
 #' @importFrom checkmate assert_class assert_integerish
 #' @importFrom tessilake read_cache read_tessi
 #' @importFrom dplyr filter collect
 #' @importFrom data.table setDT
 #' @export
-read.unsubscribe_report <- function(report, customers) {
+read.unsubscribe_report <- function(report, customers, ...) {
   assert_class(report, "unsubscribe_report")
   assert_integerish(customers)
 
@@ -62,9 +62,10 @@ read.unsubscribe_report <- function(report, customers) {
 #' * Checks if the customer primary login doesn't match the primary email
 #' * Checks if customers are inactive
 #' * Adds identifying info: MGO, constituencies, membership expiration date and level
+#' @param ... not used
 #' @importFrom dplyr left_join if_else
 #' @export
-process.unsubscribe_report <- function(report) {
+process.unsubscribe_report <- function(report, ...) {
   assert_class(report, "unsubscribe_report")
 
   # Email issues
@@ -101,13 +102,74 @@ process.unsubscribe_report <- function(report) {
     .[!current_status_desc %in% c("Cancelled", "Deactivated"), .SD[.N], by = "customer_no"]
   name <- report$customers[,.(name = paste(na.omit(c(fname, lname)), collapse = " ")), by = "customer_no"]
 
-  out <- rbind(bad_emails, missing_emails, bad_addresses, missing_addresses, bad_logins, inactive,
+  report$report <- rbind(bad_emails, missing_emails, bad_addresses, missing_addresses, bad_logins, inactive,
                fill = TRUE) %>%
     left_join(latest_memberships[,.(customer_no, memb_level, expr_dt)], by = "customer_no") %>%
     left_join(MGOs, by = "customer_no") %>%
     left_join(constituencies, by = "customer_no") %>%
     left_join(name, by = "customer_no")
 
-  list(report = out)
+  report
+
+}
+
+#' @describeIn unsubscribe_report send the unsubscribe_report as emails to MGOs
+#' Routes based on the following rules:
+#' * MGO/PSD signatory -> send to users with matching name
+#' * GOV -> send to Government Affairs (cluna)
+#' * CP# -> send to Strategic Partnerships (ashah)
+#' * Patron -> send to Patron Program (jhindle)
+#' * Other -> send to Dev Ops (kburke)
+#' @param ... not used
+#' @importFrom tessilake read_sql
+#' @importFrom dplyr case_when
+#' @export
+output.unsubscribe_report <- function(report, since = Sys.Date() - 30, until = Sys.Date() + 30, ...) {
+  assert_class(report, "unsubscribe_report")
+
+  filtered_report <- report$report[timestamp > since | expr_dt > since & expr_dt < until,
+                                   .(`Tessi #`=customer_no, name, message, timestamp, memb_level, expr_dt, MGOs, constituencies)]
+
+  # routing rules
+
+  filtered_report[,I:=.I]
+  users <- read_sql("select userid, fname, lname from T_METUSER where inactive = 'N'") %>% collect %>% lapply(trimws) %>% setDT
+  filtered_report <- merge(filtered_report, users[,.(I = grep(paste0(fname,".+",lname),filtered_report$MGOs)),by="userid"], by = "I", all = T)
+  filtered_report$I <- NULL
+
+  filtered_report[is.na(userid), userid := case_when(grepl("GOV", constituencies) ~ "cluna",
+                                                     grepl("CP\\d", constituencies) ~ "ashah",
+                                                     grepl("\\+",constituencies) ~ "jhindle",
+                                                     TRUE ~ "kburke")]
+
+  filtered_report[,userid := paste0(userid, "@bam.org")]
+  send_unsubscribe_report_table(filtered_report, "ssyzygy@bam.org")
+  # split(filtered_report, by = "userid", keep.by = FALSE) %>%
+  #   purrr::iwalk(send_unsubscribe_report_table)
+
+}
+
+#' send_unsubscribe_report_table
+#'
+#' @param table data.table to send
+#' @param email character email address to send the email to
+#' @param dry_run boolean do not send the email if TRUE
+#' @importFrom checkmate assert_data_table assert_character
+send_unsubscribe_report_table <- function(table, email, dry_run = FALSE) {
+  assert_data_table(table)
+  assert_character(email, len = 1)
+
+  filename <- tempfile("unsubscribe_report",fileext = ".xlsx")
+  tessistream:::write_xlsx(table, filename)
+  if(!dry_run)
+    tessistream:::send_email(subject = paste("Contact warning report for",Sys.Date()),
+                             emails = c(config::get("tessiflow.email"), email),
+                             body = "<p>This is an report of contact issues for constituents your portfolio.
+                             <p>Please contact Sky or Kathleen if you have any questions.
+                             <p>Sincerely,
+                             <p>Sky's computer",
+                             html = TRUE,
+                             attach.files = filename,
+                             file.names = paste0("contact_report_",Sys.Date(),".xlsx"))
 
 }
