@@ -2,21 +2,25 @@
 % Please edit documentation in R/unsubscribes.R
 \name{unsubscribe_report}
 \alias{unsubscribe_report}
-\alias{new_unsubscribe_report}
 \alias{read.unsubscribe_report}
 \alias{process.unsubscribe_report}
+\alias{output.unsubscribe_report}
 \title{unsubscribe_report}
 \usage{
-new_unsubscribe_report()
+unsubscribe_report()
 
-\method{read}{unsubscribe_report}(report, customers)
+\method{read}{unsubscribe_report}(report, customers, ...)
 
-\method{process}{unsubscribe_report}(report)
+\method{process}{unsubscribe_report}(report, ...)
+
+\method{output}{unsubscribe_report}(report, since = Sys.Date() - 30, until = Sys.Date() + 30, ...)
 }
 \arguments{
 \item{report}{report object}
 
 \item{customers}{integer vector of customer numbers to load}
+
+\item{...}{not used}
 }
 \description{
 Reports on unsubscribes and bad addresses for a group of customers
@@ -39,9 +43,19 @@ Loads data from
 \item Adds identifying info: MGO, constituencies, membership expiration date and level
 }
 
+\item \code{output(unsubscribe_report)}: send the unsubscribe_report as emails to MGOs
+Routes based on the following rules:
+\itemize{
+\item MGO/PSD signatory -> send to users with matching name
+\item GOV -> send to Government Affairs (cluna)
+\item CP# -> send to Strategic Partnerships (ashah)
+\item Patron -> send to Patron Program (jhindle)
+\item Other -> send to Dev Ops (kburke)
+}
+
 }}
 \section{Functions}{
 \itemize{
-\item \code{new_unsubscribe_report()}: creates a new unsubscribe_report object
+\item \code{unsubscribe_report()}: creates a new unsubscribe_report object
 
 }}
