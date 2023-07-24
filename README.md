@@ -7,6 +7,7 @@
 
 [![Codecov test
 coverage](https://codecov.io/gh/skysyzygy/tessireport/branch/master/graph/badge.svg)](https://codecov.io/gh/skysyzygy/tessireport?branch=master)
+[![R-CMD-check](https://github.com/skysyzygy/tessireport/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/skysyzygy/tessireport/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 tessireport is a set of scripts for data hygiene in Tessitura, working
@@ -34,5 +35,16 @@ To load tessireport…
 
 ``` r
 library(tessireport)
+#> Registered S3 methods overwritten by 'ffbase':
+#>   method   from
+#>   [.ff     ff  
+#>   [.ffdf   ff  
+#>   [<-.ff   ff  
+#>   [<-.ffdf ff
+#> 
+#> Attaching package: 'tessireport'
+#> The following object is masked from 'package:base':
+#> 
+#>     write
 ## basic example code
 ```
