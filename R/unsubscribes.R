@@ -139,15 +139,14 @@ output.unsubscribe_report <- function(report, since = Sys.Date() - 30, until = S
   filtered_report <- merge(filtered_report, users[,.(I = grep(paste0(fname,".+",lname),filtered_report$MGOs)),by="userid"], by = "I", all = T)
   filtered_report$I <- NULL
 
-  filtered_report[is.na(userid), userid := case_when(grepl("GOV", constituencies) ~ "cluna",
-                                                     grepl("CP\\d", constituencies) ~ "ashah",
-                                                     grepl("\\+",constituencies) ~ "jhindle",
-                                                     TRUE ~ "kburke")]
+  filtered_report[is.na(userid), userid := case_when(grepl("GOV", constituencies) ~ "eleszynski",
+                                                     grepl("CP\\d", constituencies) ~ "lmcgee",
+                                                     grepl("\\+",constituencies) ~ c("apratama","jhindle"),
+                                                     TRUE ~ c("kburke","esearles"))]
 
   filtered_report[,userid := paste0(userid, "@bam.org")]
-  send_unsubscribe_report_table(filtered_report, "ssyzygy@bam.org")
-  # split(filtered_report, by = "userid", keep.by = FALSE) %>%
-  #   purrr::iwalk(send_unsubscribe_report_table)
+  split(filtered_report, by = "userid", keep.by = FALSE) %>%
+    purrr::iwalk(send_unsubscribe_report_table)
 
 }
 
@@ -166,7 +165,9 @@ send_unsubscribe_report_table <- function(table, email, dry_run = FALSE) {
   if(!dry_run)
     tessistream:::send_email(subject = paste("Contact warning report for",Sys.Date()),
                              emails = c(config::get("tessiflow.email"), email),
-                             body = "<p>This is an report of contact issues for constituents your portfolio.
+                             body = "
+                             <p>Hi,
+                             <p>This is an report of contact issues for constituents your portfolio.
                              <p>Please contact Sky or Kathleen if you have any questions.
                              <p>Sincerely,
                              <p>Sky's computer",
