@@ -16,6 +16,7 @@ RoxygenNote: 7.2.3
 URL: https://github.com/skysyzygy/tessireport
 BugReports: https://github.com/skysyzygy/tessireport/issues
 Imports: 
+    checkmate,
     data.table,
     dplyr,
     ff,
@@ -31,6 +32,7 @@ Imports:
     tidyr
 Suggests: 
     covr,
+    mockery,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes: 
