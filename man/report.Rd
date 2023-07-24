@@ -21,25 +21,25 @@ new_report(x = list(), class = character())
 
 is_report(x)
 
-read(x, ...)
+read(...)
 
-\method{read}{report}(x, ...)
+\method{read}{report}(...)
 
-process(x, ...)
+process(...)
 
-\method{process}{report}(x, ...)
+\method{process}{report}(...)
 
 \method{print}{report}(x, ...)
 
-output(x, ...)
+output(...)
 
-\method{output}{report}(x, ...)
+\method{output}{report}(...)
 
-write(x, ...)
+write(...)
 
-\method{write}{report}(x, ...)
+\method{write}{report}(...)
 
-run(x, ...)
+run(...)
 
 \method{run}{report}(x, ...)
 }
@@ -47,6 +47,8 @@ run(x, ...)
 \item{x}{a list}
 
 \item{class}{an optional additional subclass}
+
+\item{...}{additional parameters for subclassed methods}
 }
 \description{
 Base S3 class for report.
