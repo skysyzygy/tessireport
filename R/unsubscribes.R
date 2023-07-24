@@ -3,6 +3,7 @@
 #' Reports on unsubscribes and bad addresses for a group of customers
 #'
 #' @param report report object
+#' @param ... not used
 #' @param customers integer vector of customer numbers to load
 #' @name unsubscribe_report
 
@@ -15,13 +16,14 @@ unsubscribe_report <- \() new_report(class="unsubscribe_report")
 #' Loads data from
 #' * p2: unsubscribes and hard bounces by list (uses p2_stream_enriched from tessistream)
 #' * tessi: emails, addresses, logins, memberships, constituencies, MGOs (attributes)
-#' @param ... not used
 #' @importFrom checkmate assert_class assert_integerish
 #' @importFrom tessilake read_cache read_tessi
 #' @importFrom dplyr filter collect
 #' @importFrom data.table setDT
 #' @export
 read.unsubscribe_report <- function(report, customers, ...) {
+  keyword_desc <- customer_no <- NULL
+
   assert_class(report, "unsubscribe_report")
   assert_integerish(customers)
 
@@ -62,10 +64,14 @@ read.unsubscribe_report <- function(report, customers, ...) {
 #' * Checks if the customer primary login doesn't match the primary email
 #' * Checks if customers are inactive
 #' * Adds identifying info: MGO, constituencies, membership expiration date and level
-#' @param ... not used
 #' @importFrom dplyr left_join if_else
+#' @importFrom stats na.omit
 #' @export
 process.unsubscribe_report <- function(report, ...) {
+  . <- primary_ind <- customer_no <- timestamp <- event_subtype <- listid <- list_name <- last_updated_by <- last_update_dt <-
+    login <- i.last_update_dt <- inactive_desc <- inactive_reason_desc <- keyword_value <- constituency_short_desc <- expr_dt <-
+    memb_amt <- current_status_desc <- fname <- lname <- memb_level <- NULL
+
   assert_class(report, "unsubscribe_report")
 
   # Email issues
@@ -116,17 +122,23 @@ process.unsubscribe_report <- function(report, ...) {
 }
 
 #' @describeIn unsubscribe_report send the unsubscribe_report as emails to MGOs
+#'
+#' Data is filtered so that all events after `since` are returned and all events for members with expiration dates
+#' between `since` and `until` are rturned
 #' Routes based on the following rules:
 #' * MGO/PSD signatory -> send to users with matching name
 #' * GOV -> send to Government Affairs (cluna)
 #' * CP# -> send to Strategic Partnerships (ashah)
 #' * Patron -> send to Patron Program (jhindle)
 #' * Other -> send to Dev Ops (kburke)
-#' @param ... not used
+#' @param since date, start date for filtering the returned data
+#' @param until date, end date for filtering the returned data
 #' @importFrom tessilake read_sql
 #' @importFrom dplyr case_when
 #' @export
 output.unsubscribe_report <- function(report, since = Sys.Date() - 30, until = Sys.Date() + 30, ...) {
+  . <- customer_no <- timestamp <- expr_dt <- name <- message <- memb_level <- MGOs <- constituencies <- fname <- lname <- userid <- NULL
+
   assert_class(report, "unsubscribe_report")
 
   filtered_report <- report$report[timestamp > since | expr_dt > since & expr_dt < until,

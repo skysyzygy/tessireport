@@ -21,6 +21,10 @@ unsubscribe_report()
 \item{customers}{integer vector of customer numbers to load}
 
 \item{...}{not used}
+
+\item{since}{date, start date for filtering the returned data}
+
+\item{until}{date, end date for filtering the returned data}
 }
 \description{
 Reports on unsubscribes and bad addresses for a group of customers
@@ -44,6 +48,9 @@ Loads data from
 }
 
 \item \code{output(unsubscribe_report)}: send the unsubscribe_report as emails to MGOs
+
+Data is filtered so that all events after \code{since} are returned and all events for members with expiration dates
+between \code{since} and \code{until} are rturned
 Routes based on the following rules:
 \itemize{
 \item MGO/PSD signatory -> send to users with matching name

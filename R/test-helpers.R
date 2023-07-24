@@ -1,4 +1,11 @@
+#' make_unsubscribe_report_fixtures
+#'
+#' Make fixtures for unsubscribe_report testing
+#'
+#' @importFrom dplyr collect filter
+#' @importFrom tessilake read_cache
 make_unsubscribe_report_fixtures <- function() {
+  customer_no <- NULL
   report <- list()
   report$email_events <- read_cache("p2_stream_enriched","deep","stream") %>% filter(customer_no %in% c(8993321,8992917,8992918)) %>% collect
   report$emails <- read_tessi("emails") %>% filter(customer_no %in% c(8993321,8992917,8992918)) %>% collect
