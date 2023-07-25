@@ -14,5 +14,5 @@ send_unsubscribe_report_table(table, email, dry_run = FALSE)
 \item{dry_run}{boolean do not send the email if TRUE}
 }
 \description{
-send_unsubscribe_report_table
+Simple wrapper for \link[tessistream:send_email]{tessistream::send_email} and \link[tessistream:write_xlsx]{tessistream::write_xlsx}
 }
