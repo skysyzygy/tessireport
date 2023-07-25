@@ -12,7 +12,7 @@ test_that("read.unsubscribe_report loads email, address, MGO, membership, and lo
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
+  report <- read(unsubscribe_report, customers)
 
   expect_names(names(report), must.include = c("memberships", "MGOs", "emails", "email_events", "addresses", "logins",
                                                "constituencies", "customers"))
@@ -25,7 +25,7 @@ test_that("process.unsubscribe_report identifies email unsubscribes and bounces"
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
+  report <- read(unsubscribe_report, customers)
 
   report$email_events[,`:=`(event_subtype = rep(c("Open","Click","Send"), length.out = .N),
                             listid = NA)]
@@ -46,7 +46,7 @@ test_that("process.unsubscribe_report identifies missing emails", {
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
+  report <- read(unsubscribe_report, customers)
   report$emails <- report$emails[customer_no != 8992918]
   report <- process(report)
 
@@ -57,7 +57,7 @@ test_that("process.unsubscribe_report identifies bad addresses", {
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
+  report <- read(unsubscribe_report, customers)
   report$addresses[,last_updated_by:=c("me","you","NCOA$DNM")]
   report <- process(report)
 
@@ -68,7 +68,7 @@ test_that("process.unsubscribe_report identifies missing addresses", {
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
+  report <- read(unsubscribe_report, customers)
   report$addresses <- report$addresses[customer_no != 8992918]
   report <- process(report)
 
@@ -79,7 +79,7 @@ test_that("process.unsubscribe_report identifies non-matching logins", {
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
+  report <- read(unsubscribe_report, customers)
   report$logins[,primary_ind:="Y"]
   report <- process(report)
 
@@ -90,7 +90,7 @@ test_that("process.unsubscribe_report identifies inactive customers", {
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
+  report <- read(unsubscribe_report, customers)
   report$customers[1,inactive_desc := "Inactive"]
   report <- process(report)
 
@@ -101,7 +101,7 @@ test_that("process.unsubscribe_report has one row per issue", {
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
+  report <- read(unsubscribe_report, customers)
 
 
   report$email_events[,`:=`(event_subtype = rep(c("Open","Click","Send"), length.out = .N),
@@ -127,7 +127,7 @@ test_that("process.unsubscribe_report includes timestamp, membership, MGO, name,
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
+  report <- read(unsubscribe_report, customers)
   report <- process(report)
 
   expect_names(colnames(report$report), permutation.of = c("message", "timestamp", "memb_level", "expr_dt", "customer_no", "MGOs",
@@ -141,13 +141,61 @@ test_that("output.unsubscribe_report filters based on since and until", {
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
-  report <- read(unsubscribe_report(), customers)
-  report <- process(report)
+  send_unsubscribe_report_table <- mock(cycle = TRUE)
+  stub(output.unsubscribe_report, "send_unsubscribe_report_table", send_unsubscribe_report_table)
+  stub(output.unsubscribe_report, "read_sql", data.table(fname = NA, lname = NA, userid = NA))
 
-  expect_names(colnames(report$report), permutation.of = c("message", "timestamp", "memb_level", "expr_dt", "customer_no", "MGOs",
-                                                           "name", "constituencies"))
-  expect_false(any(sapply(report$report,\(x) all(is.na(x)))))
+  report <- read(unsubscribe_report, customers) %>% process(report)
+  nrows <- nrow(report$report)
+  report$report$timestamp <- c(Sys.Date() - 1, Sys.Date() + seq(2, nrows))
+  report$report$expr_dt <- c(Sys.Date() + 1, Sys.Date() + seq(2, nrows))
+
+  output(report, since = Sys.Date(), until = Sys.Date()) # 0
+  output(report, since = Sys.Date() - 1, Sys.Date()) # 1
+  output(report, since = Sys.Date(), Sys.Date() + 1) # 1
+
+  expect_length(mock_args(send_unsubscribe_report_table), 2)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[1]][[1]]),1)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[2]][[1]]),1)
+
+
 })
 
 test_that("output.unsubscribe_report routes based on MGO and constituency", {
+  stub(read.unsubscribe_report, "read_cache", fixture[[1]])
+  stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
+
+  send_unsubscribe_report_table <- mock(cycle = TRUE)
+  stub(output.unsubscribe_report, "send_unsubscribe_report_table", send_unsubscribe_report_table)
+  stub(output.unsubscribe_report, "read_sql", data.table(fname = "Ima", lname = "MGO", userid = "imgo"))
+
+  report <- read(unsubscribe_report, customers) %>% process(report)
+  nrows <- nrow(report$report)
+  report$report$timestamp <- Sys.time()
+  report$report$MGOs <- c("Ima MGO", rep(NA, nrows - 1))
+
+  output(report)
+  expect_length(mock_args(send_unsubscribe_report_table), 2)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[1]][[1]]), 1)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[2]][[1]]), nrows - 1)
+  expect_equal(mock_args(send_unsubscribe_report_table)[[1]][[2]], "imgo@bam.org")
+  expect_equal(mock_args(send_unsubscribe_report_table)[[2]][[2]], "ssyzygy@bam.org")
+
+  report$report$constituencies <- c("a", "b", "c", rep(NA, nrows - 3))
+
+  output(report, routing_rules = list(constituencies == "a" ~ list("person_a"),
+                                      constituencies == "b" ~ list(c("person_b","person_c")),
+                                      constituencies == "c" ~ list("person_c"),
+                                      TRUE ~ list("default")))
+
+  expect_length(mock_args(send_unsubscribe_report_table), 6)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[3]][[1]]), 1)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[4]][[1]]), 1)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[5]][[1]]), 2)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[6]][[1]]), nrows - 3)
+  expect_equal(mock_args(send_unsubscribe_report_table)[[3]][[2]], "imgo@bam.org")
+  expect_equal(mock_args(send_unsubscribe_report_table)[[4]][[2]], "person_b")
+  expect_equal(mock_args(send_unsubscribe_report_table)[[5]][[2]], "person_c")
+  expect_equal(mock_args(send_unsubscribe_report_table)[[6]][[2]], "default")
+
 })

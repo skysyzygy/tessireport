@@ -10,7 +10,7 @@
 NULL
 
 #' @describeIn unsubscribe_report creates a new unsubscribe_report object
-unsubscribe_report <- \() new_report(class="unsubscribe_report")
+unsubscribe_report <- new_report(class="unsubscribe_report")
 
 #' @describeIn unsubscribe_report reads unsubscribe_report data
 #' Loads data from
@@ -121,48 +121,63 @@ process.unsubscribe_report <- function(report, ...) {
 
 }
 
+
+
+
+
 #' @describeIn unsubscribe_report send the unsubscribe_report as emails to MGOs
 #'
 #' Data is filtered so that all events after `since` are returned and all events for members with expiration dates
-#' between `since` and `until` are rturned
-#' Routes based on the following rules:
-#' * MGO/PSD signatory -> send to users with matching name
-#' * GOV -> send to Government Affairs (cluna)
-#' * CP# -> send to Strategic Partnerships (ashah)
-#' * Patron -> send to Patron Program (jhindle)
-#' * Other -> send to Dev Ops (kburke)
+#' between `since` and `until` are returned
 #' @param since date, start date for filtering the returned data
 #' @param until date, end date for filtering the returned data
+#' @param routing_rules list of formulas to be used for routing, as for [dplyr::case_when]. Can refer to any columns returned by [process.unsubscribe_report]. See **Note** below
+#' @note
+#' For example, this value for routing_rules:
+#' ```
+#' list(grepl("GOV", constituencies) ~ list("eleszynski@bam.org"),
+#'      grepl("CP\\d", constituencies) ~ list("lmcgee@bam.org"),
+#'      grepl("\\+",constituencies) ~ list(c("apratama@bam.org","jhindle@bam.org")),
+#'      TRUE ~ list(c("kburke@bam.org","esearles@bam.org")))
+#' ```
+#' Routes based on the following rules:
+#' * GOV -> send to Government Affairs (eleszynski)
+#' * CP# -> send to Strategic Partnerships (lmcgee)
+#' * Patron -> send to Patron Program (apratama and jhindle)
+#' * Other -> send to Dev Ops (kburke and esearles)
 #' @importFrom tessilake read_sql
 #' @importFrom dplyr case_when
 #' @export
-output.unsubscribe_report <- function(report, since = Sys.Date() - 30, until = Sys.Date() + 30, ...) {
+output.unsubscribe_report <- function(report, since = Sys.Date() - 30, until = Sys.Date() + 30,
+                                      routing_rules = list(TRUE ~ list(config::get("tessiflow.email"))), ...) {
   . <- customer_no <- timestamp <- expr_dt <- name <- message <- memb_level <- MGOs <- constituencies <- fname <- lname <- userid <- NULL
 
   assert_class(report, "unsubscribe_report")
 
-  filtered_report <- report$report[timestamp > since | expr_dt > since & expr_dt < until,
-                                   .(`Tessi #`=customer_no, name, message, timestamp, memb_level, expr_dt, MGOs, constituencies)]
+  filtered_report <- report$report[between(timestamp, since, until) | between(expr_dt, since, until),
+                                   .(`Tessi #`=customer_no, name, message, timestamp, memb_level, expr_dt, MGOs, constituencies, .I)]
 
-  # routing rules
+  ### Routing rules
+  domain_name <- strsplit(config::get("tessiflow.email"),"@",fixed = TRUE)[[1]][2]
 
-  filtered_report[,I:=.I]
-  users <- read_sql("select userid, fname, lname from T_METUSER where inactive = 'N'") %>% collect %>% lapply(trimws) %>% setDT
-  filtered_report <- merge(filtered_report, users[,.(I = grep(paste0(fname,".+",lname),filtered_report$MGOs)),by="userid"], by = "I", all = T)
-  filtered_report$I <- NULL
+  # match MGOs with userids in Tessi
+  mgo_routing <- read_sql("select userid, fname, lname from T_METUSER where inactive = 'N'") %>% collect %>% lapply(trimws) %>% setDT %>%
+    .[,.(I = grep(paste0(fname,".+",lname),filtered_report$MGOs)),
+      by=list(email = paste0(userid,"@",domain_name))]
 
-  filtered_report[is.na(userid), userid := case_when(grepl("GOV", constituencies) ~ "eleszynski",
-                                                     grepl("CP\\d", constituencies) ~ "lmcgee",
-                                                     grepl("\\+",constituencies) ~ c("apratama","jhindle"),
-                                                     TRUE ~ c("kburke","esearles"))]
+  routing_rules <- rlang::enexpr(routing_rules)
+  constituency_routing <- filtered_report[!I %in% mgo_routing$I, .(email = unlist(case_when(!!!eval(routing_rules)))), by = I]
 
-  filtered_report[,userid := paste0(userid, "@bam.org")]
-  split(filtered_report, by = "userid", keep.by = FALSE) %>%
+  filtered_report <- filtered_report[rbind(mgo_routing,constituency_routing), on = "I"]
+
+  split(filtered_report, by = "email", keep.by = FALSE) %>%
     purrr::iwalk(send_unsubscribe_report_table)
 
 }
 
 #' send_unsubscribe_report_table
+#'
+#' Simple wrapper for [tessistream::send_email] and [tessistream::write_xlsx]
 #'
 #' @param table data.table to send
 #' @param email character email address to send the email to
