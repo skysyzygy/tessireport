@@ -36,3 +36,4 @@ Config/testthat/edition: 3
 Remotes: 
     skysyzygy/tessilake
     skysyzygy/tessistream
+    skysyzygy/ffbase/pkg
