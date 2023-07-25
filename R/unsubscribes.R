@@ -165,7 +165,8 @@ output.unsubscribe_report <- function(report, since = Sys.Date() - 30, until = S
     .[,.(I = grep(paste0(fname,".+",lname),filtered_report$MGOs)),
       by=list(email = paste0(userid,"@",domain_name))]
 
-  routing_rules <- rlang::enexpr(routing_rules)
+  # apply the routing rules
+  routing_rules <- substitute(routing_rules) # needed to strip environment information from the formula
   constituency_routing <- filtered_report[!I %in% mgo_routing$I, .(email = unlist(case_when(!!!eval(routing_rules)))), by = I]
 
   filtered_report <- filtered_report[rbind(mgo_routing,constituency_routing), on = "I"]
