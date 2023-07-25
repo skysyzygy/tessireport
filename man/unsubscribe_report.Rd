@@ -26,7 +26,7 @@ unsubscribe_report
 )
 }
 \arguments{
-\item{report}{report object}
+\item{report}{unsubscribe_report object}
 
 \item{customers}{integer vector of customer numbers to load}
 
@@ -65,11 +65,6 @@ Data is filtered so that all events after \code{since} are returned and all even
 between \code{since} and \code{until} are returned
 
 }}
-\section{Functions}{
-\itemize{
-\item \code{unsubscribe_report}: creates a new unsubscribe_report object
-
-}}
 \note{
 For example, this value for routing_rules:
 
@@ -83,7 +78,7 @@ Routes based on the following rules:
 \itemize{
 \item GOV -> send to Government Affairs (eleszynski)
 \item CP# -> send to Strategic Partnerships (lmcgee)
-\item Patron -> send to Patron Program (apratama and jhindle)
+\item ??+ -> send to Patron Program (apratama and jhindle)
 \item Other -> send to Dev Ops (kburke and esearles)
 }
 }

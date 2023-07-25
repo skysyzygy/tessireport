@@ -2,14 +2,11 @@
 #'
 #' Reports on unsubscribes and bad addresses for a group of customers
 #'
-#' @param report report object
+#' @param report unsubscribe_report object
 #' @param ... not used
 #' @param customers integer vector of customer numbers to load
 #' @name unsubscribe_report
 
-NULL
-
-#' @describeIn unsubscribe_report creates a new unsubscribe_report object
 unsubscribe_report <- new_report(class="unsubscribe_report")
 
 #' @describeIn unsubscribe_report reads unsubscribe_report data
@@ -143,7 +140,7 @@ process.unsubscribe_report <- function(report, ...) {
 #' Routes based on the following rules:
 #' * GOV -> send to Government Affairs (eleszynski)
 #' * CP# -> send to Strategic Partnerships (lmcgee)
-#' * Patron -> send to Patron Program (apratama and jhindle)
+#' * ??+ -> send to Patron Program (apratama and jhindle)
 #' * Other -> send to Dev Ops (kburke and esearles)
 #' @importFrom tessilake read_sql
 #' @importFrom dplyr case_when
