@@ -4,19 +4,24 @@
 \name{sql_report}
 \alias{sql_report}
 \alias{read.sql_report}
+\alias{output.sql_report}
 \title{sql_report}
 \format{
 An object of class \code{sql_report} (inherits from \code{report}, \code{list}) of length 0.
 }
 \usage{
-sql_report
+run(sql_report, query, ...)
 
-\method{read}{sql_report}(query)
+\method{read}{sql_report}(report, query, ...)
+
+\method{output}{sql_report}(report, query, ...)
 }
 \arguments{
 \item{report}{sql_report object}
 
-\item{...}{not used}
+\item{query}{character sql query to generate the report}
+
+\item{...}{additional parameters passed on to \link[tessilake:read_sql]{tessilake::read_sql} and \link{send_xlsx}}
 }
 \description{
 Report that wraps the functionality of \link[tessilake:read_sql]{tessilake::read_sql} and \link{send_xlsx}
@@ -24,11 +29,21 @@ Report that wraps the functionality of \link[tessilake:read_sql]{tessilake::read
 \section{Methods (by generic)}{
 \itemize{
 \item \code{read(sql_report)}: reads sql_report data
-Loads data from sql
-\itemize{
-\item p2: unsubscribes and hard bounces by list (uses p2_stream_enriched from tessistream)
-\item tessi: emails, addresses, logins, memberships, constituencies, MGOs (attributes)
-}
+
+\item \code{output(sql_report)}: sends sql_report data
 
 }}
+\note{
+Useful additional parameters include:
+\itemize{
+\item \code{subject}: character subject of the email, default is \code{sql_report} and the current date.
+\item \code{body}: character body of the email, default is a human readable message indicating the computer name.
+\item \code{emails}: character email addresses to send the email to (first will be sender as well)
+\item \code{dry_run}: boolean do not send the email if TRUE
+\item \code{html}: boolean indicating whether the body of the email should be parsed as HTML. Default is \code{TRUE}.
+\item \code{inline}: boolean indicating whether images in the HTML file should be embedded inline.
+\item \code{file.names}: character name of the filename to show in the email. The default is \verb{sql_report_<today's date>.xlsx}
+\item \code{freshness}: difftime, the returned data will be at least this fresh.
+}
+}
 \keyword{datasets}
