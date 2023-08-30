@@ -4,12 +4,12 @@
 \alias{write_xlsx}
 \title{write_xlsx}
 \usage{
-write_xlsx(data, xlsx_file)
+write_xlsx(data, filename = tempfile("write_xlsx", fileext = ".xlsx"))
 }
 \arguments{
 \item{data}{data to write to the spreadsheet}
 
-\item{xlsx_file}{filename to write to}
+\item{filename}{filename to write}
 }
 \value{
 filename of written xlsx
@@ -17,6 +17,8 @@ filename of written xlsx
 \description{
 Convenience wrapper around \code{openxlsx::write.xlsx} to handle some common formatting
 \itemize{
-\item row
+\item column headers are title-cased and bolded
+\item column widths are calculated based on the string representations of the data
+\item Date columns are formatted as DATE instead of LONGDATE
 }
 }

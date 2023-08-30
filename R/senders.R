@@ -55,12 +55,11 @@ send_xlsx <- function(table,
   assert_data_table(table)
   assert_character(emails, min.len = 1)
 
-  filename <- tempfile("send_xlsx",fileext = ".xlsx")
-  write_xlsx(table, filename)
+  filename <- write_xlsx(table)
 
   args <- rlang::list2(...)
-  args <- modifyList(list(subject = subject,
-                          emails = emails, html = TRUE, attach.files = filename,
+  args <- modifyList(list(subject = subject, body = body, emails = emails,
+                          html = TRUE, attach.files = filename,
                           file.names = paste0(substitute(table),"_",Sys.Date(),".xlsx")),
                      args)
 
