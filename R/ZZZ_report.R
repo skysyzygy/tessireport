@@ -45,7 +45,7 @@ process.report = default_function("process")
 print.report = function(x, ...) {
   cli::cli_h1(paste(class(x)[1],"with contents:"))
   cli::cli_ul()
-  purrr::imap(~{
+  purrr::imap(x, ~{
     cli::cli_li(cli::col_cyan(.y))
     cli::cli_bullets(c(" " = paste0(names(.x),collapse=", ")))
     })
