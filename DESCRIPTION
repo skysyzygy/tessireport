@@ -22,16 +22,19 @@ Imports:
     config,
     data.table,
     dplyr,
+    forcats,
     ggplot2,
     lubridate,
     magrittr,
     mailR,
     openxlsx,
     purrr,
+    rlang,
     tessilake,
     tessistream
 Suggests: 
     mockery,
+    png,
     rprojroot,
     testthat (>= 3.0.0),
     withr

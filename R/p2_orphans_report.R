@@ -12,10 +12,12 @@ p2_orphans_report <- new_report(class="p2_orphans_report")
 #' @importFrom tessilake tessi_customer_no_map
 #' @importFrom tessistream p2_orphans tessi_changed_emails
 #' @importFrom purrr map
+#' @importFrom dplyr coalesce
 #' @describeIn p2_orphans_report runs the p2_orphans_report
 #' @param freshness difftime,	the returned data will be at least this fresh
+#' @param ... not used
 #' @export
-run.p2_orphans_report <- function(freshness = 0) {
+run.p2_orphans_report <- function(freshness = 0, ...) {
   . <- type <- timestamp <- id <- from <- to <- customer_no.x <- expr_dt <- memb_level <-
     last_updated_by <- customer_no <- i.customer_no <- NULL
 
