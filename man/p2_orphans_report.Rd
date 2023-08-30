@@ -11,9 +11,11 @@ An object of class \code{p2_orphans_report} (inherits from \code{report}, \code{
 \usage{
 p2_orphans_report
 
-\method{run}{p2_orphans_report}(freshness = 0, ...)
+\method{run}{p2_orphans_report}(report, freshness = 0, ...)
 }
 \arguments{
+\item{report}{sql_report object}
+
 \item{freshness}{difftime,    the returned data will be at least this fresh}
 
 \item{...}{not used}
