@@ -6,7 +6,7 @@
 \alias{tessireport-package}
 \title{tessireport: Data hygiene tools for Tessitura}
 \description{
-What the package does (one paragraph).
+tessireport is a set of scripts for data hygiene in Tessitura, using data queried and cached by tessilake and processed by tessistream.
 }
 \seealso{
 Useful links:

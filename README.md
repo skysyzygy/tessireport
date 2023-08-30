@@ -10,19 +10,13 @@ coverage](https://codecov.io/gh/skysyzygy/tessireport/branch/master/graph/badge.
 [![R-CMD-check](https://github.com/skysyzygy/tessireport/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/skysyzygy/tessireport/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-tessireport is a set of scripts for data hygiene in Tessitura, working
-with tessiReportR and tessiStreamR
+tessireport is a set of scripts for data hygiene in Tessitura, using
+data queried and cached by tessilake and processed by tessistream.
 
 ## Installation
 
-You can install the released version of tessireport from
-[CRAN](https://CRAN.R-project.org) with:
-
-``` r
-install.packages("tessireport")
-```
-
-And the development version from [GitHub](https://github.com/) with:
+You can install the latest version from [GitHub](https://github.com/)
+with:
 
 ``` r
 # install.packages("devtools")
@@ -31,20 +25,12 @@ devtools::install_github("skysyzygy/tessireport")
 
 ## Example
 
-To load tessireport…
+To run a simple SQL report…
 
 ``` r
 library(tessireport)
-#> Registered S3 methods overwritten by 'ffbase':
-#>   method   from
-#>   [.ff     ff  
-#>   [.ffdf   ff  
-#>   [<-.ff   ff  
-#>   [<-.ffdf ff
-#> 
-#> Attaching package: 'tessireport'
-#> The following object is masked from 'package:base':
-#> 
-#>     write
-## basic example code
+
+run(sql_report, query = "select * from my_table",
+    subject = "This is my table",
+    emails = "me@me.com")
 ```
