@@ -39,7 +39,6 @@ Useful additional parameters include:
 \item \code{subject}: character subject of the email, default is \code{sql_report} and the current date.
 \item \code{body}: character body of the email, default is a human readable message indicating the computer name.
 \item \code{emails}: character email addresses to send the email to (first will be sender as well)
-\item \code{dry_run}: boolean do not send the email if TRUE
 \item \code{html}: boolean indicating whether the body of the email should be parsed as HTML. Default is \code{TRUE}.
 \item \code{inline}: boolean indicating whether images in the HTML file should be embedded inline.
 \item \code{file.names}: character name of the filename to show in the email. The default is \verb{sql_report_<today's date>.xlsx}

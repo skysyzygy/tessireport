@@ -9,7 +9,6 @@
 #' * `subject`: character subject of the email, default is `sql_report` and the current date.
 #' * `body`: character body of the email, default is a human readable message indicating the computer name.
 #' * `emails`: character email addresses to send the email to (first will be sender as well)
-#' * `dry_run`: boolean do not send the email if TRUE
 #' * `html`: boolean indicating whether the body of the email should be parsed as HTML. Default is `TRUE`.
 #' * `inline`: boolean indicating whether images in the HTML file should be embedded inline.
 #' * `file.names`: character name of the filename to show in the email. The default is `sql_report_<today's date>.xlsx`

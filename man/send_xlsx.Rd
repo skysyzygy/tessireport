@@ -9,7 +9,6 @@ send_xlsx(
   subject = paste(format(substitute(table)), Sys.Date()),
   body = paste("Sent by", Sys.info()["nodename"]),
   emails = config::get("tessiflow.email"),
-  dry_run = FALSE,
   ...
 )
 }
@@ -22,8 +21,6 @@ send_xlsx(
 If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
 
 \item{emails}{character email addresses to send the email to (first will be sender as well)}
-
-\item{dry_run}{boolean do not send the email if TRUE}
 
 \item{...}{additional parameters to send on to \link{send_email} and then to \link[mailR:send.mail]{mailR::send.mail}}
 }

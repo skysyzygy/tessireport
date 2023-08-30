@@ -43,7 +43,6 @@ send_email <- function(subject, body,
 #' @param subject character subject of the email, default is the name of the `table` and the current date.
 #' @param body character body of the email, default is a human readable message indicating the computer name.
 #' If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.
-#' @param dry_run boolean do not send the email if TRUE
 #' @param ... additional parameters to send on to [send_email] and then to [mailR::send.mail]
 #' @note Useful additional parameters include:
 #' * `html`: boolean indicating whether the body of the email should be parsed as HTML. Default is `TRUE`.
@@ -54,8 +53,7 @@ send_email <- function(subject, body,
 send_xlsx <- function(table,
                       subject = paste(format(substitute(table)), Sys.Date()),
                       body = paste("Sent by",Sys.info()["nodename"]),
-                      emails = config::get("tessiflow.email"),
-                      dry_run = FALSE, ...) {
+                      emails = config::get("tessiflow.email"), ...) {
   assert_data_table(table)
   assert_character(emails, min.len = 1)
 

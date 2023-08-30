@@ -4,14 +4,12 @@
 \alias{send_unsubscribe_report_table}
 \title{send_unsubscribe_report_table}
 \usage{
-send_unsubscribe_report_table(table, email, dry_run = FALSE)
+send_unsubscribe_report_table(table, email)
 }
 \arguments{
 \item{table}{data.table to send}
 
 \item{email}{character email address to send the email to}
-
-\item{dry_run}{boolean do not send the email if TRUE}
 }
 \description{
 Simple wrapper for \link{send_xlsx}

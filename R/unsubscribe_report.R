@@ -179,9 +179,8 @@ output.unsubscribe_report <- function(report, since = Sys.Date() - 30, until = S
 #'
 #' @param table data.table to send
 #' @param email character email address to send the email to
-#' @param dry_run boolean do not send the email if TRUE
 #' @importFrom checkmate assert_data_table assert_character
-send_unsubscribe_report_table <- function(table, email, dry_run = FALSE) {
+send_unsubscribe_report_table <- function(table, email) {
   send_xlsx(table = table,
             subject = paste("Contact warning report for",Sys.Date()),
             emails = c(config::get("tessiflow.email"), email),
@@ -190,6 +189,5 @@ send_unsubscribe_report_table <- function(table, email, dry_run = FALSE) {
                     <p>Please contact Sky or Kathleen if you have any questions.
                     <p>Sincerely,
                     <p>Sky's computer",
-            send = !dry_run,
             file.names = paste0("contact_report_",Sys.Date(),".xlsx"))
 }
