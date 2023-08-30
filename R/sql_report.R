@@ -49,9 +49,11 @@ read.sql_report <- function(sql_report, query, ...) {
 #' @importFrom tessilake read_sql
 #' @export
 output.sql_report <- function(sql_report, query, ...) {
-  sql_report <- sql_report$data
 
-  send_xlsx(table = sql_report, ...)
+  local({
+    sql_report <- sql_report$data
+    send_xlsx(table = sql_report, ...)
+  })
 
   sql_report
 }
