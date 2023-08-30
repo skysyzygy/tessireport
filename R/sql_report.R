@@ -5,7 +5,6 @@
 #' @param report sql_report object
 #' @param ... additional parameters passed on to [tessilake::read_sql] and [send_xlsx]
 #' @name sql_report
-#' @usage run(sql_report, query, ...)
 #' @note Useful additional parameters include:
 #' * `subject`: character subject of the email, default is `sql_report` and the current date.
 #' * `body`: character body of the email, default is a human readable message indicating the computer name.

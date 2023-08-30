@@ -10,7 +10,7 @@
 An object of class \code{sql_report} (inherits from \code{report}, \code{list}) of length 0.
 }
 \usage{
-run(sql_report, query, ...)
+sql_report
 
 \method{read}{sql_report}(report, query, ...)
 
