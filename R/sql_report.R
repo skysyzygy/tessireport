@@ -2,18 +2,24 @@
 #'
 #' Report that wraps the functionality of [tessilake::read_sql] and [send_xlsx]
 #'
-#' @param report sql_report object
-#' @param ... additional parameters passed on to [tessilake::read_sql] and [send_xlsx]
+#' @param sql_report sql_report object
+#' @inheritDotParams tessilake::read_sql freshness primary_keys
+#' @inheritDotParams send_xlsx subject body emails
+#' @inheritDotParams mailR::send.mail html inline
 #' @name sql_report
-#' @note Useful additional parameters include:
-#' * `subject`: character subject of the email, default is `sql_report` and the current date.
-#' * `body`: character body of the email, default is a human readable message indicating the computer name.
-#' * `emails`: character email addresses to send the email to (first will be sender as well)
-#' * `html`: boolean indicating whether the body of the email should be parsed as HTML. Default is `TRUE`.
-#' * `inline`: boolean indicating whether images in the HTML file should be embedded inline.
-#' * `file.names`: character name of the filename to show in the email. The default is `sql_report_<today's date>.xlsx`
-#' * `freshness`: difftime, the returned data will be at least this fresh.
+#' @examples
+#' \dontrun{
+#'  run(sql_report,
+#'       query = "select * from my_table",
+#'       subject = "Email subject",
+#'       body = "Email body",
+#'       emails = "me@me.com"
+#'  )
+#' }
+#' @export
+run.sql_report <- function(sql_report, ...) NextMethod()
 
+#' @export
 sql_report <- new_report(class="sql_report")
 
 #' @describeIn sql_report reads sql_report data
@@ -23,7 +29,7 @@ sql_report <- new_report(class="sql_report")
 #' @importFrom dplyr collect
 #' @importFrom utils modifyList
 #' @export
-read.sql_report <- function(report, query, ...) {
+read.sql_report <- function(sql_report, query, ...) {
   . <- NULL
 
   expect_character(query, len = 1)
@@ -32,9 +38,9 @@ read.sql_report <- function(report, query, ...) {
   args <- modifyList(rlang::list2(...), list(query=query, incremental=FALSE)) %>%
     .[intersect(names(.), rlang::fn_fmls_names(tessilake::read_sql))]
 
-  report$data <- do.call(read_sql,args) %>% collect
+  sql_report$data <- do.call(read_sql,args) %>% collect
 
-  report
+  sql_report
 }
 
 
@@ -42,12 +48,14 @@ read.sql_report <- function(report, query, ...) {
 #'
 #' @importFrom tessilake read_sql
 #' @export
-output.sql_report <- function(report, query, ...) {
-  sql_report <- report$data
+output.sql_report <- function(sql_report, query, ...) {
+  sql_report <- sql_report$data
 
   send_xlsx(table = sql_report, ...)
 
-  report
+  sql_report
 }
 
 process.sql_report <- write.sql_report <- function(x,...) x
+
+

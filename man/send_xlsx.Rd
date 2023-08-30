@@ -15,23 +15,19 @@ send_xlsx(
 \arguments{
 \item{table}{data.table to send}
 
-\item{subject}{character subject of the email, default is the name of the \code{table} and the current date.}
+\item{subject}{Subject of the email.}
 
-\item{body}{character body of the email, default is a human readable message indicating the computer name.
-If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
+\item{body}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
 
-\item{emails}{character email addresses to send the email to (first will be sender as well)}
+\item{emails}{email addresses (first will be sender)}
 
-\item{...}{additional parameters to send on to \link{send_email} and then to \link[mailR:send.mail]{mailR::send.mail}}
+\item{...}{
+  Arguments passed on to \code{\link[mailR:send.mail]{mailR::send.mail}}
+  \describe{
+    \item{\code{html}}{A boolean indicating whether the body of the email should be parsed as HTML.}
+    \item{\code{inline}}{A boolean indicating whether images in the HTML file should be embedded inline.}
+  }}
 }
 \description{
 Simple wrapper for \link{send_email} and \link{write_xlsx}
-}
-\note{
-Useful additional parameters include:
-\itemize{
-\item \code{html}: boolean indicating whether the body of the email should be parsed as HTML. Default is \code{TRUE}.
-\item \code{inline}: boolean indicating whether images in the HTML file should be embedded inline.
-\item \code{file.names}: character name of the filename to show in the email. The default is \verb{<table_name>_<today's date>.xlsx}
-}
 }
