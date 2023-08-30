@@ -23,21 +23,21 @@ is_report(x)
 
 read(...)
 
-\method{read}{report}(...)
+\method{read}{report}(x, ...)
 
 process(...)
 
-\method{process}{report}(...)
+\method{process}{report}(x, ...)
 
 \method{print}{report}(x, ...)
 
 output(...)
 
-\method{output}{report}(...)
+\method{output}{report}(x, ...)
 
 write(...)
 
-\method{write}{report}(...)
+\method{write}{report}(x, ...)
 
 run(...)
 

@@ -16,9 +16,9 @@ new_report = function(x = list(),class=character()) {
 }
 
 default_function <- function(fun_name) {
-  function(...) {
-    x <- list(...)[[1]]
+  function(x, ...) {
     warning(paste0("No ",fun_name," function defined for object of class (",paste(class(x),collapse = ", "),"), doing nothing"))
+    x
   }
 }
 
