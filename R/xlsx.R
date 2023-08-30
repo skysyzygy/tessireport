@@ -15,6 +15,8 @@
 #' @importFrom purrr map_lgl map_int
 #' @importFrom lubridate is.Date is.POSIXct
 write_xlsx <- function(data, filename = tempfile("write_xlsx", fileext = ".xlsx")) {
+  . <- NULL
+
   wb <- createWorkbook()
   addWorksheet(wb, "Sheet 1")
 

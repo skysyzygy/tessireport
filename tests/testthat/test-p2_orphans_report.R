@@ -33,7 +33,6 @@ stub(run.p2_orphans_report, "p2_resolve_orphan", p2_resolve_orphan)
 stub(run.p2_orphans_report, "send_email", send_email)
 stub(run.p2_orphans_report, "tessi_customer_no_map", data.table(customer_no=seq(100),
                                                             group_customer_no=seq(100)+100))
-debugonce(run.p2_orphans_report)
 run.p2_orphans_report()
 
 test_that("run.p2_orphans_report creates a chart of orphans analysis",{

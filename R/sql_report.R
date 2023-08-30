@@ -26,6 +26,8 @@ sql_report <- new_report(class="sql_report")
 #' @importFrom utils modifyList
 #' @export
 read.sql_report <- function(report, query, ...) {
+  . <- NULL
+
   expect_character(query, len = 1)
 
   # compute args from the formals of `read_sql` and `...` plus `query` and enforcing non-incremental loads

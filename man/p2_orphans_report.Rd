@@ -11,10 +11,12 @@ An object of class \code{p2_orphans_report} (inherits from \code{report}, \code{
 \usage{
 p2_orphans_report
 
-\method{run}{p2_orphans_report}(freshness = 0)
+\method{run}{p2_orphans_report}(freshness = 0, ...)
 }
 \arguments{
 \item{freshness}{difftime,    the returned data will be at least this fresh}
+
+\item{...}{not used}
 }
 \description{
 Sends an email containing a plot of recent orphans and a spreadsheet of all orphans.
