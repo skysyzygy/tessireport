@@ -6,7 +6,7 @@
 #' @param ... not used
 #' @param customers integer vector of customer numbers to load
 #' @name unsubscribe_report
-
+#' @export
 unsubscribe_report <- new_report(class="unsubscribe_report")
 
 #' @describeIn unsubscribe_report reads unsubscribe_report data
@@ -175,29 +175,21 @@ output.unsubscribe_report <- function(report, since = Sys.Date() - 30, until = S
 
 #' send_unsubscribe_report_table
 #'
-#' Simple wrapper for [tessistream::send_email] and [tessistream::write_xlsx]
+#' Simple wrapper for [send_xlsx]
 #'
 #' @param table data.table to send
 #' @param email character email address to send the email to
 #' @param dry_run boolean do not send the email if TRUE
 #' @importFrom checkmate assert_data_table assert_character
 send_unsubscribe_report_table <- function(table, email, dry_run = FALSE) {
-  assert_data_table(table)
-  assert_character(email, len = 1)
-
-  filename <- tempfile("unsubscribe_report",fileext = ".xlsx")
-  tessistream:::write_xlsx(table, filename)
-  if(!dry_run)
-    tessistream:::send_email(subject = paste("Contact warning report for",Sys.Date()),
-                             emails = c(config::get("tessiflow.email"), email),
-                             body = "
-                             <p>Hi,
-                             <p>This is an report of contact issues for constituents your portfolio.
-                             <p>Please contact Sky or Kathleen if you have any questions.
-                             <p>Sincerely,
-                             <p>Sky's computer",
-                             html = TRUE,
-                             attach.files = filename,
-                             file.names = paste0("contact_report_",Sys.Date(),".xlsx"))
-
+  send_xlsx(table = table,
+            subject = paste("Contact warning report for",Sys.Date()),
+            emails = c(config::get("tessiflow.email"), email),
+            body = "<p>Hi,
+                    <p>This is an report of contact issues for constituents your portfolio.
+                    <p>Please contact Sky or Kathleen if you have any questions.
+                    <p>Sincerely,
+                    <p>Sky's computer",
+            send = !dry_run,
+            file.names = paste0("contact_report_",Sys.Date(),".xlsx"))
 }
