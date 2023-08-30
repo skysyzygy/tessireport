@@ -4,21 +4,39 @@
 \alias{write_xlsx}
 \title{write_xlsx}
 \usage{
-write_xlsx(data, filename = tempfile("write_xlsx", fileext = ".xlsx"))
+write_xlsx(
+  data,
+  filename = tempfile("write_xlsx", fileext = ".xlsx"),
+  group = NULL,
+  currency = NULL,
+  ...
+)
 }
 \arguments{
 \item{data}{data to write to the spreadsheet}
 
 \item{filename}{filename to write}
+
+\item{group}{character name of column to be used for grouping/banding the data. Band color will change when column value changes.}
+
+\item{currency}{character vector of column to be used for grouping/banding the data. Band color will change when column value changes.}
+
+\item{...}{additional parameters, not currently used.}
 }
 \value{
 filename of written xlsx
 }
 \description{
-Convenience wrapper around \code{openxlsx::write.xlsx} to handle some common formatting
+Convenience wrapper around \code{openxlsx::write.xlsx} to handle some common formatting tasks:
 \itemize{
-\item column headers are title-cased and bolded
-\item column widths are calculated based on the string representations of the data
+\item Column headers are title-cased and bolded
+\item Column widths are calculated based on the string representations of the data
 \item Date columns are formatted as DATE instead of LONGDATE
+}
+
+And some optional additions:
+\itemize{
+\item Band columns by group
+\item Specify currency columns
 }
 }

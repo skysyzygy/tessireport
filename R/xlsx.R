@@ -1,25 +1,40 @@
 
 #' write_xlsx
 #'
-#' Convenience wrapper around `openxlsx::write.xlsx` to handle some common formatting
-#' - column headers are title-cased and bolded
-#' - column widths are calculated based on the string representations of the data
+#' @description
+#' Convenience wrapper around `openxlsx::write.xlsx` to handle some common formatting tasks:
+#' - Column headers are title-cased and bolded
+#' - Column widths are calculated based on the string representations of the data
 #' - Date columns are formatted as DATE instead of LONGDATE
+#'
+#' And some optional additions:
+#' - Band columns by group
+#' - Specify currency columns
 #'
 #' @param data data to write to the spreadsheet
 #' @param filename filename to write
+#' @param group character name of column to be used for grouping/banding the data. Band color will change when column value changes.
+#' @param currency character vector of column to be used for grouping/banding the data. Band color will change when column value changes.
+#' @param ... additional parameters, not currently used.
 #'
 #' @return filename of written xlsx
 #' @importFrom openxlsx createWorkbook addWorksheet writeData saveWorkbook
 #' @importFrom openxlsx addStyle createStyle setColWidths
 #' @importFrom purrr map_lgl map_int
 #' @importFrom lubridate is.Date is.POSIXct
-write_xlsx <- function(data, filename = tempfile("write_xlsx", fileext = ".xlsx")) {
+write_xlsx <- function(data, filename = tempfile("write_xlsx", fileext = ".xlsx"),
+                       group = NULL, currency = NULL, ...) {
   . <- NULL
+
+  if(!is.null(group))
+    expect_character(group, len = 1)
+  if(!is.null(currency))
+    expect_character(currency)
 
   wb <- createWorkbook()
   addWorksheet(wb, "Sheet 1")
 
+  old_colnames <- colnames(data)
   colnames(data) <-
     # snakecase to spaces
     gsub("_"," ",colnames(data)) %>%
@@ -34,6 +49,8 @@ write_xlsx <- function(data, filename = tempfile("write_xlsx", fileext = ".xlsx"
             rowNames = FALSE,
             headerStyle = createStyle(textDecoration = "bold"))
 
+  colnames(data) <- old_colnames
+
   # format date columns
   addStyle(wb,1,createStyle(numFmt = "DATE"),
            rows = 1:nrow(data) + 1,
@@ -45,6 +62,26 @@ write_xlsx <- function(data, filename = tempfile("write_xlsx", fileext = ".xlsx"
   col_widths <- map_int(data, ~max(c(nchar(format(.)),0),na.rm=T))
   colname_widths <- nchar(colnames(data))
   setColWidths(wb,1,seq_along(data),pmax(col_widths, colname_widths) + 3)
+
+  # banding groups
+  if(!is.null(group)) {
+    band_lengths <- rle(data[[group]])$lengths
+    banding <- Vectorize(rep.int)(c(T,F),band_lengths) %>% unlist
+    addStyle(wb, 1, createStyle(fgFill = "lightgray"),
+             rows = which(banding) + 1,
+             cols = 1:ncol(data),
+             gridExpand = TRUE,
+             stack = TRUE)
+  }
+
+  # currency columns
+  if(!is.null(currency)) {
+    addStyle(wb, 1, createStyle(numFmt = "CURRENCY"),
+             rows = 1:nrow(data) + 1,
+             cols = match(currency, colnames(data)),
+             gridExpand = TRUE,
+             stack = TRUE)
+  }
 
   openxlsx::saveWorkbook(wb, filename)
 

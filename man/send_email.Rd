@@ -13,15 +13,20 @@ send_email(
 )
 }
 \arguments{
-\item{subject}{email subject}
+\item{subject}{Subject of the email.}
 
-\item{body}{email body}
+\item{body}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
 
 \item{emails}{email addresses (first will be sender)}
 
-\item{smtp}{smtp configuration}
+\item{smtp}{A list of configuration parameters to establish and authorize a connection with the SMTP server. See details for the various parameters.}
 
-\item{...}{additional parameters sent on to \link[mailR:send.mail]{mailR::send.mail}}
+\item{...}{
+  Arguments passed on to \code{\link[mailR:send.mail]{mailR::send.mail}}
+  \describe{
+    \item{\code{html}}{A boolean indicating whether the body of the email should be parsed as HTML.}
+    \item{\code{attach.files}}{A character vector of paths in the file system linking to files or *valid* URLs to be attached to the email (see details for more info on attaching URLs)}
+  }}
 }
 \description{
 send_email

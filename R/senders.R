@@ -1,10 +1,8 @@
 #' send_email
 #'
-#' @param subject email subject
-#' @param body email body
 #' @param emails email addresses (first will be sender)
-#' @param smtp smtp configuration
-#' @param ... additional parameters sent on to [mailR::send.mail]
+#' @inheritParams mailR::send.mail
+#' @inheritDotParams mailR::send.mail html attach.files
 #' @importFrom checkmate assert_character test_character test_list
 #' @importFrom mailR send.mail
 #' @export
@@ -38,16 +36,10 @@ send_email <- function(subject, body,
 #'
 #' Simple wrapper for [send_email] and [write_xlsx]
 #'
+#' @inheritParams send_email
+#' @inheritParams write_xlsx
 #' @param table data.table to send
-#' @param emails character email addresses to send the email to (first will be sender as well)
-#' @param subject character subject of the email, default is the name of the `table` and the current date.
-#' @param body character body of the email, default is a human readable message indicating the computer name.
-#' If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.
-#' @param ... additional parameters to send on to [send_email] and then to [mailR::send.mail]
-#' @note Useful additional parameters include:
-#' * `html`: boolean indicating whether the body of the email should be parsed as HTML. Default is `TRUE`.
-#' * `inline`: boolean indicating whether images in the HTML file should be embedded inline.
-#' * `file.names`: character name of the filename to show in the email. The default is `<table_name>_<today's date>.xlsx`
+#' @inheritDotParams mailR::send.mail html inline
 #' @importFrom checkmate assert_data_table assert_character
 #' @export
 send_xlsx <- function(table,
@@ -57,13 +49,12 @@ send_xlsx <- function(table,
   assert_data_table(table)
   assert_character(emails, min.len = 1)
 
-  filename <- write_xlsx(table)
+  filename <- write_xlsx(table, ...)
 
-  args <- rlang::list2(...)
   args <- modifyList(list(subject = subject, body = body, emails = emails,
                           html = TRUE, attach.files = filename,
                           file.names = paste0(format(substitute(table)),"_",Sys.Date(),".xlsx")),
-                     args)
+                     rlang::list2(...))
 
   do.call(send_email,args)
 
