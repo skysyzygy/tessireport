@@ -72,6 +72,6 @@ test_that("run.p2_orphans_report determines the updatability of each row",{
   expect_equal(purrr::map_chr(mock_args(p2_resolve_orphan),1) %>% sort,p2_orphans$address %>% sort)
   expect_equal(purrr::map_chr(mock_args(p2_resolve_orphan),2) %>% sort,tessi_changed_emails$to %>% sort)
   expect_equal(purrr::map_lgl(mock_args(p2_resolve_orphan),"dry_run"),rep(T,nrow(p2_orphans)))
-  expect_equal(openxlsx::read.xlsx(xlsx)$can.be.Updated, rep(c(T,F),26))
+  expect_equal(openxlsx::read.xlsx(xlsx)$Can.be.Updated, rep(c(T,F),26))
 
 })

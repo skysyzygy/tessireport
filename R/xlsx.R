@@ -38,6 +38,7 @@ write_xlsx <- function(data, filename = tempfile("write_xlsx", fileext = ".xlsx"
   addStyle(wb,1,createStyle(numFmt = "DATE"),
            rows = 1:nrow(data) + 1,
            cols = which(map_lgl(data, ~is.Date(.))),
+           gridExpand = TRUE,
            stack = TRUE)
 
   # calculate column widths
