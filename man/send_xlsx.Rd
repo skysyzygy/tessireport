@@ -6,7 +6,7 @@
 \usage{
 send_xlsx(
   table,
-  subject = paste(substitute(table), Sys.Date()),
+  subject = paste(format(substitute(table)), Sys.Date()),
   body = paste("Sent by", Sys.info()["nodename"]),
   emails = config::get("tessiflow.email"),
   dry_run = FALSE,
@@ -18,17 +18,23 @@ send_xlsx(
 
 \item{subject}{character subject of the email, default is the name of the \code{table} and the current date.}
 
-\item{body}{character body of the email, default is a human readable message indicating the computer name.}
+\item{body}{character body of the email, default is a human readable message indicating the computer name.
+If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
+
+\item{emails}{character email addresses to send the email to (first will be sender as well)}
 
 \item{dry_run}{boolean do not send the email if TRUE}
 
 \item{...}{additional parameters to send on to \link{send_email} and then to \link[mailR:send.mail]{mailR::send.mail}}
-
-\item{email}{character email addresses to send the email to (first will be sender as well)}
 }
 \description{
 Simple wrapper for \link{send_email} and \link{write_xlsx}
 }
 \note{
-Useful parameters are \code{subject}, \code{body}, \code{emails}, \code{html}, \code{inline}, and \code{file.names}
+Useful additional parameters include:
+\itemize{
+\item \code{html}: boolean indicating whether the body of the email should be parsed as HTML. Default is \code{TRUE}.
+\item \code{inline}: boolean indicating whether images in the HTML file should be embedded inline.
+\item \code{file.names}: character name of the filename to show in the email. The default is \verb{<table_name>_<today's date>.xlsx}
+}
 }

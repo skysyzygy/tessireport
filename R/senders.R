@@ -39,16 +39,20 @@ send_email <- function(subject, body,
 #' Simple wrapper for [send_email] and [write_xlsx]
 #'
 #' @param table data.table to send
-#' @param email character email addresses to send the email to (first will be sender as well)
+#' @param emails character email addresses to send the email to (first will be sender as well)
 #' @param subject character subject of the email, default is the name of the `table` and the current date.
 #' @param body character body of the email, default is a human readable message indicating the computer name.
+#' If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.
 #' @param dry_run boolean do not send the email if TRUE
 #' @param ... additional parameters to send on to [send_email] and then to [mailR::send.mail]
-#' @note Useful parameters are `subject`, `body`, `emails`, `html`, `inline`, and `file.names`
+#' @note Useful additional parameters include:
+#' * `html`: boolean indicating whether the body of the email should be parsed as HTML. Default is `TRUE`.
+#' * `inline`: boolean indicating whether images in the HTML file should be embedded inline.
+#' * `file.names`: character name of the filename to show in the email. The default is `<table_name>_<today's date>.xlsx`
 #' @importFrom checkmate assert_data_table assert_character
 #' @export
 send_xlsx <- function(table,
-                      subject = paste(substitute(table), Sys.Date()),
+                      subject = paste(format(substitute(table)), Sys.Date()),
                       body = paste("Sent by",Sys.info()["nodename"]),
                       emails = config::get("tessiflow.email"),
                       dry_run = FALSE, ...) {
@@ -60,7 +64,7 @@ send_xlsx <- function(table,
   args <- rlang::list2(...)
   args <- modifyList(list(subject = subject, body = body, emails = emails,
                           html = TRUE, attach.files = filename,
-                          file.names = paste0(substitute(table),"_",Sys.Date(),".xlsx")),
+                          file.names = paste0(format(substitute(table)),"_",Sys.Date(),".xlsx")),
                      args)
 
   do.call(send_email,args)
