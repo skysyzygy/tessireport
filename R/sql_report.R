@@ -2,19 +2,19 @@
 #'
 #' Report that wraps the functionality of [tessilake::read_sql] and [send_xlsx]
 #'
-#' @param report unsubscribe_report object
+#' @param report sql_report object
 #' @param ... not used
-#' @param customers integer vector of customer numbers to load
-#' @name unsubscribe_report
+#' @name sql_report
 
-unsubscribe_report <- new_report(class="unsubscribe_report")
+sql_report <- new_report(class="sql_report")
 
-#' @describeIn unsubscribe_report reads unsubscribe_report data
-#' Loads data from
+#' @describeIn sql_report reads sql_report data
+#' Loads data from sql
 #' * p2: unsubscribes and hard bounces by list (uses p2_stream_enriched from tessistream)
 #' * tessi: emails, addresses, logins, memberships, constituencies, MGOs (attributes)
-#' @importFrom checkmate assert_class assert_integerish
-#' @importFrom tessilake read_cache read_tessi
-#' @importFrom dplyr filter collect
-#' @importFrom data.table setDT
+#' @importFrom tessilake read_sql
 #' @export
+read.sql_report <- function(query) {
+  expect_character(query, len = 1)
+
+}
