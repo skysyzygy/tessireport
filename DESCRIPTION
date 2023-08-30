@@ -22,7 +22,11 @@ Imports:
     config,
     data.table,
     dplyr,
+    ggplot2,
+    lubridate,
     magrittr,
+    mailR,
+    openxlsx,
     purrr,
     tessilake,
     tessistream
