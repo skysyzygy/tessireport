@@ -10,14 +10,14 @@ p2_orphans_report <- new_report(class="p2_orphans_report")
 #' @importFrom lubridate ddays
 #' @importFrom grDevices dev.off png
 #' @importFrom tessilake tessi_customer_no_map
-#' @importFrom tessistream p2_orphans tessi_changed_emails
+#' @importFrom tessistream p2_orphans tessi_changed_emails p2_resolve_orphan
 #' @importFrom purrr map
 #' @importFrom dplyr coalesce
-#' @describeIn p2_orphans_report runs the p2_orphans_report
 #' @param report sql_report object
 #' @param freshness difftime,	the returned data will be at least this fresh
 #' @param ... not used
 #' @export
+#' @describeIn p2_orphans_report runs the p2_orphans_report
 run.p2_orphans_report <- function(report, freshness = 0, ...) {
   . <- type <- timestamp <- id <- from <- to <- customer_no.x <- expr_dt <- memb_level <-
     last_updated_by <- customer_no <- i.customer_no <- NULL
