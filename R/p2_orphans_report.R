@@ -1,5 +1,5 @@
 #' @export
-p2_orphans_report <- new_report(class="p2_orphans_report")
+p2_orphans_report <- report(class="p2_orphans_report")
 
 #' p2_orphans_report
 #'

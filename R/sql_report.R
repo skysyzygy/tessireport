@@ -20,7 +20,7 @@
 run.sql_report <- process.sql_report <- write.sql_report <-  function(sql_report, ...) NextMethod()
 
 #' @export
-sql_report <- new_report(class="sql_report")
+sql_report <- report(class="sql_report")
 
 #' @describeIn sql_report reads sql_report data
 #' @param query character sql query to generate the report

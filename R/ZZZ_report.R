@@ -10,7 +10,7 @@
 #' @name report
 #' @export
 #'
-new_report = function(x = list(),class=character()) {
+report = function(x = list(),class=character()) {
   stopifnot(is.list(x))
   structure(x, class=c(class,"report",class(x)))
 }

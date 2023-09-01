@@ -2,7 +2,6 @@
 % Please edit documentation in R/ZZZ_report.R
 \name{report}
 \alias{report}
-\alias{new_report}
 \alias{is_report}
 \alias{read}
 \alias{read.report}
@@ -17,7 +16,7 @@
 \alias{run.report}
 \title{report}
 \usage{
-new_report(x = list(), class = character())
+report(x = list(), class = character())
 
 is_report(x)
 

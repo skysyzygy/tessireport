@@ -1,5 +1,5 @@
 #' @export
-unsubscribe_report <- new_report(class="unsubscribe_report")
+unsubscribe_report <- report(class="unsubscribe_report")
 
 #' unsubscribe_report
 #'
