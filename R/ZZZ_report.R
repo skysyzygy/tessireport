@@ -17,7 +17,8 @@ new_report = function(x = list(),class=character()) {
 
 default_function <- function(fun_name) {
   function(x, ...) {
-    warning(paste0("No ",fun_name," function defined for object of class (",paste(class(x),collapse = ", "),"), doing nothing"))
+    if(!"NextMethod" %in% sapply(rlang::trace_back()$call,rlang::call_name))
+      warning(paste0("No `",fun_name,"` function defined for object of class (",paste(class(x),collapse = ", "),"), doing nothing"))
     x
   }
 }

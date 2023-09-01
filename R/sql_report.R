@@ -17,7 +17,7 @@
 #'  )
 #' }
 #' @export
-run.sql_report <- function(sql_report, ...) NextMethod()
+run.sql_report <- process.sql_report <- write.sql_report <-  function(sql_report, ...) NextMethod()
 
 #' @export
 sql_report <- new_report(class="sql_report")
@@ -40,7 +40,7 @@ read.sql_report <- function(sql_report, query, ...) {
 
   sql_report$data <- do.call(read_sql,args) %>% collect
 
-  sql_report
+  NextMethod()
 }
 
 
@@ -55,9 +55,6 @@ output.sql_report <- function(sql_report, query, ...) {
     send_xlsx(table = sql_report, ...)
   })
 
-  sql_report
+  NextMethod()
 }
-
-process.sql_report <- write.sql_report <- function(x,...) x
-
 
