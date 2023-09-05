@@ -49,7 +49,7 @@ send_xlsx <- function(table,
   assert_data_table(table)
   assert_character(emails, min.len = 1)
 
-  filename <- write_xlsx(table, ...)
+  filename <- write_xlsx(table)
 
   args <- modifyList(list(subject = subject, body = body, emails = emails,
                           html = TRUE, attach.files = filename,

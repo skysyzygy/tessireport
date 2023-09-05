@@ -9,7 +9,7 @@ write_xlsx(
   filename = tempfile("write_xlsx", fileext = ".xlsx"),
   group = NULL,
   currency = NULL,
-  ...
+  overwrite = FALSE
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ write_xlsx(
 
 \item{currency}{character vector of column to be used for grouping/banding the data. Band color will change when column value changes.}
 
-\item{...}{additional parameters, not currently used.}
+\item{overwrite}{If \code{TRUE}, overwrite any existing file.}
 }
 \value{
 filename of written xlsx
