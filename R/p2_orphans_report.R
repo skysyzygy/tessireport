@@ -25,14 +25,18 @@ run.p2_orphans_report <- function(p2_orphans_report, freshness = 0, ...) {
   tessi_emails <- tessi_changed_emails(since = 0, freshness = freshness)
   customer_no_map <- tessi_customer_no_map(freshness = freshness)
 
-  # last change from `from`
-  p2_orphan_events <- tessi_emails[p2_orphans,on=c("from"="address")] %>%
-    .[,customer_no := coalesce(customer_no, i.customer_no)] %>%
-    merge(customer_no_map, by = "customer_no", suffixes = c(".tessi_emails",""))
+  if(nrow(p2_orphans) > 0 && nrow(tessi_emails) > 0) {
+    # last change from `from`
+    p2_orphan_events <- tessi_emails[p2_orphans,on=c("from"="address")] %>%
+      .[,customer_no := coalesce(customer_no, i.customer_no)] %>%
+      merge(customer_no_map, by = "customer_no", suffixes = c(".tessi_emails",""))
 
-  p2_orphan_events[,type:=case_when(trimws(last_updated_by) %in% c("popmulti","addage") ~ "web",
-                                    trimws(last_updated_by) %in% c("sqladmin","sa") ~ "merge",
-                                    TRUE ~ "client") %>% forcats::fct_infreq()]
+    p2_orphan_events[,type:=case_when(trimws(last_updated_by) %in% c("popmulti","addage") ~ "web",
+                                      trimws(last_updated_by) %in% c("sqladmin","sa") ~ "merge",
+                                      TRUE ~ "client")]
+  } else {
+    p2_orphan_events <- data.table(timestamp = lubridate::POSIXct(), group_customer_no = integer())
+  }
 
   png(image_file <- tempfile(fileext = ".png"))
   ggplot(p2_orphan_events[timestamp>'2022-08-01']) +
@@ -42,8 +46,6 @@ run.p2_orphans_report <- function(p2_orphans_report, freshness = 0, ...) {
     scale_fill_brewer(type="qual") +
     theme_minimal() -> p
 
-
-
   print(p)
   dev.off()
 
@@ -52,30 +54,27 @@ run.p2_orphans_report <- function(p2_orphans_report, freshness = 0, ...) {
 
   p2_orphan_events <- merge(p2_orphan_events,memberships,all.x=T,by="group_customer_no",suffixes=c("",".memberships"))
 
-  can_be_updated <- p2_orphan_events %>% split(1:nrow(.)) %>%
+  can_be_updated <- p2_orphan_events %>% split(seq_len(nrow(.))) %>%
     map(~p2_resolve_orphan(.$from, .$to, customer_no = .$customer_no, dry_run = TRUE))
 
-
-  xlsx_file <- write_xlsx(p2_orphan_events[,.(
-    timestamp = as.Date(timestamp),
-    "customer_#" = customer_no,
-    p2_id = id,
-    from_email = from,
-    to_email = to,
-    expiration_date = as.Date(expr_dt),
-    member_level = memb_level,
-    can_be_updated,
-    change_type = type,
-    last_updated_by
-  )],
-  xlsx_file <- tempfile(fileext = ".xlsx"))
   writeLines(paste0("<img src='",image_file,"'>"), html_file <- tempfile())
 
-  send_email(
+  send_xlsx(
+    table = p2_orphan_events[,.(
+      timestamp = as.Date(timestamp),
+      "customer_#" = customer_no,
+      p2_id = id,
+      from_email = from,
+      to_email = to,
+      expiration_date = as.Date(expr_dt),
+      member_level = memb_level,
+      can_be_updated,
+      change_type = type,
+      last_updated_by
+    )],
     subject = paste("P2 Orphan Report :",lubridate::today()),
     body = html_file,
     emails = "ssyzygy@bam.org",
-    attach.files = xlsx_file,
     html = TRUE,
     file.names = paste0("p2_ophan_report_",lubridate::today(),".xlsx"),
     inline = TRUE

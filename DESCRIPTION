@@ -22,7 +22,6 @@ Imports:
     config,
     data.table,
     dplyr,
-    forcats,
     ggplot2,
     lubridate,
     magrittr,
