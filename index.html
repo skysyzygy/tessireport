@@ -22,7 +22,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
     
     <a class="navbar-brand me-2" href="index.html">tessireport</a>
 
@@ -35,6 +35,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-packages">R Packages</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-r-packages">
+    <a class="dropdown-item" href>data @ BAM</a>
+    <a class="external-link dropdown-item" href="https://github.com/skysyzygy/tessireport">tessireport</a>
+    <a class="dropdown-item" href>tessistream</a>
+    <a class="external-link dropdown-item" href="https://github.com/skysyzygy/tessilake">tessilake</a>
+    <a class="dropdown-item" href>tessiflow</a>
+  </div>
+</li>
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
@@ -58,8 +68,7 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="tessireport">tessireport<a class="anchor" aria-label="anchor" href="#tessireport"></a>
-</h1></div>
+
 <!-- badges: start -->
 
 <p>tessireport is a set of scripts for data hygiene in Tessitura, using data queried and cached by tessilake and processed by tessistream.</p>
@@ -91,22 +100,6 @@
 </ul>
 </div>
 
-<div class="license">
-<h2 data-toc-skip>License</h2>
-<ul class="list-unstyled">
-<li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
-</ul>
-</div>
-
-
-<div class="citation">
-<h2 data-toc-skip>Citation</h2>
-<ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing tessireport</a></li>
-</ul>
-</div>
-
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
@@ -119,6 +112,13 @@
 <ul class="list-unstyled">
 <li><a href="https://codecov.io/gh/skysyzygy/tessireport?branch=master" class="external-link"><img src="https://codecov.io/gh/skysyzygy/tessireport/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://github.com/skysyzygy/tessireport/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/skysyzygy/tessireport/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+</ul>
+</div>
+
+<div class="table-of-contents">
+<h2 data-toc-skip>Table of contents</h2>
+<ul class="list-unstyled">
+<li><nav id="toc"></nav></li>
 </ul>
 </div>
 
@@ -141,7 +141,14 @@
 
   
 
-  
+  <script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: false });
+  mermaid.run({
+    querySelector: '.mermaid code',
+  });
 
-  </body>
+  jQuery("pre.mermaid code").on("click", (e) => jQuery(e.currentTarget).toggleClass("svg-modal"))
+</script>
+</body>
 </html>
