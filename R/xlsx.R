@@ -15,6 +15,7 @@
 #' @param filename filename to write
 #' @param group character name of column to be used for grouping/banding the data. Band color will change when column value changes.
 #' @param currency character vector of column to be used for grouping/banding the data. Band color will change when column value changes.
+#' @param ... not used
 #' @inheritParams openxlsx::saveWorkbook
 #'
 #' @return filename of written xlsx
@@ -23,7 +24,7 @@
 #' @importFrom purrr map_lgl map_int
 #' @importFrom lubridate is.Date is.POSIXct
 write_xlsx <- function(data, filename = tempfile("write_xlsx", fileext = ".xlsx"),
-                       group = NULL, currency = NULL, overwrite = FALSE) {
+                       group = NULL, currency = NULL, overwrite = FALSE, ...) {
   . <- NULL
 
   if(!is.null(group))
