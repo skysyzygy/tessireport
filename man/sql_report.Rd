@@ -17,7 +17,7 @@
 \item{sql_report}{sql_report object}
 
 \item{...}{
-  Arguments passed on to \code{\link[tessilake:read_sql]{tessilake::read_sql}}, \code{\link[=send_xlsx]{send_xlsx}}, \code{\link[mailR:send.mail]{mailR::send.mail}}
+  Arguments passed on to \code{\link[tessilake:read_sql]{tessilake::read_sql}}, \code{\link[=send_xlsx]{send_xlsx}}, \code{\link[=write_xlsx]{write_xlsx}}, \code{\link[mailR:send.mail]{mailR::send.mail}}
   \describe{
     \item{\code{primary_keys}}{character vector, primary keys of the table. \code{read_sql_table} will attempt to identify the primary keys using
 SQL metadata.}
@@ -25,6 +25,8 @@ SQL metadata.}
     \item{\code{emails}}{email addresses (first will be sender)}
     \item{\code{subject}}{Subject of the email.}
     \item{\code{body}}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
+    \item{\code{group}}{character name of column to be used for grouping/banding the data. Band color will change when column value changes.}
+    \item{\code{currency}}{character vector of column to be used for grouping/banding the data. Band color will change when column value changes.}
     \item{\code{html}}{A boolean indicating whether the body of the email should be parsed as HTML.}
     \item{\code{inline}}{A boolean indicating whether images in the HTML file should be embedded inline.}
   }}

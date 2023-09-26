@@ -22,10 +22,12 @@ send_xlsx(
 \item{emails}{email addresses (first will be sender)}
 
 \item{...}{
-  Arguments passed on to \code{\link[mailR:send.mail]{mailR::send.mail}}
+  Arguments passed on to \code{\link[mailR:send.mail]{mailR::send.mail}}, \code{\link[=write_xlsx]{write_xlsx}}
   \describe{
     \item{\code{html}}{A boolean indicating whether the body of the email should be parsed as HTML.}
     \item{\code{inline}}{A boolean indicating whether images in the HTML file should be embedded inline.}
+    \item{\code{group}}{character name of column to be used for grouping/banding the data. Band color will change when column value changes.}
+    \item{\code{currency}}{character vector of column to be used for grouping/banding the data. Band color will change when column value changes.}
   }}
 }
 \description{

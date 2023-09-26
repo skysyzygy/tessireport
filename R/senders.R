@@ -40,6 +40,7 @@ send_email <- function(subject, body,
 #' @inheritParams write_xlsx
 #' @param table data.table to send
 #' @inheritDotParams mailR::send.mail html inline
+#' @inheritDotParams write_xlsx group currency
 #' @importFrom checkmate assert_data_table assert_character
 #' @export
 send_xlsx <- function(table,
@@ -49,13 +50,13 @@ send_xlsx <- function(table,
   assert_data_table(table)
   assert_character(emails, min.len = 1)
 
-  filename <- write_xlsx(table)
+  filename <- write_xlsx(table, ...)
 
-  args <- modifyList(list(subject = subject, body = body, emails = emails,
+  send_email_args <- modifyList(list(subject = subject, body = body, emails = emails,
                           html = TRUE, attach.files = filename,
                           file.names = paste0(format(substitute(table)),"_",Sys.Date(),".xlsx")),
                      rlang::list2(...))
 
-  do.call(send_email,args)
+  do.call(send_email,send_email_args)
 
 }
