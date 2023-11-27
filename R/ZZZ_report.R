@@ -72,9 +72,16 @@ run = function(...) UseMethod("run")
 #' @export
 #' @describeIn report run all methods in order: read -> process -> output -> write
 run.report = function(x,...) {
-  x %>%
+  tryCatch(x %>%
     read(...) %>%
     process(...) %>%
     output(...) %>%
-    write(...)
+    write(...),
+    error = \(e) {
+      if(rlang::call_name(e$call) == "UseMethod")
+        rlang::abort(c("Did you forget to return a `report` object from `read`, `process`, `output` or `write`?",
+                       "Hint: you can use NextMethod() to work with inherited methods as well."),
+                     parent = e)
+      rlang::cnd_signal(e)
+    })
 }
