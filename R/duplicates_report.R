@@ -27,20 +27,23 @@ read.duplicates_report <- function(duplicates_report, ...) {
 #' @inheritDotParams send_xlsx body
 #' @importFrom checkmate assert_list
 output.duplicates_report <- function(duplicates_report, routing = NULL, ...) {
-  customer_no <- i.customer_no <- NULL
+  keep_customer_no <- delete_customer_no <- NULL
 
-  assert_list(routing, types = "integerish", any.missing = FALSE, names = "unique")
+  assert_list(routing, types = "integerish", any.missing = FALSE)
 
   purrr::imap(routing, \(customer_nos, email) {
 
-    duplicates <- duplicates_report$data[customer_no %in% customer_nos |
-                                         i.customer_no %in% customer_nos,]
-    setcolorder(duplicates, c("customer_no","i.customer_no",
+    duplicates <- duplicates_report$data[keep_customer_no %in% customer_nos |
+                                         delete_customer_no %in% customer_nos,]
+    setcolorder(duplicates, c("keep_customer_no","delete_customer_no",
+                              "keep_reason",
                               "fname","lname"))
 
+    duplicates[,c("customer_no","i.customer_no") := NULL]
+
     setnames(duplicates,
-             c("customer_no","i.customer_no","fname","lname"),
-             c("customer_no_1","customer_no_2","first_name","last_name"))
+             c("fname","lname"),
+             c("first_name","last_name"))
 
     if(nrow(duplicates) > 0)
       rlang::inform(paste("Sending email to",email,"with",nrow(duplicates),
