@@ -37,7 +37,7 @@ read.unsubscribe_report <- function(unsubscribe_report, customers, ...) {
   assert_integerish(customers)
 
   # load email/unsubscribe data
-  unsubscribe_report$email_events <- read_cache("p2_stream_enriched","deep","stream")
+  unsubscribe_report$email_events <- read_cache("p2_stream_enriched","stream")
   unsubscribe_report$emails <- read_tessi("emails")
 
   # load address data
@@ -86,7 +86,7 @@ process.unsubscribe_report <- function(unsubscribe_report, ...) {
   # Email issues
   primary_emails <- unsubscribe_report$emails[primary_ind == "Y"]
   latest_email_events <- setkey(unsubscribe_report$email_events,customer_no,timestamp) %>%
-                               .[event_subtype != c("Open","Click"), .SD[.N],
+                               .[!event_subtype %in% c("Open","Click","Send"), .SD[.N],
                                  by = list(customer_no, ifelse(event_subtype == "Unsubscribe", listid, NA)),
                                  .SDcols = colnames(unsubscribe_report$email_events)]
   bad_emails <- rbind(latest_email_events[grepl("Unsub", event_subtype),
@@ -124,7 +124,8 @@ process.unsubscribe_report <- function(unsubscribe_report, ...) {
     left_join(latest_memberships[,.(customer_no, memb_level, expr_dt)], by = "customer_no") %>%
     left_join(MGOs, by = "customer_no") %>%
     left_join(constituencies, by = "customer_no") %>%
-    left_join(name, by = "customer_no")
+    left_join(name, by = "customer_no") %>%
+    left_join(primary_emails[,.(customer_no, email = address)], by = "customer_no")
 
   unsubscribe_report
 
@@ -163,25 +164,21 @@ output.unsubscribe_report <- function(unsubscribe_report, since = Sys.Date() - 3
 
   assert_class(unsubscribe_report, "unsubscribe_report")
 
-  filtered_report <- unsubscribe_report$report[between(timestamp, since, until) | between(expr_dt, since, until),
-                                   .(`Tessi #`=customer_no, name, message, timestamp, memb_level, expr_dt, MGOs, constituencies, .I)]
+  filtered_report <- unsubscribe_report$report[between(timestamp, since, until) | between(expr_dt, since, until) |
+                                                 is.na(timestamp),
+                                   .(`Tessi #`=customer_no, name, email, message, timestamp, memb_level,
+                                     expr_dt, MGOs, constituencies, .I)]
 
   ### Routing rules
-  domain_name <- strsplit(config::get("tessiflow.email"),"@",fixed = TRUE)[[1]][2]
-
-  # match MGOs with userids in Tessi
-  mgo_routing <- read_sql("select userid, fname, lname from T_METUSER where inactive = 'N'") %>% collect %>% lapply(trimws) %>% setDT %>%
-    .[,.(I = grep(paste0(fname,".+",lname),filtered_report$MGOs)),
-      by=list(email = paste0(userid,"@",domain_name))]
-
-  # apply the routing rules
   routing_rules <- substitute(routing_rules) # needed to strip environment information from the formula
-  constituency_routing <- filtered_report[!I %in% mgo_routing$I, .(email = unlist(case_when(!!!eval(routing_rules)))), by = I]
+  constituency_routing <- filtered_report[,.(send_to_email = unlist(case_when(!!!eval(routing_rules)))), by = I]
 
-  filtered_report <- filtered_report[rbind(mgo_routing,constituency_routing), on = "I"]
+  filtered_report <- filtered_report[constituency_routing, on = "I"]
 
-  split(filtered_report, by = "email", keep.by = FALSE) %>%
+  split(filtered_report, by = "send_to_email", keep.by = FALSE) %>%
     purrr::iwalk(send_unsubscribe_report_table)
+
+  unsubscribe_report
 
 }
 
@@ -194,10 +191,10 @@ output.unsubscribe_report <- function(unsubscribe_report, since = Sys.Date() - 3
 #' @importFrom checkmate assert_data_table assert_character
 send_unsubscribe_report_table <- function(table, email) {
   send_xlsx(table = table,
-            subject = paste("Contact warning unsubscribe_report for",Sys.Date()),
+            subject = paste("Contact warning report for",Sys.Date()),
             emails = c(config::get("tessiflow.email"), email),
             body = "<p>Hi,
-                    <p>This is an unsubscribe_report of contact issues for constituents your portfolio.
+                    <p>This is a report of contact issues for constituents your portfolio.
                     <p>Please contact Sky or Kathleen if you have any questions.
                     <p>Sincerely,
                     <p>Sky's computer",
