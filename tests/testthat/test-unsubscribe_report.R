@@ -123,7 +123,7 @@ test_that("process.unsubscribe_report has one row per issue", {
   expect_equal(report$report[,.N],9) # 4 bad emails, 1 missing, 1 bad mailing address, 1 missing, 1 bad login, 1 inactive.
 })
 
-test_that("process.unsubscribe_report includes timestamp, membership, MGO, name, and constituency data", {
+test_that("process.unsubscribe_report includes timestamp, membership, MGO, name, email, and constituency data", {
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
@@ -131,7 +131,7 @@ test_that("process.unsubscribe_report includes timestamp, membership, MGO, name,
   report <- process(report)
 
   expect_names(colnames(report$report), permutation.of = c("message", "timestamp", "memb_level", "expr_dt", "customer_no", "MGOs",
-                                                           "name", "constituencies"))
+                                                           "name", "constituencies", "email"))
   expect_false(any(sapply(report$report,\(x) all(is.na(x)))))
 })
 
@@ -161,26 +161,16 @@ test_that("output.unsubscribe_report filters based on since and until", {
 
 })
 
-test_that("output.unsubscribe_report routes based on MGO and constituency", {
+test_that("output.unsubscribe_report routes based on constituency", {
   stub(read.unsubscribe_report, "read_cache", fixture[[1]])
   stub(read.unsubscribe_report, "read_tessi", do.call(mock,fixture[-1]))
 
   send_unsubscribe_report_table <- mock(cycle = TRUE)
   stub(output.unsubscribe_report, "send_unsubscribe_report_table", send_unsubscribe_report_table)
-  stub(output.unsubscribe_report, "read_sql", data.table(fname = "Ima", lname = "MGO", userid = "imgo"))
 
   report <- read(unsubscribe_report, customers) %>% process(report)
   nrows <- nrow(report$report)
   report$report$timestamp <- Sys.time()
-  report$report$MGOs <- c("Ima MGO", rep(NA, nrows - 1))
-
-  output(report)
-  expect_length(mock_args(send_unsubscribe_report_table), 2)
-  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[1]][[1]]), 1)
-  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[2]][[1]]), nrows - 1)
-  expect_equal(mock_args(send_unsubscribe_report_table)[[1]][[2]], "imgo@bam.org")
-  expect_equal(mock_args(send_unsubscribe_report_table)[[2]][[2]], "ssyzygy@bam.org")
-
   report$report$constituencies <- c("a", "b", "c", rep(NA, nrows - 3))
 
   output(report, routing_rules = list(constituencies == "a" ~ list("person_a"),
@@ -188,14 +178,14 @@ test_that("output.unsubscribe_report routes based on MGO and constituency", {
                                       constituencies == "c" ~ list("person_c"),
                                       TRUE ~ list("default")))
 
-  expect_length(mock_args(send_unsubscribe_report_table), 6)
-  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[3]][[1]]), 1)
-  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[4]][[1]]), 1)
-  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[5]][[1]]), 2)
-  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[6]][[1]]), nrows - 3)
-  expect_equal(mock_args(send_unsubscribe_report_table)[[3]][[2]], "imgo@bam.org")
-  expect_equal(mock_args(send_unsubscribe_report_table)[[4]][[2]], "person_b")
-  expect_equal(mock_args(send_unsubscribe_report_table)[[5]][[2]], "person_c")
-  expect_equal(mock_args(send_unsubscribe_report_table)[[6]][[2]], "default")
+  expect_length(mock_args(send_unsubscribe_report_table), 4)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[1]][[1]]), 1)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[2]][[1]]), 1)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[3]][[1]]), 2)
+  expect_equal(nrow(mock_args(send_unsubscribe_report_table)[[4]][[1]]), nrows - 3)
+  expect_equal(mock_args(send_unsubscribe_report_table)[[1]][[2]], "person_a")
+  expect_equal(mock_args(send_unsubscribe_report_table)[[2]][[2]], "person_b")
+  expect_equal(mock_args(send_unsubscribe_report_table)[[3]][[2]], "person_c")
+  expect_equal(mock_args(send_unsubscribe_report_table)[[4]][[2]], "default")
 
 })

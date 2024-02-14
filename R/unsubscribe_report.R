@@ -171,11 +171,11 @@ output.unsubscribe_report <- function(unsubscribe_report, since = Sys.Date() - 3
 
   ### Routing rules
   routing_rules <- substitute(routing_rules) # needed to strip environment information from the formula
-  constituency_routing <- filtered_report[,.(send_to_email = unlist(case_when(!!!eval(routing_rules)))), by = I]
+  constituency_routing <- filtered_report[,.(routing_email = unlist(case_when(!!!eval(routing_rules)))), by = I]
 
   filtered_report <- filtered_report[constituency_routing, on = "I"]
 
-  split(filtered_report, by = "send_to_email", keep.by = FALSE) %>%
+  split(filtered_report, by = "routing_email", keep.by = FALSE) %>%
     purrr::iwalk(send_unsubscribe_report_table)
 
   unsubscribe_report
