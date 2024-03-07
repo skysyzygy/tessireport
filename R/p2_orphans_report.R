@@ -54,8 +54,8 @@ run.p2_orphans_report <- function(p2_orphans_report, freshness = 0, ...) {
 
   p2_orphan_events <- merge(p2_orphan_events,memberships,all.x=T,by="group_customer_no",suffixes=c("",".memberships"))
 
-  can_be_updated <- p2_orphan_events %>% split(seq_len(nrow(.))) %>%
-    map(~p2_resolve_orphan(.$from, .$to, customer_no = .$customer_no, dry_run = TRUE))
+  has_been_updated <- p2_orphan_events %>% split(seq_len(nrow(.))) %>%
+    map(~p2_resolve_orphan(.$from, .$to, customer_no = .$customer_no, dry_run = FALSE))
 
   writeLines(paste0("<img src='",image_file,"'>"), html_file <- tempfile())
 
@@ -68,7 +68,7 @@ run.p2_orphans_report <- function(p2_orphans_report, freshness = 0, ...) {
       to_email = to,
       expiration_date = as.Date(expr_dt),
       member_level = memb_level,
-      can_be_updated,
+      has_been_updated,
       change_type = type,
       last_updated_by
     )],

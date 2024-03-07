@@ -67,14 +67,14 @@ test_that("run.p2_orphans_report creates a spreadsheet with one row per orphan a
 })
 
 
-test_that("run.p2_orphans_report determines the updatability of each row",{
+test_that("run.p2_orphans_report attempts to resolve each row and saves the result",{
 
   expect_equal(purrr::map_chr(mock_args(p2_resolve_orphan),1) %>% sort,p2_orphans$address %>% sort)
   expect_equal(purrr::map_chr(mock_args(p2_resolve_orphan),2) %>% sort,tessi_changed_emails$to %>% sort)
-  expect_equal(purrr::map_lgl(mock_args(p2_resolve_orphan),"dry_run"),rep(T,nrow(p2_orphans)))
+  expect_equal(purrr::map_lgl(mock_args(p2_resolve_orphan),"dry_run"),rep(F,nrow(p2_orphans)))
 
   report <- mock_args(send_xlsx)[[1]][["table"]]
-  expect_equal(report[,can_be_updated], as.list(rep(c(T,F),26)))
+  expect_equal(report[,has_been_updated], as.list(rep(c(T,F),26)))
 
 })
 
