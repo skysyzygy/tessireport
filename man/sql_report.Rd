@@ -22,6 +22,8 @@
     \item{\code{primary_keys}}{character vector, primary keys of the table. \code{read_sql_table} will attempt to identify the primary keys using
 SQL metadata.}
     \item{\code{freshness}}{the returned data will be at least this fresh}
+    \item{\code{basename}}{name of the file to use in the email. Defaults to the name of the table.
+A timestamp and extension will be appended and passed on to \code{mailR::send.mail} as \code{file.names}}
     \item{\code{emails}}{email addresses (first will be sender)}
     \item{\code{subject}}{Subject of the email.}
     \item{\code{body}}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
