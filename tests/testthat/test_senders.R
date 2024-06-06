@@ -62,12 +62,12 @@ test_that("send_xlsx calls send_email with the specified args", {
 
 
   send_xlsx(a_table, subject = "subject", body = "body", emails = "me@me.com",
-            file.names = "a_table.xlsx")
+            basename = "b_table")
   expect_equal(mock_args(send_email)[[2]][["subject"]],"subject")
   expect_equal(mock_args(send_email)[[2]][["body"]],"body")
   expect_equal(mock_args(send_email)[[2]][["emails"]],"me@me.com")
   expect_equal(mock_args(send_email)[[2]][["html"]],TRUE)
   expect_match(mock_args(send_email)[[2]][["attach.files"]],"\\.xlsx$")
-  expect_match(mock_args(send_email)[[2]][["file.names"]],paste0("a_table.xlsx"))
+  expect_match(mock_args(send_email)[[2]][["file.names"]],paste0("b_table_",Sys.Date(),".xlsx"))
 
 })
