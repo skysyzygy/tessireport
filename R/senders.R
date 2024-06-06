@@ -39,6 +39,8 @@ send_email <- function(subject, body,
 #' @inheritParams send_email
 #' @inheritParams write_xlsx
 #' @param table data.table to send
+#' @param basename name of the file to use in the email. Defaults to the name of the table.
+#' A timestamp and extension will be appended and passed on to `mailR::send.mail` as `file.names`
 #' @inheritDotParams mailR::send.mail html inline
 #' @inheritDotParams write_xlsx group currency
 #' @importFrom checkmate assert_data_table assert_character
@@ -46,7 +48,8 @@ send_email <- function(subject, body,
 send_xlsx <- function(table,
                       subject = paste(format(substitute(table)), Sys.Date()),
                       body = paste("Sent by",Sys.info()["nodename"]),
-                      emails = config::get("tessiflow.email"), ...) {
+                      emails = config::get("tessiflow.email"),
+                      basename = format(substitute(table)), ...) {
   assert_data_table(table)
   assert_character(emails, min.len = 1)
 
@@ -54,7 +57,7 @@ send_xlsx <- function(table,
 
   send_email_args <- modifyList(list(subject = subject, body = body, emails = emails,
                           html = TRUE, attach.files = filename,
-                          file.names = paste0(format(substitute(table)),"_",Sys.Date(),".xlsx")),
+                          file.names = paste0(basename,"_",Sys.Date(),".xlsx")),
                      rlang::list2(...))
 
   do.call(send_email,send_email_args)

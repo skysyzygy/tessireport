@@ -39,7 +39,7 @@ read.sql_report <- function(sql_report, query, ...) {
   args <- modifyList(rlang::list2(...), list(query=query, incremental=FALSE)) %>%
     .[intersect(names(.), rlang::fn_fmls_names(tessilake::read_sql))]
 
-  sql_report$data <- do.call(read_sql,args) %>% collect
+  sql_report$data <- do.call(read_sql,args) %>% collect %>% setDT
 
   NextMethod()
 }
@@ -51,6 +51,7 @@ read.sql_report <- function(sql_report, query, ...) {
 #' @export
 output.sql_report <- function(sql_report, query, ...) {
 
+  # do this in a `local` block so that the name of the object gets passed on :)
   local({
     sql_report <- sql_report$data
     send_xlsx(table = sql_report, ...)
