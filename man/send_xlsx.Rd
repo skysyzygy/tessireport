@@ -9,6 +9,7 @@ send_xlsx(
   subject = paste(format(substitute(table)), Sys.Date()),
   body = paste("Sent by", Sys.info()["nodename"]),
   emails = config::get("tessiflow.email"),
+  basename = format(substitute(table)),
   ...
 )
 }
@@ -20,6 +21,9 @@ send_xlsx(
 \item{body}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
 
 \item{emails}{email addresses (first will be sender)}
+
+\item{basename}{name of the file to use in the email. Defaults to the name of the table.
+A timestamp and extension will be appended and passed on to \code{mailR::send.mail} as \code{file.names}}
 
 \item{...}{
   Arguments passed on to \code{\link[mailR:send.mail]{mailR::send.mail}}, \code{\link[=write_xlsx]{write_xlsx}}
