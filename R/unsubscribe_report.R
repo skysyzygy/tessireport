@@ -160,7 +160,8 @@ process.unsubscribe_report <- function(unsubscribe_report, ...) {
 #' @export
 output.unsubscribe_report <- function(unsubscribe_report, since = Sys.Date() - 30, until = Sys.Date() + 30,
                                       routing_rules = list(TRUE ~ list(config::get("tessiflow.email"))), ...) {
-  . <- customer_no <- timestamp <- expr_dt <- name <- message <- memb_level <- MGOs <- constituencies <- fname <- lname <- userid <- NULL
+  . <- customer_no <- timestamp <- expr_dt <- name <- message <- email <-
+    memb_level <- MGOs <- constituencies <- fname <- lname <- userid <- NULL
 
   assert_class(unsubscribe_report, "unsubscribe_report")
 
