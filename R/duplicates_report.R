@@ -60,4 +60,5 @@ output.duplicates_report <- function(duplicates_report, routing = NULL, ...) {
   NextMethod()
 }
 
+#' @export
 process.duplicates_report <- write.duplicates_report <- function(...) {NextMethod()}
