@@ -8,9 +8,11 @@ test_that("read.p2_segments_and_tags gets data from P2", {
 
   stub(read.p2_segments_and_tags,"p2_query_api",p2_query_api)
 
-  read(p2_segments_and_tags)
+  data <- read(p2_segments_and_tags)
 
   expect_length(mock_args(p2_query_api),2)
+  expect_length(data, 2)
+
 })
 
 test_that("process.p2_segments_and_tags filters data from P2", {

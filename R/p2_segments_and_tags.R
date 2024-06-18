@@ -15,15 +15,14 @@ read.p2_segments_and_tags <- function(data, ...) {
   updated_timestamp <- NULL
 
   keys <- c("segments","tags")
-  lapply(keys,\(key) {
-
+  for(key in keys) {
     value <- p2_query_api(file.path(tessistream:::api_url,"api/3/",key))[[key]]
 
     value$updated_timestamp <- unlist(value$updated_timestamp)
     setkey(value,updated_timestamp)
 
     data[[key]] <- value
-  })
+  }
 
   NextMethod()
 }
