@@ -61,19 +61,50 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">p2_segments_and_tags</span></span>
 <span></span>
 <span><span class="co"># S3 method for p2_segments_and_tags</span></span>
-<span><span class="fu"><a href="report.html">read</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
+<span><span class="fu"><a href="report.html">read</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for p2_segments_and_tags</span></span>
-<span><span class="fu"><a href="report.html">process</a></span><span class="op">(</span><span class="va">data</span>, segment_regex <span class="op">=</span> <span class="st">"^Segment of"</span>, tag_regex <span class="op">=</span> <span class="st">"(?!.*RSVP)\\d{6,}"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="report.html">process</a></span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  segment_regex <span class="op">=</span> <span class="st">"^Segment of"</span>,</span>
+<span>  tag_regex <span class="op">=</span> <span class="st">"(?!.*RSVP)\\d{6,}"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for p2_segments_and_tags</span></span>
-<span><span class="fu"><a href="report.html">output</a></span><span class="op">(</span><span class="va">data</span>, emails <span class="op">=</span> <span class="fu">config</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/config/reference/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"tessiflow.email"</span><span class="op">)</span>, body <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="report.html">output</a></span><span class="op">(</span><span class="va">data</span>, emails <span class="op">=</span> <span class="fu">config</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/config/reference/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"tessiflow.email"</span><span class="op">)</span>, body <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
     <p>An object of class <code>p2_segments_and_tags</code> (inherits from <code>report</code>, <code>list</code>) of length 0.</p>
     </div>
+    <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+    <dl><dt>data</dt>
+<dd><p>report object</p></dd>
+
+
+<dt>...</dt>
+<dd><p>additional parameters passed on to <a href="send_email.html">send_email</a></p></dd>
+
+
+<dt>segment_regex</dt>
+<dd><p>Perl-compatible regular expression for filtering segment names</p></dd>
+
+
+<dt>tag_regex</dt>
+<dd><p>Perl-compatible regular expression for filtering tag names</p></dd>
+
+
+<dt>emails</dt>
+<dd><p>email addresses (first will be sender)</p></dd>
+
+
+<dt>body</dt>
+<dd><p>Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.</p></dd>
+
+</dl></div>
     <div class="section level2">
     <h2 id="methods-by-generic-">Methods (by generic)<a class="anchor" aria-label="anchor" href="#methods-by-generic-"></a></h2>
     
