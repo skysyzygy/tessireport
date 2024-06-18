@@ -1,17 +1,13 @@
+#' @title mlr_report
+#' @description Base class for training/running a machine learning model
+#' @name mlr_report
+#' @param mlr_report The report object
 #' @export
 mlr_report <- report(class="mlr_report")
 
-#' mlr_report
-#'
-#' Base class for training/running a machine learning model
-#' @name mlr_report
-#' @param mlr_report The report object
-NULL
-
 #' @export
-#' @describeIn mlr_report. Should load the dataset into report$data.
-#' All columns should be features except
-#' * `target`: a boolean value or a factor or a classifier model; a numeric value for a regression model
+#' @describeIn mlr_report Should load the dataset into mlr_report$task
+#' and is in charge of labeling column roles (i.e. feature, target, group, weight)
 read.mlr_report <- function(mlr_report) {
   NextMethod()
 }
@@ -22,7 +18,7 @@ read.mlr_report <- function(mlr_report) {
 #' @export
 #' @describeIn mlr_report Do the training and/or run the model. Subclasses
 #' should define a `train.mlr_model` and `predict.mlr_model` function, which should load from
-#' `data` and store their reults in entries of the same name
+#' `task` and store their reults in entries of the same name
 process.mlr_report <- function(mlr_report, train = TRUE, predict = TRUE) {
   if (train) train(mlr_report)
   if (predict) predict(mlr_report)
@@ -38,9 +34,9 @@ output.mlr_report <- function() {
 }
 
 
-#' @param subdir
-#' @param sync
-#' @describeIn mlr_model Save the trained model and model output for future use. Writes the model to the
+#' @param subdir character name of subdir to store data in
+#' @param sync boolean whether to sync data across storages
+#' @describeIn mlr_report Save the trained model and model output for future use. Writes the model to the
 #' [tessilake::cache_primary_path] under the subdirectory `subdir` and then syncs them across storages.
 #' @export
 #' @importFrom tessilake write_cache sync_cache
