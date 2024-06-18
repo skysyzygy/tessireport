@@ -27,3 +27,25 @@ test_that("process.p2_segments_and_tags filters data from P2", {
   expect_equal(data_filtered$tags$tag, "Sent 010101")
 
 })
+
+test_that("output.p2_segments_and_tags passes on args to send_email", {
+  send_email <- mock()
+  stub(output.p2_segments_and_tags,"send_email", send_email, 2)
+
+  output(p2_segments_and_tags, email = "test@test.com", body = "Here's an email!")
+  expect_length(mock_args(send_email),1)
+  expect_equal(mock_args(send_email)[[1]][["emails"]], "test@test.com")
+  expect_equal(mock_args(send_email)[[1]][["body"]], "Here's an email!")
+
+})
+
+test_that("output.p2_segments_and_tags sends some files", {
+  send_email <- mock()
+  stub(output.p2_segments_and_tags,"send_email", send_email, 2)
+
+  debugonce(tessireport:::write_xlsx)
+  output(report(list(a=data.table(a="file"),b=data.table(b="another")),"p2_segments_and_tags"))
+  expect_length(mock_args(send_email),1)
+  expect_length(mock_args(send_email)[[1]][["attach.files"]], 2)
+
+})

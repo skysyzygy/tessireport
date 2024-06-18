@@ -56,6 +56,7 @@ output.p2_segments_and_tags <- function(data, emails = config::get("tessiflow.em
     filenames <- sapply(data,write_xlsx)
 
     send_email(subject = paste("P2 segments and tags",Sys.Date()),
+               emails = emails,
                body = body %||% paste("<p>Hi!
                <p>Here are the first 50 segments and tags to review",emo::ji("sweat_smile"),
                "<p>Please let me know if there are any that need to be saved.
