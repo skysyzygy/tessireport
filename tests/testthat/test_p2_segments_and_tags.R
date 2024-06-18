@@ -41,9 +41,8 @@ test_that("output.p2_segments_and_tags passes on args to send_email", {
 
 test_that("output.p2_segments_and_tags sends some files", {
   send_email <- mock()
-  stub(output.p2_segments_and_tags,"send_email", send_email, 2)
+  stub(output.p2_segments_and_tags,"send_email", send_email)
 
-  debugonce(tessireport:::write_xlsx)
   output(report(list(a=data.table(a="file"),b=data.table(b="another")),"p2_segments_and_tags"))
   expect_length(mock_args(send_email),1)
   expect_length(mock_args(send_email)[[1]][["attach.files"]], 2)
