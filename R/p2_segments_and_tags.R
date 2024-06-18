@@ -1,13 +1,18 @@
 #' p2_segments_and_tags
 #'
 #' Report of Prospect2 segments and tags for review
+#'
+#' @param data report object
+#'
 #' @export
 p2_segments_and_tags <- report(class="p2_segments_and_tags")
 p2_query_api <- tessistream:::p2_query_api
 
 #' @export
 #' @describeIn p2_segments_and_tags load Prospect2 segments and tags
-read.p2_segments_and_tags <- function(data) {
+read.p2_segments_and_tags <- function(data, ...) {
+
+  updated_timestamp <- NULL
 
   keys <- c("segments","tags")
   lapply(keys,\(key) {
@@ -23,11 +28,16 @@ read.p2_segments_and_tags <- function(data) {
   NextMethod()
 }
 
+#' @param segment_regex Perl-compatible regular expression for filtering segment names
+#' @param tag_regex Perl-compatible regular expression for filtering tag names
+#'
 #' @export
 #' @describeIn p2_segments_and_tags filter Prospect2 segments and tags
 process.p2_segments_and_tags <- function(data,
                                          segment_regex = "^Segment of",
-                                         tag_regex = "(?!.*RSVP)\\d{6,}") {
+                                         tag_regex = "(?!.*RSVP)\\d{6,}", ...) {
+
+  . <- name <- tag <- created_timestamp <- NULL
 
   data$segments <- data$segments[grepl(segment_regex,name, perl = T),
                                  .(name,created_timestamp)] %>% first(50)
@@ -37,21 +47,24 @@ process.p2_segments_and_tags <- function(data,
   NextMethod()
 }
 
+
+#' @inheritParams send_email
+#' @param ... additional parameters passed on to [send_email]
 #' @export
 #' @describeIn p2_segments_and_tags send an email with spreadsheets of segments and tags
-output.p2_segments_and_tags <- function(data, emails = config::get("tessiflow.email"), body = NULL) {
+output.p2_segments_and_tags <- function(data, emails = config::get("tessiflow.email"), body = NULL, ...) {
 
     filenames <- sapply(data,write_xlsx)
 
     send_email(subject = paste("P2 segments and tags",Sys.Date()),
-               body = body %||% "<p>Hi!
-               <p>Here are the first 50 segments and tags to review 😅
-               <p>Please let me know if there are any that need to be saved.
+               body = body %||% paste("<p>Hi!
+               <p>Here are the first 50 segments and tags to review",emo::ji("sweat_smile"),
+               "<p>Please let me know if there are any that need to be saved.
                <p>Thanks!
-               <p>Sky's computer",
+               <p>Sky's computer"),
                attach.files = filenames,
                html = TRUE,
-               file.names = paste0(c("segments","tags"),"_",Sys.Date(),".xlsx"))
+               file.names = paste0(c("segments","tags"),"_",Sys.Date(),".xlsx"), ...)
 
     NextMethod()
 }

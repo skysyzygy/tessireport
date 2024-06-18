@@ -24,6 +24,7 @@ Imports:
     config,
     data.table,
     dplyr,
+    emo,
     ggplot2,
     lubridate,
     magrittr,

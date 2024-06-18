@@ -13,11 +13,29 @@ An object of class \code{p2_segments_and_tags} (inherits from \code{report}, \co
 \usage{
 p2_segments_and_tags
 
-\method{read}{p2_segments_and_tags}(data)
+\method{read}{p2_segments_and_tags}(data, ...)
 
-\method{process}{p2_segments_and_tags}(data, segment_regex = "^Segment of", tag_regex = "(?!.*RSVP)\\\\d{6,}")
+\method{process}{p2_segments_and_tags}(
+  data,
+  segment_regex = "^Segment of",
+  tag_regex = "(?!.*RSVP)\\\\d{6,}",
+  ...
+)
 
-\method{output}{p2_segments_and_tags}(data, emails = config::get("tessiflow.email"), body = NULL)
+\method{output}{p2_segments_and_tags}(data, emails = config::get("tessiflow.email"), body = NULL, ...)
+}
+\arguments{
+\item{data}{report object}
+
+\item{...}{additional parameters passed on to \link{send_email}}
+
+\item{segment_regex}{Perl-compatible regular expression for filtering segment names}
+
+\item{tag_regex}{Perl-compatible regular expression for filtering tag names}
+
+\item{emails}{email addresses (first will be sender)}
+
+\item{body}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
 }
 \description{
 Report of Prospect2 segments and tags for review
