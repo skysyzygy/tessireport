@@ -24,10 +24,13 @@ Imports:
     config,
     data.table,
     dplyr,
+    duckdb,
     ggplot2,
     lubridate,
     magrittr,
     mailR,
+    mlr3db,
+    mlr3proba,
     openxlsx,
     purrr,
     rlang,
@@ -43,4 +46,5 @@ Config/testthat/edition: 3
 Remotes: 
     skysyzygy/tessilake,
     skysyzygy/tessistream,
-    skysyzygy/ffbase/pkg
+    skysyzygy/ffbase/pkg,
+    mlr-org/mlr3proba
