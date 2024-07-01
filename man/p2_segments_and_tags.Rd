@@ -18,7 +18,7 @@ p2_segments_and_tags
 \method{process}{p2_segments_and_tags}(
   data,
   segment_regex = "^Segment of",
-  tag_regex = "(?!.*RSVP)\\\\d{6,}",
+  tag_regex = "(?!.*RSVP|.*\\\\(Keep\\\\))\\\\d{6,}",
   ...
 )
 

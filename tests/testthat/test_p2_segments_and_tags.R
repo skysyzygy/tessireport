@@ -17,9 +17,13 @@ test_that("read.p2_segments_and_tags gets data from P2", {
 
 test_that("process.p2_segments_and_tags filters data from P2", {
   data <- list(segments = data.table(name = c("Segment of something","Save me!"),
-                                     created_timestamp = Sys.time()),
+                                     created_timestamp = Sys.time(),
+                                     seriesid="0",
+                                     hidden="0",
+                                     id="1"),
                tags = data.table(tag = c("Sent 010101","010101_RSVPs"),
-                                 created_timestamp = Sys.time()))
+                                 created_timestamp = Sys.time(),
+                                 id="1"))
 
   data_filtered <- process(report(data, "p2_segments_and_tags"))
 
