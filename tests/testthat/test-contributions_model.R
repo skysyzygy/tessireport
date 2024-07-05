@@ -11,31 +11,65 @@ test_that("contributions_dataset reads from an ffdf and adds an event indicator"
       group_customer_no = 1,
       event_type = c("Ticket","Contribution"),
       contributionAmt = 50,
-      timestamp = Sys.time()),
+      timestamp = Sys.Date()+c(-60,0)),
       envir = rlang::caller_env())
   })
   stub(contributions_dataset, "ff::delete", TRUE)
+
   contributions_dataset()
 
-  dataset <- read_cache("contributions","model") %>% collect
-  expect_equal(nrow(dataset),1)
-  expect_equal(dataset[1,"event"][[1]],TRUE)
+  dataset <- read_cache("contributions_dataset","model") %>% collect
+  expect_equal(nrow(dataset),2)
+  expect_equal(dataset[,"event"][[1]],c(F,T))
 
 })
 
 test_that("contributions_dataset censors and subsets", {
-})
+  tessilake::local_cache_dirs()
+  stub(contributions_dataset, "ffbase::unpack.ffdf", function(...) {
+    assign("stream",data.table(
+      # additional contibutions will be censored
+      group_customer_no = rep(1:2,each=3),
+      event_type = c("Ticket","Contribution","Contribution"),
+      contributionAmt = 50,
+      # early dates will be removed and only one item per month will be returned (i.e. row 5)
+      timestamp = rep(c(Sys.Date()-10,Sys.Date()),each=3)),
+      envir = rlang::caller_env())
+  })
+  stub(contributions_dataset, "ff::delete", TRUE)
+  contributions_dataset(since = Sys.Date())
 
-test_that("contributions_dataset partitions by group_customer_no and writes an Arrow Dataset", {
+  dataset <- read_cache("contributions_dataset","model") %>% collect
+  expect_equal(nrow(dataset),1)
+  expect_equal(dataset[1,"event"][[1]],TRUE)
+  expect_equal(dataset[1,"group_customer_no"][[1]],2)
+  expect_equal(dataset[1,"I"][[1]],5)
+
 })
 
 
 # read.contributions_model ------------------------------------------------
+test_that("read.contributions_model calls contributions_dataset if asked to or if necessary", {
+  stub(read.contributions_model,"cache_exists_any",TRUE)
+  contributions_dataset <- mock()
+  stub(read.contributions_model,"contributions_dataset",contributions_dataset)
+  stub(read.contributions_model,"read_cache",data.table(group_customer_no=1,timestamp=1,date=Sys.time(),event=factor(c(T,F))))
 
+  read(contributions_model,rebuild_dataset = T)
+  expect_length(mock_args(contributions_dataset),1)
 
-test_that("read.contributions_model returns a mlr3 classification task", {
+  stub(read.contributions_model,"cache_exists_any",FALSE)
+
+  read(contributions_model)
+  expect_length(mock_args(contributions_dataset),2)
+
+})
+
+test_that("read.contributions_model creates a valid mlr3 classification task", {
   stub(read.contributions_model, "read_cache",
        \(...) {arrow::read_parquet("test-contributions_model.parquet", as_data_frame = F)})
+
+  stub(read.contributions_model,"cache_exists_any",TRUE)
 
   model <<- read(contributions_model)
 
