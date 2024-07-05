@@ -3,14 +3,86 @@
 \docType{data}
 \name{contributions_model}
 \alias{contributions_model}
+\alias{contributions_dataset}
+\alias{read.contributions_model}
+\alias{train.contributions_model}
+\alias{predict.contributions_model}
 \title{contributions_model}
 \format{
 An object of class \code{contributions_model} (inherits from \code{mlr_report}, \code{report}, \code{list}) of length 0.
 }
 \usage{
 contributions_model
+
+contributions_dataset(since = Sys.Date() - 365 * 5, ...)
+
+\method{read}{contributions_model}(
+  model,
+  rebuild_dataset = FALSE,
+  since = Sys.Date() - 365 * 5,
+  until = Sys.Date(),
+  predict_since = Sys.Date() - 30,
+  ...
+)
+
+\method{train}{contributions_model}(model, ...)
+
+\method{predict}{contributions_model}(model, ...)
+}
+\arguments{
+\item{since}{Date/POSIXct data on or after this date will be loaded and possibly used for training}
+
+\item{model}{\code{contributions_model} object}
+
+\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset} (TRUE) or just read the existing one (FALSE)}
+
+\item{until}{Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today}
+
+\item{predict_since}{Date/POSIXct data on/after this date will be used to make predictions and not for training}
 }
 \description{
-mlr3 model for predicting contributions
+mlr3 model for predicting a customer's first contribution
 }
+\section{Methods (by generic)}{
+\itemize{
+\item \code{read(contributions_model)}: Read in contribution data and prepare a MLR3 task
+
+\item \code{train(contributions_model)}: Tune and train a stacked log-reg/ranger model on the data
+
+\item \code{predict(contributions_model)}: Predict using the trained model
+
+}}
+\section{Functions}{
+\itemize{
+\item \code{contributions_dataset()}: Build the contributions dataset from the overall stream.
+\itemize{
+\item events are the first contribution per household > $50
+\item data after an event are censored
+\item contribution indicators are rolled back and timestamps are normalized to the start of customer activity
+\item only data since \code{since} are loaded
+Data is written to the primary cache partitioned by year and then synced across storages
+}
+
+}}
+\note{
+Data will be loaded in-memory, because \emph{\link{inaudible}} mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
+}
+\section{Preprocessing:}{
+\itemize{
+\item ignore 1-day and email "send" features because they leak data
+\item remove constant features
+\item balance classes to a ratio of 1:10 T:F
+\item Yeo-Johnson with tuned boundaries
+\item impute missing values out-of-range and add missing data indicator features
+\item feature importance filter (for log-reg submodel only)
+}
+}
+
+\section{Model:}{
+\itemize{
+\item stacked log-reg + ranger > log-reg model
+\item tuned using a hyperband method on the AUC (sensitivity/specificity)
+}
+}
+
 \keyword{datasets}
