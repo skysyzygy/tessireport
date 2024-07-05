@@ -6,7 +6,7 @@
 \usage{
 stream_normalize_timestamps(
   dataset,
-  columns = grep("timestamp", colnames(dataset), value = T),
+  columns = grep("timestamp", colnames(dataset), value = T, ignore.case = T),
   by = "group_customer_no"
 )
 }
