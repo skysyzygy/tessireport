@@ -14,13 +14,13 @@ An object of class \code{mlr_report} (inherits from \code{report}, \code{list}) 
 \usage{
 mlr_report
 
-\method{read}{mlr_report}(mlr_report)
+\method{read}{mlr_report}(mlr_report, ...)
 
-\method{process}{mlr_report}(mlr_report, train = TRUE, predict = TRUE)
+\method{process}{mlr_report}(mlr_report, train = TRUE, predict = TRUE, ...)
 
-\method{output}{mlr_report}()
+\method{output}{mlr_report}(...)
 
-\method{write}{mlr_report}(mlr_report, subdir = "models", sync = TRUE)
+\method{write}{mlr_report}(mlr_report, subdir = "model", sync = TRUE, ...)
 }
 \arguments{
 \item{mlr_report}{The report object}
@@ -29,7 +29,7 @@ mlr_report
 
 \item{predict}{boolean whether to run the predictions}
 
-\item{subdir}{character name of subdir to store data in}
+\item{subdir}{character name of subdirectory to store data in, defaults to "model"}
 
 \item{sync}{boolean whether to sync data across storages}
 }
@@ -38,12 +38,12 @@ Base class for training/running a machine learning model
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{read(mlr_report)}: Should load the dataset into mlr_report$task
+\item \code{read(mlr_report)}: Should load the dataset into \code{mlr_report$task}
 and is in charge of labeling column roles (i.e. feature, target, group, weight)
 
 \item \code{process(mlr_report)}: Do the training and/or run the model. Subclasses
 should define a \code{train.mlr_model} and \code{predict.mlr_model} function, which should load from
-\code{task} and store their reults in entries of the same name
+\code{mlr_report$task} and store their results in \code{mlr_report$model} and \code{mlr_report$predictions}
 
 \item \code{output(mlr_report)}: Analyze the input set and the sensitivity of the training using
 some standard heuristics. TBD

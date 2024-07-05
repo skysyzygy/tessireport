@@ -6,9 +6,9 @@
 mlr_report <- report(class="mlr_report")
 
 #' @export
-#' @describeIn mlr_report Should load the dataset into mlr_report$task
+#' @describeIn mlr_report Should load the dataset into `mlr_report$task`
 #' and is in charge of labeling column roles (i.e. feature, target, group, weight)
-read.mlr_report <- function(mlr_report) {
+read.mlr_report <- function(mlr_report, ...) {
   NextMethod()
 }
 
@@ -18,41 +18,44 @@ read.mlr_report <- function(mlr_report) {
 #' @export
 #' @describeIn mlr_report Do the training and/or run the model. Subclasses
 #' should define a `train.mlr_model` and `predict.mlr_model` function, which should load from
-#' `task` and store their reults in entries of the same name
-process.mlr_report <- function(mlr_report, train = TRUE, predict = TRUE) {
-  if (train) train(mlr_report)
-  if (predict) predict(mlr_report)
+#' `mlr_report$task` and store their results in `mlr_report$model` and `mlr_report$predictions`
+process.mlr_report <- function(mlr_report, train = TRUE, predict = TRUE, ...) {
+  if (train) train(mlr_report, ...)
+  if (predict) predict(mlr_report, ...)
   NextMethod()
 }
 
 #' @export
+train <- function(...) UseMethod("train")
+
+#' @export
 #' @describeIn mlr_report Analyze the input set and the sensitivity of the training using
 #' some standard heuristics. TBD
-output.mlr_report <- function() {
+output.mlr_report <- function(...) {
   # TBD
   NextMethod()
 }
 
 
-#' @param subdir character name of subdir to store data in
+#' @param subdir character name of subdirectory to store data in, defaults to "model"
 #' @param sync boolean whether to sync data across storages
 #' @describeIn mlr_report Save the trained model and model output for future use. Writes the model to the
 #' [tessilake::cache_primary_path] under the subdirectory `subdir` and then syncs them across storages.
 #' @export
 #' @importFrom tessilake write_cache sync_cache
-write.mlr_report <- function(mlr_report, subdir = "models", sync = TRUE) {
+write.mlr_report <- function(mlr_report, subdir = "model", sync = TRUE, ...) {
 
   report_name <- class(mlr_report)[1]
   path_name = tessilake::cache_primary_path(report_name, subdir)
 
-  if (!is.null(mlr_report$train)) {
-    train_filename = paste0(report_name,".Rds")
-    saveRDS(mlr_report$train, train_filename)
+  if (!is.null(mlr_report$model)) {
+    model_filename = gsub("_",".",report_name)
+    saveRDS(mlr_report$model, model_filename)
     if (sync) sync_cache(report_name, subdir, whole_file = TRUE)
   }
 
-  if (!is.null(mlr_report$predict)) {
-    write_cache(mlr_report$predict, report_name, "models", sync = sync)
+  if (!is.null(mlr_report$predictions)) {
+    write_cache(mlr_report$predictions, report_name, subdir, sync = sync)
   }
 
   NextMethod()
