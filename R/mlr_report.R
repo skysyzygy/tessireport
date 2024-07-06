@@ -20,13 +20,21 @@ read.mlr_report <- function(mlr_report, ...) {
 #' should define a `train.mlr_model` and `predict.mlr_model` function, which should load from
 #' `mlr_report$task` and store their results in `mlr_report$model` and `mlr_report$predictions`
 process.mlr_report <- function(mlr_report, train = TRUE, predict = TRUE, ...) {
-  if (train) train(mlr_report, ...)
-  if (predict) predict(mlr_report, ...)
+  if (train) mlr_report <- train(mlr_report, ...)
+  if (predict) mlr_report <- predict(mlr_report, ...)
   NextMethod()
 }
 
 #' @export
 train <- function(...) UseMethod("train")
+#' @export
+train.mlr_report <- function(x, ...) x
+
+#' @export
+predict <- function(...) UseMethod("predict")
+#' @export
+predict.mlr_report <- function(x, ...) x
+
 
 #' @export
 #' @describeIn mlr_report Analyze the input set and the sensitivity of the training using
