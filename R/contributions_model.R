@@ -65,7 +65,7 @@ contributions_dataset <- function(since = Sys.Date()-365*5, ...) {
 #' @importFrom tessilake read_cache cache_exists_any
 #' @importFrom dplyr filter select collect mutate
 #' @importFrom mlr3 TaskClassif
-#' @describeIn contributions_model Read in contribution data and prepare a MLR3 task
+#' @describeIn contributions_model Read in contribution data and prepare a mlr3 training task and a prediction/validation task
 #' @param model `contributions_model` object
 #' @param predict_since Date/POSIXct data on/after this date will be used to make predictions and not for training
 #' @param until Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today
@@ -79,7 +79,10 @@ read.contributions_model <- function(model, rebuild_dataset = FALSE,
   if(rebuild_dataset | !cache_exists_any("contributions_dataset","model")) contributions_dataset(since = since)
 
   dataset <- read_cache("contributions_dataset","model") %>%
-    filter(date >= since & date < until) %>% collect
+    filter(date >= since & date < until) %>%
+    collect %>%
+    mutate(date = as.POSIXct(date),
+           event = as.factor(event))
 
   model$task <- TaskClassif$new(id = "contributions",
                                 target = "event",
@@ -93,7 +96,7 @@ read.contributions_model <- function(model, rebuild_dataset = FALSE,
   model$task$col_roles$group <- "group_customer_no"
   model$task$positive <- "TRUE"
 
-  model$task$divide(ids = dataset[date >= predict_since,.I])
+  model$task$divide(ids = dataset[date >= predict_since,which=T])
 
   NextMethod()
 }
@@ -120,7 +123,7 @@ train.contributions_model <- function(model, ...) {
   preprocess <- po("select",selector = selector_invert(selector_grep("__1|Send"))) %>>%
                 po("removeconstants",abs_tol=.5) %>>%
                 po("classbalancing", reference = "minor",ratio = 10,adjust="downsample") %>>%
-                po("yeojohnson", lower = to_train(-2,0), upper = to_train(0,2), eps = .1) %>>%
+                po("yeojohnson", lower = to_tune(-2,0), upper = to_tune(0,2), eps = .1) %>>%
                 list(po("missind"),
                      po("imputeoor")) %>>%
                 po("featureunion") %>>%
@@ -150,8 +153,11 @@ train.contributions_model <- function(model, ...) {
   stacked$param_set$values <- stacked_tuned$result_learner_param_vals
 
   model$model <- stacked$train(model$task)
-  saveRDS(model$model, cache_primary_path("contributions.model","model"))
 
+  # save state
+  write(model)
+
+  NextMethod()
 }
 
 #' @export
@@ -162,8 +168,11 @@ predict.contributions_model <- function(model, ...) {
   if(is.null(model$model))
     model$model <- readRDS(cache_primary_path("contributions.model","model"))
 
-  model$predictions <- model$model$predict(model$task$internal_valid_task)
+  model$predictions <-
+    cbind(as.data.table(model$model$predict(model$task$internal_valid_task)),
+          model$task$internal_valid_task$data(cols = c("I","group_customer_no","date")))
 
+  NextMethod()
 }
 
 #' arrow_to_mlr3
