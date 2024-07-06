@@ -58,7 +58,7 @@ write.mlr_report <- function(mlr_report, subdir = "model", sync = TRUE, ...) {
 
   if (!is.null(mlr_report$model)) {
     model_filename = gsub("_",".",report_name)
-    saveRDS(mlr_report$model, model_filename)
+    saveRDS(mlr_report$model, file.path(path_name,model_filename))
     if (sync) sync_cache(report_name, subdir, whole_file = TRUE)
   }
 
