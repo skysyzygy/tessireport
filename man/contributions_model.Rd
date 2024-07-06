@@ -45,7 +45,7 @@ mlr3 model for predicting a customer's first contribution
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{read(contributions_model)}: Read in contribution data and prepare a MLR3 task
+\item \code{read(contributions_model)}: Read in contribution data and prepare a mlr3 training task and a prediction/validation task
 
 \item \code{train(contributions_model)}: Tune and train a stacked log-reg/ranger model on the data
 
