@@ -71,9 +71,47 @@ test_that("read.contributions_model creates a valid mlr3 classification task", {
 
   stub(read.contributions_model,"cache_exists_any",TRUE)
 
-  model <<- read(contributions_model)
+  model <<- read(contributions_model, predict_since = as.Date("2024-06-01"))
 
   expect_class(model$task, "TaskClassif")
+
+})
+
+test_that("read.contributions_model creates a valid mlr3 validation task", {
+
+  expect_class(model$task$internal_validation_task, "TaskClassif")
+  data <- model$task$internal_validation_task$data(col_names = "date")
+  expect_true(all(data$date >= as.Date("2024-06-01")))
+
+})
+
+
+# train.contributions_model -----------------------------------------------
+
+test_that("train.contributions_model successfully trains a model", {
+  stub(read.contributions_model, "read_cache",
+       \(...) {arrow::read_parquet("test-contributions_model.parquet", as_data_frame = F)})
+
+  stub(read.contributions_model,"cache_exists_any",TRUE)
+
+  model <<- train(model)
+
+  expect_class(model$model, "Learner")
+
+})
+
+# predict.contributions_model ---------------------------------------------
+
+test_that("predict.contributions_model successfully predicts new data", {
+  stub(read.contributions_model, "read_cache",
+       \(...) {arrow::read_parquet("test-contributions_model.parquet", as_data_frame = F)})
+
+  stub(read.contributions_model,"cache_exists_any",TRUE)
+
+  model <<- predict(model)
+
+  expect_data_table(model$predictions)
+  expect_names(names(model$predictions),must.include = c("group_customer_no","date","truth","prob.TRUE"))
 
 })
 
