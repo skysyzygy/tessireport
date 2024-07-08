@@ -19,6 +19,8 @@ Config/Needs/website:
 Depends:
     R (>= 3.5.0)
 Imports: 
+    bbotk,
+    bestNormalize,
     checkmate,
     cli,
     config,
@@ -29,11 +31,15 @@ Imports:
     lubridate,
     magrittr,
     mailR,
+    mlr3,
     mlr3db,
+    mlr3learners,
+    mlr3pipelines,
     mlr3proba,
     openxlsx,
     purrr,
     rlang,
+    stats,
     tessilake,
     tessistream
 Suggests: 
