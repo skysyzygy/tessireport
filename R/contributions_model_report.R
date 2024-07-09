@@ -39,7 +39,7 @@ read.contributions_model_report <- function(report, ...) {
 process.contributions_model_report <- function(report, ...) {
 
   . <- group_customer_no <- score <- display_name_short <- last_gift_dt <- tck_dt <- tck_amt <-
-    postal_code <- memb_level <- expr_dtd <- address_median_income_level <- address_pro_score_level <-
+    postal_code <- memb_level <- expr_dt <- address_median_income_level <- address_pro_score_level <-
     address_capacity_level <- address_properties_level <- address_donations_level <- NULL
 
   report$data <- purrr::reduce(report,merge,by="group_customer_no",all=T) %>%

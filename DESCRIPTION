@@ -29,6 +29,8 @@ Imports:
     dplyr,
     duckdb,
     emo,
+    ff,
+    ffbase,
     furrr,
     ggplot2,
     httr,

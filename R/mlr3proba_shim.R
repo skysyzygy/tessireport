@@ -24,10 +24,13 @@
 #' Name of the column giving the type of censoring. Default is 'right' censoring.
 #' @param label (`character(1)`)\cr
 #'    Label for the new instance.
+#' @importFrom mlr3 as_data_backend
+#' @importFrom checkmate assert_factor assert_integer
 .__TaskSurv__initialize <- function(id, backend, time = "time", event = "event", time2,
                                     type = c("right", "left", "interval", "counting", "interval2", "mstate"),
                                     label = NA_character_)
 {
+
   type = match.arg(type)
   backend = as_data_backend(backend)
   if (type != "interval2") {
