@@ -36,7 +36,7 @@ process.p2_segments_and_tags <- function(data,
                                          segment_regex = "^Segment of",
                                          tag_regex = "(?!.*RSVP|.*\\(Keep\\))\\d{6,}", ...) {
 
-  . <- name <- tag <- created_timestamp <- NULL
+  . <- name <- tag <- created_timestamp <- seriesid <- hidden <- id <- NULL
 
   data$segments <- data$segments[grepl(segment_regex,name, perl = T) &
                                    seriesid == 0 & hidden == 0,
