@@ -19,12 +19,18 @@ Config/Needs/website:
 Depends:
     R (>= 3.5.0)
 Imports: 
+    bbotk,
+    bestNormalize,
     checkmate,
     cli,
     config,
     data.table,
+    DBI,
     dplyr,
+    duckdb,
     emo,
+    ff,
+    ffbase,
     furrr,
     ggplot2,
     httr,
@@ -32,12 +38,19 @@ Imports:
     lubridate,
     magrittr,
     mailR,
+    mlr3,
+    mlr3db,
+    mlr3verse,
     openxlsx,
     purrr,
+    ranger,
     rlang,
+    stats,
     tessilake,
     tessistream
 Suggests: 
+    arrow,
+    here,
     mockery,
     png,
     rprojroot,
@@ -48,4 +61,5 @@ Remotes:
     skysyzygy/tessilake,
     skysyzygy/tessistream,
     skysyzygy/ffbase/pkg,
+    mlr-org/mlr3proba,
     hadley/emo

@@ -75,8 +75,8 @@ run.report = function(x,...) {
   tryCatch(x %>%
     read(...) %>%
     process(...) %>%
-    output(...) %>%
-    write(...),
+    write(...) %>%
+    output(...),
     error = \(e) {
       if(rlang::is_call(e$call) && rlang::call_name(e$call) == "UseMethod")
         rlang::abort(c("Did you forget to return a `report` object from `read`, `process`, `output` or `write`?",
