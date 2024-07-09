@@ -78,7 +78,7 @@ run.report = function(x,...) {
     write(...) %>%
     output(...),
     error = \(e) {
-      if(!is.null(e$call) && rlang::call_name(e$call) == "UseMethod")
+      if(rlang::is_call(e$call) && rlang::call_name(e$call) == "UseMethod")
         rlang::abort(c("Did you forget to return a `report` object from `read`, `process`, `output` or `write`?",
                        "Hint: you can use NextMethod() to work with inherited methods as well."),
                      parent = e)
