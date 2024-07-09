@@ -4,12 +4,11 @@ withr::local_package("mockery")
 
 # send_email --------------------------------------------------------------
 
-test_that("send_email complains if subject, body, emails, or smtp are not set correctly", {
+test_that("send_email complains if subject, emails, or smtp are not set correctly", {
   send.mail <- mock()
   stub(send_email, "send.mail", send.mail)
 
   expect_error(send_email(),"subject.+missing")
-  expect_error(send_email("subject"),"body.+missing")
 
   stub(send_email, "config::get", mock(NULL,
                                        "test@test.com", NULL,
