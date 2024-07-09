@@ -45,6 +45,7 @@ Imports:
     tessistream
 Suggests: 
     arrow,
+    here,
     mockery,
     png,
     rprojroot,
