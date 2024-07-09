@@ -2,11 +2,13 @@
 #'
 #' @param emails email addresses (first will be sender)
 #' @inheritParams mailR::send.mail
+#' @param body Body of the email as text. If the parameter body refers to an existing file location,
+#' the text of the file is parsed as body of the email. Default is `Sent by <computer name>`.
 #' @inheritDotParams mailR::send.mail html attach.files
 #' @importFrom checkmate assert_character test_character test_list
 #' @importFrom mailR send.mail
 #' @export
-send_email <- function(subject, body,
+send_email <- function(subject, body = paste("Sent by", Sys.info()["nodename"]),
                        emails = config::get("tessiflow.email"),
                        smtp = config::get("tessiflow.smtp"),...
 ) {
