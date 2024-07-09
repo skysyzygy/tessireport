@@ -1,60 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/404.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/duplicates_report.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/make_unsubscribe_report_fixtures.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/p2_orphans_report.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/p2_segments_and_tags.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/pipe.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/report.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/send_email.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/send_unsubscribe_report_table.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/send_xlsx.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/sql_report.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/tessireport-package.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/unsubscribe_report.html</loc>
-  </url>
-  <url>
-    <loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/write_xlsx.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/404.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/LICENSE-text.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/LICENSE.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/authors.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/index.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/duplicates_report.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/index.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/make_unsubscribe_report_fixtures.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/p2_orphans_report.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/p2_segments_and_tags.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/pipe.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/report.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/send_email.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/send_unsubscribe_report_table.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/send_xlsx.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/sql_report.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/tessireport-package.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/unsubscribe_report.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/write_xlsx.html</loc></url>
 </urlset>
+
