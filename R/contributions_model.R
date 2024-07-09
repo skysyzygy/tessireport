@@ -11,7 +11,11 @@ contributions_model <- report(class=c("contributions_model","mlr_report"))
 #' * only data since `since` are loaded
 #' Data is written to the primary cache partitioned by year and then synced across storages
 #' @param since Date/POSIXct data on or after this date will be loaded and possibly used for training
+#' @param ... not used
 contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), ...) {
+  stream <- group_customer_no <- timestamp <- event_type <- event <- contributionAdjAmt <- n_event <-
+    N <- partition <- NULL
+
   stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
   ffbase::unpack.ffdf(stream_path)
 
@@ -69,12 +73,15 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
 #' @param model `contributions_model` object
 #' @param predict_since Date/POSIXct data on/after this date will be used to make predictions and not for training
 #' @param until Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today
-#' @param rebuild_dataset boolean rebuild the dataset by calling `contributions_dataset` (TRUE) or just read the existing one (FALSE)
-#' @note Data will be loaded in-memory, because *[inaudible]* mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
+#' @param rebuild_dataset boolean rebuild the dataset by calling `contributions_dataset(since=since,until=until)` (TRUE), just read the existing one (FALSE),
+#' or append new rows by calling `contributions_dataset(since=max_existing_date,until=until)` (NULL, default)
+#' @note Data will be loaded in-memory, because *\[inaudible\]* mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
 read.contributions_model <- function(model, rebuild_dataset = NULL,
                                      since = Sys.Date()-365*5,
                                      until = Sys.Date(),
                                      predict_since = Sys.Date() - 30, ...) {
+
+  . <- event <- TRUE
 
   if(rebuild_dataset %||% F || !cache_exists_any("contributions_dataset","model")) {
     contributions_dataset(since = since, until = Sys.Date())
@@ -114,6 +121,9 @@ read.contributions_model <- function(model, rebuild_dataset = NULL,
 #' @importFrom tessilake cache_primary_path
 #' @importFrom mlr3verse po to_tune flt lts ppl tune `%>>%` p_int tnr selector_invert selector_grep
 #' @importFrom mlr3 msr rsmp as_learner lrn
+#' @importFrom bbotk mlr_optimizers
+#' @importFrom bestNormalize yeojohnson
+#' @importFrom ranger ranger
 #' @describeIn contributions_model Tune and train a stacked log-reg/ranger model on the data
 #' @details
 #' # Preprocessing:
@@ -216,6 +226,8 @@ arrow_to_mlr3 <- function(dataset, primary_key = "I") {
 #' @importFrom dplyr lead lag
 stream_rollback_event <- function(dataset, event = "event", columns = NULL, by = "group_customer_no") {
 
+  i <- by_i <- . <- NULL
+
   assert_data_table(dataset)
   assert_names(names(dataset),must.include = c(event,columns,by))
   assert_logical(dataset[,event,with=F][[1]])
@@ -251,6 +263,8 @@ stream_rollback_event <- function(dataset, event = "event", columns = NULL, by =
 stream_normalize_timestamps <- function(dataset,
                                         columns = grep("timestamp", colnames(dataset), value=T, ignore.case = T),
                                         by = "group_customer_no") {
+  timestamp <- NULL
+
   assert_data_table(dataset)
   assert_names(names(dataset), must.include = c("timestamp",columns,by))
   assert_data_table(dataset[,c("timestamp",columns), with = F],types=c("Date","POSIXct"))

@@ -34,9 +34,12 @@ contributions_dataset(since = Sys.Date() - 365 * 5, until = Sys.Date(), ...)
 
 \item{until}{Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today}
 
+\item{...}{not used}
+
 \item{model}{\code{contributions_model} object}
 
-\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset} (TRUE) or just read the existing one (FALSE)}
+\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset(since=since,until=until)} (TRUE), just read the existing one (FALSE),
+or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
 
 \item{predict_since}{Date/POSIXct data on/after this date will be used to make predictions and not for training}
 }
@@ -65,7 +68,7 @@ Data is written to the primary cache partitioned by year and then synced across 
 
 }}
 \note{
-Data will be loaded in-memory, because \emph{\link{inaudible}} mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
+Data will be loaded in-memory, because \emph{[inaudible]} mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
 }
 \section{Preprocessing:}{
 \itemize{

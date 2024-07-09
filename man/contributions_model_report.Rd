@@ -13,13 +13,23 @@ An object of class \code{contributions_model_report} (inherits from \code{report
 \usage{
 contributions_model_report
 
-\method{read}{contributions_model_report}(report)
+\method{read}{contributions_model_report}(report, ...)
 
-\method{process}{contributions_model_report}(report)
+\method{process}{contributions_model_report}(report, ...)
 
-\method{output}{contributions_model_report}(report, subject, body, emails)
+\method{output}{contributions_model_report}(
+  report,
+  subject = paste("Contributions model", Sys.Date()),
+  body = paste("Sent by", Sys.info()["nodename"]),
+  emails = config::get("tessiflow.email"),
+  ...
+)
 }
 \arguments{
+\item{report}{\code{contributions_model_report} object}
+
+\item{...}{not used}
+
 \item{subject}{Subject of the email.}
 
 \item{body}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
