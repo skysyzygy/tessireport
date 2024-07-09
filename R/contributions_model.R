@@ -63,7 +63,7 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
 
 #' @export
 #' @importFrom tessilake read_cache cache_exists_any
-#' @importFrom dplyr filter select collect mutate
+#' @importFrom dplyr filter select collect mutate summarise
 #' @importFrom mlr3 TaskClassif
 #' @describeIn contributions_model Read in contribution data and prepare a mlr3 training task and a prediction/validation task
 #' @param model `contributions_model` object
@@ -71,14 +71,23 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
 #' @param until Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today
 #' @param rebuild_dataset boolean rebuild the dataset by calling `contributions_dataset` (TRUE) or just read the existing one (FALSE)
 #' @note Data will be loaded in-memory, because *[inaudible]* mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
-read.contributions_model <- function(model, rebuild_dataset = FALSE,
+read.contributions_model <- function(model, rebuild_dataset = NULL,
                                      since = Sys.Date()-365*5,
                                      until = Sys.Date(),
                                      predict_since = Sys.Date() - 30, ...) {
 
-  if(rebuild_dataset | !cache_exists_any("contributions_dataset","model")) contributions_dataset(since = since)
+  if(rebuild_dataset %||% F || !cache_exists_any("contributions_dataset","model")) {
+    contributions_dataset(since = since, until = Sys.Date())
+  }
 
-  dataset <- read_cache("contributions_dataset","model") %>%
+  dataset <- read_cache("contributions_dataset","model")
+  dataset_max_date <- summarise(dataset,max(date,na.rm = T)) %>% collect %>% .[[1]]
+
+  if (rebuild_dataset %||% T && dataset_max_date < until && until <= Sys.Date()) {
+    contributions_dataset(since = dataset_max_date, until = Sys.Date())
+  }
+
+  dataset <- dataset %>%
     filter(date >= since & date < until) %>%
     collect %>%
     mutate(date = as.POSIXct(date),

@@ -10,8 +10,8 @@ test_that("contributions_dataset reads from an ffdf and adds an event indicator"
     assign("stream",data.table(
       group_customer_no = 1,
       event_type = c("Ticket","Contribution"),
-      contributionAmt = 50,
-      timestamp = Sys.Date()+c(-60,0)),
+      contributionAdjAmt = 50,
+      timestamp = Sys.Date()+c(-60,-.001)),
       envir = rlang::caller_env())
   })
   stub(contributions_dataset, "ff::delete", TRUE)
@@ -31,13 +31,14 @@ test_that("contributions_dataset censors and subsets", {
       # additional contibutions will be censored
       group_customer_no = rep(1:2,each=3),
       event_type = c("Ticket","Contribution","Contribution"),
-      contributionAmt = 50,
+      contributionAdjAmt = 50,
       # early dates will be removed and only one item per month will be returned (i.e. row 5)
-      timestamp = rep(c(Sys.Date()-10,Sys.Date()),each=3)),
+      timestamp = rep(c(Sys.Date()-10,Sys.Date()-.001),each=3)),
       envir = rlang::caller_env())
   })
   stub(contributions_dataset, "ff::delete", TRUE)
-  contributions_dataset(since = Sys.Date())
+
+  contributions_dataset(since = Sys.Date()-1)
 
   dataset <- read_cache("contributions_dataset","model") %>% collect
   expect_equal(nrow(dataset),1)
@@ -71,7 +72,7 @@ test_that("read.contributions_model creates a valid mlr3 classification task", {
 
   stub(read.contributions_model,"cache_exists_any",TRUE)
 
-  model <<- read(contributions_model, predict_since = as.Date("2024-06-01"))
+  model <<- read(contributions_model, predict_since = as.Date("2024-06-01"), rebuild_dataset = F)
 
   expect_class(model$task, "TaskClassif")
 

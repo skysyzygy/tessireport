@@ -14,11 +14,11 @@ An object of class \code{contributions_model} (inherits from \code{mlr_report}, 
 \usage{
 contributions_model
 
-contributions_dataset(since = Sys.Date() - 365 * 5, ...)
+contributions_dataset(since = Sys.Date() - 365 * 5, until = Sys.Date(), ...)
 
 \method{read}{contributions_model}(
   model,
-  rebuild_dataset = FALSE,
+  rebuild_dataset = NULL,
   since = Sys.Date() - 365 * 5,
   until = Sys.Date(),
   predict_since = Sys.Date() - 30,
@@ -32,11 +32,11 @@ contributions_dataset(since = Sys.Date() - 365 * 5, ...)
 \arguments{
 \item{since}{Date/POSIXct data on or after this date will be loaded and possibly used for training}
 
+\item{until}{Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today}
+
 \item{model}{\code{contributions_model} object}
 
 \item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset} (TRUE) or just read the existing one (FALSE)}
-
-\item{until}{Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today}
 
 \item{predict_since}{Date/POSIXct data on/after this date will be used to make predictions and not for training}
 }
