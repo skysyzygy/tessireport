@@ -38,7 +38,6 @@ Imports:
     mailR,
     mlr3,
     mlr3db,
-    mlr3proba,
     mlr3verse,
     openxlsx,
     purrr,
