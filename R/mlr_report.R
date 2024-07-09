@@ -2,6 +2,7 @@
 #' @description Base class for training/running a machine learning model
 #' @name mlr_report
 #' @param mlr_report The report object
+#' @param ... not used
 #' @export
 mlr_report <- report(class="mlr_report")
 
@@ -25,11 +26,13 @@ process.mlr_report <- function(mlr_report, train = TRUE, predict = TRUE, ...) {
   NextMethod()
 }
 
+#' @describeIn mlr_report Train the model
 #' @export
 train <- function(...) UseMethod("train")
 #' @export
 train.mlr_report <- function(x, ...) x
 
+#' @describeIn mlr_report Predict the model
 #' @export
 predict <- function(...) UseMethod("predict")
 #' @export

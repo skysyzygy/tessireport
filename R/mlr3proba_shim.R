@@ -3,6 +3,27 @@
 #' Shim for .__TaskSurv__initialize to work with duckdb tables
 #'
 #' @importFrom dplyr slice_head select collect
+#' @param id (`character(1)`)\cr
+#'   Identifier for the new instance.
+#' @param backend ([DataBackend])\cr
+#'   Either a [DataBackend], or any object which is convertible to a [DataBackend] with `as_data_backend()`.
+#'   E.g., a `data.frame()` will be converted to a [DataBackendDataTable].#' @template param_time
+#' @param event (`character(1)`)\cr
+#' Name of the column giving the event indicator.
+#' If data is right censored then "0"/`FALSE` means alive (no event), "1"/`TRUE` means dead
+#' (event). If `type` is `"interval"` then "0" means right censored, "1" means dead (event),
+#' "2" means left censored, and "3" means interval censored. If `type` is `"interval2"` then
+#' `event` is ignored.
+#' @param time (`character(1)`)\cr
+#' Name of the column for event time if data is right censored, otherwise starting time if
+#' interval censored.
+#' @param time2 (`character(1)`)\cr
+#' Name of the column for ending time of the interval for interval censored or
+#' counting process data, otherwise ignored.
+#' @param type (`character(1)`)\cr
+#' Name of the column giving the type of censoring. Default is 'right' censoring.
+#' @param label (`character(1)`)\cr
+#'    Label for the new instance.
 .__TaskSurv__initialize <- function(id, backend, time = "time", event = "event", time2,
                                     type = c("right", "left", "interval", "counting", "interval2", "mstate"),
                                     label = NA_character_)

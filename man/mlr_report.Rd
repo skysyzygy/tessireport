@@ -5,6 +5,8 @@
 \alias{mlr_report}
 \alias{read.mlr_report}
 \alias{process.mlr_report}
+\alias{train}
+\alias{predict}
 \alias{output.mlr_report}
 \alias{write.mlr_report}
 \title{mlr_report}
@@ -18,12 +20,18 @@ mlr_report
 
 \method{process}{mlr_report}(mlr_report, train = TRUE, predict = TRUE, ...)
 
+train(...)
+
+predict(...)
+
 \method{output}{mlr_report}(...)
 
 \method{write}{mlr_report}(mlr_report, subdir = "model", sync = TRUE, ...)
 }
 \arguments{
 \item{mlr_report}{The report object}
+
+\item{...}{not used}
 
 \item{train}{boolean whether to run the training}
 
@@ -50,6 +58,13 @@ some standard heuristics. TBD
 
 \item \code{write(mlr_report)}: Save the trained model and model output for future use. Writes the model to the
 \link[tessilake:cache_path]{tessilake::cache_primary_path} under the subdirectory \code{subdir} and then syncs them across storages.
+
+}}
+\section{Functions}{
+\itemize{
+\item \code{train()}: Train the model
+
+\item \code{predict()}: Predict the model
 
 }}
 \keyword{datasets}
