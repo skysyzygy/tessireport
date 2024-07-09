@@ -11,16 +11,16 @@ contributions_model <- report(class=c("contributions_model","mlr_report"))
 #' * only data since `since` are loaded
 #' Data is written to the primary cache partitioned by year and then synced across storages
 #' @param since Date/POSIXct data on or after this date will be loaded and possibly used for training
-contributions_dataset <- function(since = Sys.Date()-365*5, ...) {
-  stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream-20240619.gz")
+contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), ...) {
+  stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
   ffbase::unpack.ffdf(stream_path)
 
-  stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAmt")] %>% setDT
+  stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAdjAmt")] %>% setDT
   stream_key[,I:=.I]
   setkey(stream_key,group_customer_no,timestamp)
 
   # add event
-  stream_key[,event := event_type == "Contribution" & contributionAmt>=50]
+  stream_key[,event := event_type == "Contribution" & contributionAdjAmt>=50]
   stream_key[,`:=`(n_event = cumsum(event),
                    N = .N), by="group_customer_no"]
   # censor
@@ -29,7 +29,7 @@ contributions_dataset <- function(since = Sys.Date()-365*5, ...) {
   # subsample
   month_subset <- stream_key[,last(I), by=list(group_customer_no,lubridate::floor_date(timestamp,"months"))]$V1
   stream_key <- stream_key[event | I %in% month_subset]
-  stream_key <- stream_key[timestamp >= since]
+  stream_key <- stream_key[timestamp >= since & timestamp < until]
 
   # partition by year
   stream_key[,partition := year(timestamp)]
