@@ -130,13 +130,9 @@ train.contributions_model <- function(model, ...) {
   subsample <- po("subsample", frac = .1)
 
   preprocess <- po("select",selector = selector_invert(selector_grep("__1|Send"))) %>>%
-                po("removeconstants",abs_tol=.5) %>>%
-                po("classbalancing", reference = "minor",ratio = 10,adjust="downsample") %>>%
                 po("yeojohnson", lower = to_tune(-2,0), upper = to_tune(0,2), eps = .1) %>>%
-                list(po("missind"),
-                     po("imputeoor")) %>>%
-                po("featureunion") %>>%
-                po("removeconstants",id="post_removeconstants",ratio=1/100)
+                po("classbalancing", reference = "minor",ratio = 10,adjust="downsample") %>>%
+                ppl("robustify")
 
   importance_filter <- po("filter",
                    filter = flt("importance"),
@@ -151,7 +147,6 @@ train.contributions_model <- function(model, ...) {
   stacked <- as_learner(subsample %>>% preprocess %>>% ppl("stacking", c(logreg,ranger),
                                                            lrn("classif.log_reg", predict_type = "prob"),
                                                            use_features = FALSE), id = "stacked")
-
   stacked_tuned <- tune(
       tuner = tnr("hyperband",eta=2),
       task = model$task,
@@ -164,7 +159,7 @@ train.contributions_model <- function(model, ...) {
   model$model <- stacked$train(model$task)
 
   # save state
-  write(model)
+  write(model, sync = FALSE)
 
   NextMethod()
 }
