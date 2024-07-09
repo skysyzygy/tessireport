@@ -55,6 +55,8 @@ write.mlr_report <- function(mlr_report, subdir = "model", sync = TRUE, ...) {
 
   report_name <- class(mlr_report)[1]
   path_name = tessilake::cache_primary_path(report_name, subdir)
+  if(!dir.exists(path_name))
+    dir.create(path_name, recursive = T)
 
   if (!is.null(mlr_report$model)) {
     model_filename = gsub("_",".",report_name)
