@@ -28,7 +28,11 @@ Imports:
     DBI,
     dplyr,
     duckdb,
+    emo,
+    furrr,
     ggplot2,
+    httr,
+    keyring,
     lubridate,
     magrittr,
     mailR,
@@ -56,3 +60,4 @@ Remotes:
     skysyzygy/tessistream,
     skysyzygy/ffbase/pkg,
     mlr-org/mlr3proba
+    hadley/emo
