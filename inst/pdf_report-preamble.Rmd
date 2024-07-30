@@ -1,0 +1,30 @@
+---
+title: `r if (exists('.title')) I(.title)`
+author: `r if (exists('.author')) I(.author)`
+date: `r lubridate::today()`
+output:
+  pdf_document:
+    keep_tex: yes
+    latex_engine: xelatex
+documentclass: memoir
+mainfont: Arial
+classoption: landscape
+geometry: margin=0.5in
+papersize: legal
+fontsize: 8pt
+header-includes:
+  - \pretitle{\begin{flushleft}\LARGE}
+  - \posttitle{\par\end{flushleft}}
+  - \preauthor{\begin{flushleft}\large}
+  - \postauthor{\par\end{flushleft}}
+  - \predate{\begin{flushleft}\large}
+  - \postdate{\end{flushleft}}
+  - \renewcommand{\frontmatter}{} % no page break after title
+  - \renewcommand{\mainmatter}{}
+  - \makeoddhead{plain}{}{}{\thepage} % page number on the bottom right
+  - \makeoddfoot{plain}{}{}{}
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{colortbl}
+  - \raggedbottom
+---
