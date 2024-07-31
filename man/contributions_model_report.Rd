@@ -32,7 +32,8 @@ contributions_model_report
 
 \item{subject}{Subject of the email.}
 
-\item{body}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
+\item{body}{Body of the email as text. If the parameter body refers to an existing file location,
+the text of the file is parsed as body of the email. Default is \verb{Sent by <computer name>}.}
 
 \item{emails}{email addresses (first will be sender)}
 }
