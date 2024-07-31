@@ -23,25 +23,25 @@ write_pdf(
 \arguments{
 \item{expr}{expression to execute to create the body of the pdf}
 
-\item{.title}{character title for the header of the pdf; see the preamble for how this variable is used}
+\item{.title}{character title for the header of the pdf; see the preamble for how this variable is passed to pandoc}
 
-\item{.author}{character author for the header of the pdf; see the preamble for how this variable is used}
+\item{.author}{character author for the header of the pdf; see the preamble for how this variable is passed to pandoc}
 
-\item{.date}{character date for the header of the pdf; see the preamble for how this variable is used}
+\item{.date}{character date for the header of the pdf; see the preamble for how this variable is passed to pandoc}
 
-\item{.classoption}{character tex classoption; see the preamble for how this variable is used}
+\item{.classoption}{character tex classoption; see the preamble for how this variable is passed to pandoc}
 
-\item{.papersize}{character tex pagesize; see the preamble for how this variable is used}
+\item{.papersize}{character tex pagesize; see the preamble for how this variable is passed to pandoc}
 
-\item{.mainfont}{character tex mainfont; see the preamble for how this variable is used}
+\item{.mainfont}{character tex mainfont; see the preamble for how this variable is passed to pandoc}
 
-\item{.geometry}{character tex geometry; see the preamble for how this variable is used}
+\item{.geometry}{character tex geometry; see the preamble for how this variable is passed to pandoc}
 
-\item{.fontsize}{character tex fontsize; see the preamble for how this variable is used}
+\item{.fontsize}{character tex fontsize; see the preamble for how this variable is passed to pandoc}
 
-\item{fig.width}{character knitr figure width; see the preamble for how this variable is used}
+\item{fig.width}{integer knitr figure width, passed to \link[knitr:opts_chunk]{knitr::opts_chunk}}
 
-\item{fig.height}{character knitr figure height; see the preamble for how this variable is used}
+\item{fig.height}{integer knitr figure height, passed to \link[knitr:opts_chunk]{knitr::opts_chunk}}
 
 \item{preamble}{filename of the yaml preamble used by pandoc for generating the pdf}
 }

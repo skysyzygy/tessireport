@@ -1,6 +1,3 @@
-
-
-
 #' pdf_plot
 #'
 #' Add a plot to a pdf by generating R markdown, intended to be used within the `expr` argument to [write_pdf]
@@ -28,16 +25,16 @@ pdf_table <- knitr::kable
 #'
 #' @param expr expression to execute to create the body of the pdf
 #' @param preamble filename of the yaml preamble used by pandoc for generating the pdf
-#' @param .title character title for the header of the pdf; see the preamble for how this variable is used
-#' @param .author character author for the header of the pdf; see the preamble for how this variable is used
-#' @param .date character date for the header of the pdf; see the preamble for how this variable is used
-#' @param .classoption character tex classoption; see the preamble for how this variable is used
-#' @param .papersize character tex pagesize; see the preamble for how this variable is used
-#' @param .mainfont character tex mainfont; see the preamble for how this variable is used
-#' @param .geometry character tex geometry; see the preamble for how this variable is used
-#' @param .fontsize character tex fontsize; see the preamble for how this variable is used
-#' @param fig.width character knitr figure width; see the preamble for how this variable is used
-#' @param fig.height character knitr figure height; see the preamble for how this variable is used
+#' @param .title character title for the header of the pdf; see the preamble for how this variable is passed to pandoc
+#' @param .author character author for the header of the pdf; see the preamble for how this variable is passed to pandoc
+#' @param .date character date for the header of the pdf; see the preamble for how this variable is passed to pandoc
+#' @param .classoption character tex classoption; see the preamble for how this variable is passed to pandoc
+#' @param .papersize character tex pagesize; see the preamble for how this variable is passed to pandoc
+#' @param .mainfont character tex mainfont; see the preamble for how this variable is passed to pandoc
+#' @param .geometry character tex geometry; see the preamble for how this variable is passed to pandoc
+#' @param .fontsize character tex fontsize; see the preamble for how this variable is passed to pandoc
+#' @param fig.width integer knitr figure width, passed to [knitr::opts_chunk]
+#' @param fig.height integer knitr figure height, passed to [knitr::opts_chunk]
 #'
 #' @export
 #' @importFrom lubridate today
