@@ -1,17 +1,17 @@
 ---
-title: `r if (exists('.title')) I(.title)`
-author: `r if (exists('.author')) I(.author)`
-date: `r lubridate::today()`
+title: `r .title %||% ""`
+author: `r .author %||% ""`
+date: `r .date %||% ""`
 output:
   pdf_document:
-    keep_tex: yes
+    keep_tex: no
     latex_engine: xelatex
 documentclass: memoir
-mainfont: Arial
-classoption: landscape
-geometry: margin=0.5in
-papersize: legal
-fontsize: 8pt
+mainfont: `r .mainfont`
+classoption: `r .classoption`
+geometry: `r .geometry`
+papersize: `r .papersize`
+fontsize: `r .fontsize`
 header-includes:
   - \pretitle{\begin{flushleft}\LARGE}
   - \posttitle{\par\end{flushleft}}
@@ -21,10 +21,14 @@ header-includes:
   - \postdate{\end{flushleft}}
   - \renewcommand{\frontmatter}{} % no page break after title
   - \renewcommand{\mainmatter}{}
-  - \makeoddhead{plain}{}{}{\thepage} % page number on the bottom right
-  - \makeoddfoot{plain}{}{}{}
+  - \makeoddhead{headings}{}{}{\thepage} % page number on the top right
+  - \makeoddfoot{headings}{}{}{}
+  - \makeevenhead{headings}{}{}{\thepage} % page number on the top right
+  - \makeevenfoot{headings}{}{}{}
   - \usepackage{booktabs}
   - \usepackage{longtable}
   - \usepackage{colortbl}
   - \raggedbottom
+  - \pagestyle{headings}
 ---
+
