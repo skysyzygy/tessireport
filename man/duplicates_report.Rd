@@ -16,7 +16,8 @@
 \item{...}{
   Arguments passed on to \code{\link[=send_xlsx]{send_xlsx}}
   \describe{
-    \item{\code{body}}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
+    \item{\code{body}}{Body of the email as text. If the parameter body refers to an existing file location,
+the text of the file is parsed as body of the email. Default is \verb{Sent by <computer name>}.}
   }}
 
 \item{routing}{named list, names are email addresses and values are vectors of
