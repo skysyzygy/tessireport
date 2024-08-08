@@ -1,4 +1,5 @@
 withr::local_package("checkmate")
+tinytex::install_tinytex()
 
 test_that("write_pdf executes expr", {
   capture.output(filename <- write_pdf(cat(paste0("Hello I'm a pdf! 1+1=",1+1))))
