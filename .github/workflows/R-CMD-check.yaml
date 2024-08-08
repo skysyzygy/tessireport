@@ -17,6 +17,12 @@ jobs:
       GITHUB_PAT: ${{ secrets.REPO_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
     steps:
+      - name: Install fonts
+        run: |
+          echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+          sudo apt-get install -y ttf-mscorefonts-installer
+          sudo fc-cache -f
+
       - uses: actions/checkout@v3
 
       - uses: r-lib/actions/setup-tinytex@v2
