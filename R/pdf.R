@@ -23,7 +23,8 @@ pdf_table <- knitr::kable
 
 #' write_pdf
 #'
-#' @param expr expression to execute to create the body of the pdf
+#' @param expr expression to execute to create the body of the pdf'
+#' @param output_file character filename to write to, defaults to a temporary file
 #' @param preamble filename of the yaml preamble used by pandoc for generating the pdf
 #' @param .title character title for the header of the pdf; see the preamble for how this variable is passed to pandoc
 #' @param .author character author for the header of the pdf; see the preamble for how this variable is passed to pandoc
@@ -35,7 +36,7 @@ pdf_table <- knitr::kable
 #' @param .fontsize character tex fontsize; see the preamble for how this variable is passed to pandoc
 #' @param fig.width integer knitr figure width, passed to [knitr::opts_chunk]
 #' @param fig.height integer knitr figure height, passed to [knitr::opts_chunk]
-#'
+#' @returns character filename of pdf file
 #' @export
 #' @importFrom lubridate today
 #' @importFrom rlang enquo eval_tidy

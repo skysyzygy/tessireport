@@ -14,14 +14,16 @@ write_pdf(
   .papersize = "legal",
   .mainfont = "Arial",
   .geometry = "margin=0.5in",
-  .fontsize = "8pt",
+  .fontsize = "9pt",
   fig.width = 14,
   fig.height = 7.5,
   preamble = system.file("pdf_memoir-preamble.Rmd", package = "tessireport")
 )
 }
 \arguments{
-\item{expr}{expression to execute to create the body of the pdf}
+\item{expr}{expression to execute to create the body of the pdf'}
+
+\item{output_file}{character filename to write to, defaults to a temporary file}
 
 \item{.title}{character title for the header of the pdf; see the preamble for how this variable is passed to pandoc}
 
@@ -44,6 +46,9 @@ write_pdf(
 \item{fig.height}{integer knitr figure height, passed to \link[knitr:opts_chunk]{knitr::opts_chunk}}
 
 \item{preamble}{filename of the yaml preamble used by pandoc for generating the pdf}
+}
+\value{
+character filename of pdf file
 }
 \description{
 write_pdf
