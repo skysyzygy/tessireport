@@ -42,7 +42,7 @@ pdf_table <- knitr::kable
 #' @importFrom rlang enquo eval_tidy
 write_pdf <- function(expr, output_file = tempfile(fileext = ".pdf"),
                       .title = NULL, .author = NULL, .date = today(),
-                      .classoption = "landscape", .papersize = "legal", .mainfont = "Fira Sans", .geometry = "margin=0.5in", .fontsize = "9pt",
+                      .classoption = "landscape", .papersize = "legal", .mainfont = "Arial", .geometry = "margin=0.5in", .fontsize = "9pt",
                       fig.width = 14, fig.height = 7.5,
                       preamble = system.file("pdf_memoir-preamble.Rmd", package = "tessireport")) {
 
