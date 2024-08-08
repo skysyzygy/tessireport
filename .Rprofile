@@ -5,4 +5,5 @@ user_profile <- file.path(Sys.getenv("R_USER"),".Rprofile")
 if(file.exists(user_profile))
   source(user_profile)
 
-tinytex::install_tinytex()
+if(system.file(package="tinytex")!="")
+  tinytex::install_tinytex()
