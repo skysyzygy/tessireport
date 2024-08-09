@@ -35,6 +35,7 @@ Imports:
     ggplot2,
     httr,
     keyring,
+    knitr,
     lubridate,
     magrittr,
     mailR,
@@ -45,6 +46,7 @@ Imports:
     purrr,
     ranger,
     rlang,
+    rmarkdown,
     stats,
     tessilake,
     tessistream
@@ -52,6 +54,7 @@ Suggests:
     arrow,
     here,
     mockery,
+    pdftools,
     png,
     rprojroot,
     testthat (>= 3.0.0),

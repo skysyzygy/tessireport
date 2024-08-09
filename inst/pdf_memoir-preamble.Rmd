@@ -1,0 +1,34 @@
+---
+title: `r .title %||% ""`
+author: `r .author %||% ""`
+date: `r .date %||% ""`
+output:
+  pdf_document:
+    keep_tex: no
+    latex_engine: xelatex
+documentclass: memoir
+mainfont: `r .mainfont`
+classoption: `r .classoption`
+geometry: `r .geometry`
+papersize: `r .papersize`
+fontsize: `r .fontsize`
+header-includes:
+  - \pretitle{\begin{flushleft}\LARGE}
+  - \posttitle{\par\end{flushleft}}
+  - \preauthor{\begin{flushleft}\large}
+  - \postauthor{\par\end{flushleft}}
+  - \predate{\begin{flushleft}\large}
+  - \postdate{\end{flushleft}}
+  - \renewcommand{\frontmatter}{} % no page break after title
+  - \renewcommand{\mainmatter}{}
+  - \makeoddhead{headings}{}{}{\thepage} % page number on the top right
+  - \makeoddfoot{headings}{}{}{}
+  - \makeevenhead{headings}{}{}{\thepage} % page number on the top right
+  - \makeevenfoot{headings}{}{}{}
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{colortbl}
+  - \raggedbottom
+  - \pagestyle{headings}
+---
+
