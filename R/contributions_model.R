@@ -270,6 +270,8 @@ stream_normalize_timestamps <- function(dataset,
   assert_names(names(dataset), must.include = c("timestamp",columns,by))
   assert_data_table(dataset[,c("timestamp",columns), with = F],types=c("Date","POSIXct"))
 
-  dataset[,(columns) := lapply(.SD, \(c) c-min(timestamp, na.rm = T)), by = by, .SDcols = columns]
-  dataset[,(columns) := lapply(.SD, \(c) as.numeric(c)), .SDcols = columns]
+  dataset[,min_timestamp := min(timestamp, na.rm = T), by = by]
+  dataset[,(columns) := lapply(.SD, \(c) as.numeric(as.POSIXct(c)-as.POSIXct(min_timestamp))), .SDcols = columns]
+  dataset[,min_timestamp := NULL]
+  dataset
 }
