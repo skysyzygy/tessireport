@@ -16,8 +16,8 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
   stream <- group_customer_no <- timestamp <- event_type <- event <- contributionAdjAmt <- n_event <-
     N <- partition <- NULL
 
-  stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
-  ffbase::unpack.ffdf(stream_path)
+  #stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
+  ffbase::load.ffdf("E:/ffdb")
 
   stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAdjAmt")] %>% setDT
   stream_key[,I:=.I]
@@ -61,8 +61,9 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
   }
 
   stream_key[, stream_chunk_write(.SD,partition), by = "partition"]
+  tessilake::sync_cache("contributions_dataset", "model", overwrite = TRUE)
 
-  ff::delete(stream)
+  close(stream)
 }
 
 #' @export
