@@ -97,9 +97,9 @@ read.contributions_model <- function(model, rebuild_dataset = NULL,
 
   dataset <- dataset %>%
     filter(date >= since & date < until) %>%
-    collect %>%
-    mutate(date = as.POSIXct(date),
-           event = as.factor(event))
+    collect %>% setDT %>%
+    .[,`:=`(date = as.POSIXct(date),
+           event = as.factor(event))]
 
   model$task <- TaskClassif$new(id = "contributions",
                                 target = "event",
