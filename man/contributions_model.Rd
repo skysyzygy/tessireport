@@ -22,6 +22,7 @@ contributions_dataset(since = Sys.Date() - 365 * 5, until = Sys.Date(), ...)
   since = Sys.Date() - 365 * 5,
   until = Sys.Date(),
   predict_since = Sys.Date() - 30,
+  predict = NULL,
   ...
 )
 
@@ -42,6 +43,8 @@ contributions_dataset(since = Sys.Date() - 365 * 5, until = Sys.Date(), ...)
 or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
 
 \item{predict_since}{Date/POSIXct data on/after this date will be used to make predictions and not for training}
+
+\item{predict}{Not used, just here to prevent partial argument matching}
 }
 \description{
 mlr3 model for predicting a customer's first contribution
