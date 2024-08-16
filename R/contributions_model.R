@@ -73,6 +73,7 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
 #' @describeIn contributions_model Read in contribution data and prepare a mlr3 training task and a prediction/validation task
 #' @param model `contributions_model` object
 #' @param predict_since Date/POSIXct data on/after this date will be used to make predictions and not for training
+#' @param predict Not used, just here to prevent partial argument matching
 #' @param until Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today
 #' @param rebuild_dataset boolean rebuild the dataset by calling `contributions_dataset(since=since,until=until)` (TRUE), just read the existing one (FALSE),
 #' or append new rows by calling `contributions_dataset(since=max_existing_date,until=until)` (NULL, default)
@@ -80,7 +81,8 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
 read.contributions_model <- function(model, rebuild_dataset = NULL,
                                      since = Sys.Date()-365*5,
                                      until = Sys.Date(),
-                                     predict_since = Sys.Date() - 30, ...) {
+                                     predict_since = Sys.Date() - 30,
+                                     predict = NULL, ...) {
 
   . <- event <- TRUE
 
