@@ -6,7 +6,7 @@ withr::local_package("mockery")
 
 test_that("contributions_dataset reads from an ffdf and adds an event indicator", {
   tessilake::local_cache_dirs()
-  stub(contributions_dataset, "ffbase::unpack.ffdf", function(...) {
+  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
     assign("stream",data.table(
       group_customer_no = 1,
       event_type = c("Ticket","Contribution"),
@@ -14,7 +14,7 @@ test_that("contributions_dataset reads from an ffdf and adds an event indicator"
       timestamp = Sys.Date()+c(-60,-.001)),
       envir = rlang::caller_env())
   })
-  stub(contributions_dataset, "ff::delete", TRUE)
+  stub(contributions_dataset, "close", TRUE)
 
   contributions_dataset()
 
@@ -26,7 +26,7 @@ test_that("contributions_dataset reads from an ffdf and adds an event indicator"
 
 test_that("contributions_dataset censors and subsets", {
   tessilake::local_cache_dirs()
-  stub(contributions_dataset, "ffbase::unpack.ffdf", function(...) {
+  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
     assign("stream",data.table(
       # additional contibutions will be censored
       group_customer_no = rep(1:2,each=3),
@@ -36,7 +36,7 @@ test_that("contributions_dataset censors and subsets", {
       timestamp = rep(c(Sys.Date()-10,Sys.Date()-.001),each=3)),
       envir = rlang::caller_env())
   })
-  stub(contributions_dataset, "ff::delete", TRUE)
+  stub(contributions_dataset, "close", TRUE)
 
   contributions_dataset(since = Sys.Date()-1)
 
@@ -107,7 +107,6 @@ test_that("predict.contributions_model successfully predicts new data", {
   expect_names(names(model$predictions),must.include = c("group_customer_no","date","truth","prob.TRUE"))
 
 })
-
 
 
 # stream_rollback_event ---------------------------------------------------
