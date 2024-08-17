@@ -71,17 +71,18 @@ write.report = default_function("write")
 run = function(...) UseMethod("run")
 #' @export
 #' @describeIn report run all methods in order: read -> process -> output -> write
+#' @importFrom rlang try_fetch abort cnd_signal is_call call_name
 run.report = function(x,...) {
-  tryCatch(x %>%
+  try_fetch(x %>%
     read(...) %>%
     process(...) %>%
     write(...) %>%
     output(...),
     error = \(e) {
-      if(rlang::is_call(e$call) && rlang::call_name(e$call) == "UseMethod")
-        rlang::abort(c("Did you forget to return a `report` object from `read`, `process`, `output` or `write`?",
+      if(is_call(e$call) && call_name(e$call) == "UseMethod")
+        abort(c("Did you forget to return a `report` object from `read`, `process`, `output` or `write`?",
                        "Hint: you can use NextMethod() to work with inherited methods as well."),
                      parent = e)
-      rlang::cnd_signal(e)
+      cnd_signal(e)
     })
 }
