@@ -182,8 +182,12 @@ train.contributions_model <- function(model, ...) {
 #' @importFrom dplyr filter
 #' @describeIn contributions_model Predict using the trained model
 predict.contributions_model <- function(model, ...) {
-  if(is.null(model$model))
-    model$model <- readRDS(cache_primary_path("contributions.model","model"))
+  if(is.null(model$model)) {
+    report_name <- class(model)[[1]]
+    model_filename = gsub("_",".",report_name)
+    model$model <- readRDS(file.path(path_name,model_filename),"model")
+  }
+
 
   model$predictions <-
     cbind(as.data.table(model$model$predict(model$task$internal_valid_task)),
