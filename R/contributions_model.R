@@ -87,14 +87,14 @@ read.contributions_model <- function(model, rebuild_dataset = NULL,
   . <- event <- TRUE
 
   if(rebuild_dataset %||% F || !cache_exists_any("contributions_dataset","model")) {
-    contributions_dataset(since = since, until = Sys.Date())
+    contributions_dataset(since = since, until = until)
   }
 
   dataset <- read_cache("contributions_dataset","model")
   dataset_max_date <- summarise(dataset,max(date,na.rm = T)) %>% collect %>% .[[1]]
 
-  if (rebuild_dataset %||% T && dataset_max_date < until && until <= Sys.Date()) {
-    contributions_dataset(since = dataset_max_date, until = Sys.Date())
+  if (rebuild_dataset %||% T && dataset_max_date < until) {
+    contributions_dataset(since = dataset_max_date, until = until)
   }
 
   dataset <- dataset %>%
