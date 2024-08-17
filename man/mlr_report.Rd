@@ -9,6 +9,8 @@
 \alias{predict}
 \alias{output.mlr_report}
 \alias{write.mlr_report}
+\alias{load_model}
+\alias{save_model}
 \title{mlr_report}
 \format{
 An object of class \code{mlr_report} (inherits from \code{report}, \code{list}) of length 0.
@@ -27,6 +29,10 @@ predict(...)
 \method{output}{mlr_report}(...)
 
 \method{write}{mlr_report}(mlr_report, subdir = "model", sync = TRUE, ...)
+
+load_model(model_name, subdir = "model")
+
+save_model(model, model_name, subdir = "model", sync = TRUE)
 }
 \arguments{
 \item{mlr_report}{The report object}
@@ -65,6 +71,10 @@ some standard heuristics. TBD
 \item \code{train()}: Train the model
 
 \item \code{predict()}: Predict the model
+
+\item \code{load_model()}: load serialized mlr model from disk
+
+\item \code{save_model()}: save serialized mlr model to disk
 
 }}
 \keyword{datasets}

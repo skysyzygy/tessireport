@@ -57,19 +57,33 @@ output.mlr_report <- function(...) {
 write.mlr_report <- function(mlr_report, subdir = "model", sync = TRUE, ...) {
 
   report_name <- class(mlr_report)[1]
-  path_name = tessilake::cache_primary_path(report_name, subdir)
+
+  if (!is.null(mlr_report$model))
+    save_model(model = mlr_report$model, model_name = report_name, subdir = subdir, sync = sync)
+
+  if (!is.null(mlr_report$predictions))
+    write_cache(mlr_report$predictions, report_name, subdir, sync = sync)
+
+
+  NextMethod()
+}
+
+#' @describeIn mlr_report load serialized mlr model from disk
+load_model <- function(model_name, subdir = "model") {
+  path_name = cache_primary_path(model_name, subdir)
+  model_filename = gsub("_",".",model_name)
+  readRDS(file.path(path_name,model_filename),"model")
+}
+
+#' @describeIn mlr_report save serialized mlr model to disk
+#' @importFrom tessilake cache_primary_path
+save_model <- function(model, model_name, subdir = "model", sync = TRUE) {
+  path_name = cache_primary_path(model_name, subdir)
+  model_filename = gsub("_",".",model_name)
+
   if(!dir.exists(path_name))
     dir.create(path_name, recursive = T)
 
-  if (!is.null(mlr_report$model)) {
-    model_filename = gsub("_",".",report_name)
-    saveRDS(mlr_report$model, file.path(path_name,model_filename))
-    if (sync) sync_cache(report_name, subdir, whole_file = TRUE)
-  }
-
-  if (!is.null(mlr_report$predictions)) {
-    write_cache(mlr_report$predictions, report_name, subdir, sync = sync)
-  }
-
-  NextMethod()
+  saveRDS(model, file.path(path_name,model_filename))
+  if (sync) sync_cache(model_name, subdir, whole_file = TRUE)
 }
