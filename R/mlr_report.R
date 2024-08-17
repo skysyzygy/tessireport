@@ -62,7 +62,7 @@ write.mlr_report <- function(mlr_report, subdir = "model", sync = TRUE, ...) {
     save_model(model = mlr_report$model, model_name = report_name, subdir = subdir, sync = sync)
 
   if (!is.null(mlr_report$predictions))
-    write_cache(mlr_report$predictions, report_name, subdir, sync = sync)
+    write_cache(mlr_report$predictions, paste0(report_name,"_predictions"), subdir, sync = sync, overwrite = TRUE)
 
 
   NextMethod()
