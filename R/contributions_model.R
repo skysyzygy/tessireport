@@ -55,13 +55,13 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
 
     dataset[,partition := partition]
 
-    tessilake::write_cache(dataset, "contributions_dataset", "model", partition = "partition",
+    tessilake::write_cache(dataset, "dataset", "contributions_model", partition = "partition",
                            incremental = TRUE, date_column = "date", sync = FALSE)
 
   }
 
   stream_key[, stream_chunk_write(.SD,partition), by = "partition"]
-  tessilake::sync_cache("contributions_dataset", "model", overwrite = TRUE)
+  tessilake::sync_cache("dataset", "contributions_model", overwrite = TRUE)
 
   close(stream)
 }
@@ -86,11 +86,11 @@ read.contributions_model <- function(model, rebuild_dataset = NULL,
 
   . <- event <- TRUE
 
-  if(rebuild_dataset %||% F || !cache_exists_any("contributions_dataset","model")) {
+  if(rebuild_dataset %||% F || !cache_exists_any("dataset","contributions_model")) {
     contributions_dataset(since = since, until = until)
   }
 
-  dataset <- read_cache("contributions_dataset","model")
+  dataset <- read_cache("dataset","contributions_model")
   dataset_max_date <- summarise(dataset,max(date,na.rm = T)) %>% collect %>% .[[1]]
 
   if (rebuild_dataset %||% T && dataset_max_date < until) {

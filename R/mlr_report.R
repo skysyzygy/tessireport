@@ -48,42 +48,38 @@ output.mlr_report <- function(...) {
 }
 
 
-#' @param subdir character name of subdirectory to store data in, defaults to "model"
+#' @param subdir character name of subdirectory to store data in, defaults to the primary class of `mlr_report`
 #' @param sync boolean whether to sync data across storages
 #' @describeIn mlr_report Save the trained model and model output for future use. Writes the model to the
 #' [tessilake::cache_primary_path] under the subdirectory `subdir` and then syncs them across storages.
 #' @export
 #' @importFrom tessilake write_cache sync_cache
-write.mlr_report <- function(mlr_report, subdir = "model", sync = TRUE, ...) {
-
-  report_name <- class(mlr_report)[1]
+write.mlr_report <- function(mlr_report, subdir = class(mlr_report)[1], sync = TRUE, ...) {
 
   if (!is.null(mlr_report$model))
-    save_model(model = mlr_report$model, model_name = report_name, subdir = subdir, sync = sync)
+    save_model(model = mlr_report$model, model_name = "model.Rds", subdir = subdir, sync = sync)
 
   if (!is.null(mlr_report$predictions))
-    write_cache(mlr_report$predictions, paste0(report_name,"_predictions"), subdir, sync = sync, overwrite = TRUE)
+    write_cache(mlr_report$predictions, "predictions", subdir, sync = sync, overwrite = TRUE)
 
 
   NextMethod()
 }
 
 #' @describeIn mlr_report load serialized mlr model from disk
-load_model <- function(model_name, subdir = "model") {
-  path_name = cache_primary_path(model_name, subdir)
-  model_filename = gsub("_",".",model_name)
-  readRDS(file.path(path_name,model_filename),"model")
+load_model <- function(subdir = "model", model_name = "model.Rds") {
+  path_name = cache_primary_path("", subdir)
+  readRDS(file.path(path_name,model_name))
 }
 
 #' @describeIn mlr_report save serialized mlr model to disk
 #' @importFrom tessilake cache_primary_path
-save_model <- function(model, model_name, subdir = "model", sync = TRUE) {
-  path_name = cache_primary_path(model_name, subdir)
-  model_filename = gsub("_",".",model_name)
+save_model <- function(model, subdir = "model", model_name = "model.Rds", sync = TRUE) {
+  path_name = cache_primary_path("", subdir)
 
   if(!dir.exists(path_name))
     dir.create(path_name, recursive = T)
 
-  saveRDS(model, file.path(path_name,model_filename))
+  saveRDS(model, file.path(path_name,model_name))
   if (sync) sync_cache(model_name, subdir, whole_file = TRUE)
 }
