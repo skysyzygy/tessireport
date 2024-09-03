@@ -9,7 +9,35 @@ if (FALSE) {
 
   dataset_predictions <- dataset[predictions,on=c("group_customer_no","date")]
 
-  p <- iml::Predictor$new(model,dataset_predictions[sapply(dataset_predictions,\(c) {
-    inherits(c,c("numeric","factor","integer","ordered","character")) })],
+  future::plan("multisession")
+  withr::local_options(future.globals.maxSize = 16*1024^3)
+
+  p <- iml::Predictor$new(model,dataset_predictions[prob.TRUE>.5] %>% .[,
+      sapply(.,\(c) {
+        inherits(c,c("numeric","factor","integer","ordered","character")) &
+        !all(is.na(c))}),
+      with = F
+    ],
+    predict.function <- function(model,newdata) {
+      model$predict_newdata(newdata)$prob[,"TRUE"]
+    },
     y = "prob.TRUE")
+
+  fi <- iml::FeatureImp$new(p,loss="logLoss")
+  plot(fi)
+
+  top_features <- fi$results[1:5,"feature"]
+  future::plan("sequential")
+  p$data$X <- p$data$X[p$data$X[,apply(.SD,1,\(.) !any(is.na(.))),.SDcols=top_features]]
+  fe <- iml::FeatureEffects$new(p, top_features, method = "ale")
+  plot(fe,fixed_y=F)
+
+  s <- iml::Shapley$new(p,sample.size = 10)
+  future::plan("multisession")
+  dataset_predictions[prob.TRUE<.5][1,p$data$feature.names,with=F] %>%
+    as.data.frame %>% s$explain()
+
+  setDT(s$results)[order(-abs(s$results$phi)+s$results$phi.var*1.98),
+            .(feature.value,phi/sum(phi))] %>% head
+
 }
