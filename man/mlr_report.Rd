@@ -26,13 +26,13 @@ train(...)
 
 predict(...)
 
-\method{output}{mlr_report}(...)
+\method{output}{mlr_report}(mlr_report, ...)
 
-\method{write}{mlr_report}(mlr_report, subdir = "model", sync = TRUE, ...)
+\method{write}{mlr_report}(mlr_report, subdir = class(mlr_report)[1], sync = TRUE, ...)
 
-load_model(model_name, subdir = "model")
+load_model(subdir = "model", model_name = "model.Rds")
 
-save_model(model, model_name, subdir = "model", sync = TRUE)
+save_model(model, subdir = "model", model_name = "model.Rds", sync = TRUE)
 }
 \arguments{
 \item{mlr_report}{The report object}
@@ -43,7 +43,7 @@ save_model(model, model_name, subdir = "model", sync = TRUE)
 
 \item{predict}{boolean whether to run the predictions}
 
-\item{subdir}{character name of subdirectory to store data in, defaults to "model"}
+\item{subdir}{character name of subdirectory to store data in, defaults to the primary class of \code{mlr_report}}
 
 \item{sync}{boolean whether to sync data across storages}
 }
@@ -60,7 +60,7 @@ should define a \code{train.mlr_model} and \code{predict.mlr_model} function, wh
 \code{mlr_report$task} and store their results in \code{mlr_report$model} and \code{mlr_report$predictions}
 
 \item \code{output(mlr_report)}: Analyze the input set and the sensitivity of the training using
-some standard heuristics. TBD
+some standard heuristics.
 
 \item \code{write(mlr_report)}: Save the trained model and model output for future use. Writes the model to the
 \link[tessilake:cache_path]{tessilake::cache_primary_path} under the subdirectory \code{subdir} and then syncs them across storages.
