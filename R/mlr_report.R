@@ -41,9 +41,19 @@ predict.mlr_report <- function(x, ...) x
 
 #' @export
 #' @describeIn mlr_report Analyze the input set and the sensitivity of the training using
-#' some standard heuristics. TBD
-output.mlr_report <- function(...) {
-  # TBD
+#' some standard heuristics.
+output.mlr_report <- function(mlr_report, ...) {
+  report_name <- class(mlr_report)[1]
+
+  if (is.null(mlr_report$model))
+    mlr_report$model <- load_model(report_name)
+
+  if (is.null(mlr_report$dataset))
+    mlr_report$dataset <- read_cache("dataset",report_name)
+
+  if (is.null(mlr_report$predictions))
+    mlr_report$predictions <- read_cache("predictions",report_name)
+
   NextMethod()
 }
 
