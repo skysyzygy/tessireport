@@ -99,13 +99,22 @@ output.contributions_model <- function(model) {
   model$predictions <- mutate(model$predictions, date = as.Date(date))
 
   dataset_predictions <- inner_join(model$dataset,model$predictions,
-                                    by = c("group_customer_no","date")) %>% collect %>% setDT
+                                    by = c("group_customer_no","date")) %>% collect %>% setDT %>%
+    .[prob.TRUE>.75]
 
-  fi <- iml_featureimp_prob(model$model, dataset_predictions)
+  withr::local_options(future.globals.maxSize = 16*1024^3)
+
+  fi <- iml_featureimp(model$model, dataset_predictions)
   top_features <- fi$results[1:25,"feature"]
 
   fe <- iml_featureeffects(model$model, dataset_predictions, top_features)
 
+  write_pdf({
+    pdf_plot(fi, "Feature importance","first contributions model")
+    pdf_plot(fe, "Feature effects","first contributions model")
+  }, .title = "Contributions model", output_file = cache_primary_path("contributions_model.pdf","contributions_model"))
+
   ex <- imp_shapley(model$model, dataset_predictions[prob.TRUE>.75], sample.size = 10)
+  saveRDS(ex, cache_primary_path("shapley.Rds", "contributions_model"))
 
 }
