@@ -25,8 +25,9 @@ SQL metadata.}
     \item{\code{basename}}{name of the file to use in the email. Defaults to the name of the table.
 A timestamp and extension will be appended and passed on to \code{mailR::send.mail} as \code{file.names}}
     \item{\code{emails}}{email addresses (first will be sender)}
+    \item{\code{body}}{Body of the email as text. If the parameter body refers to an existing file location,
+the text of the file is parsed as body of the email. Default is \verb{Sent by <computer name>}.}
     \item{\code{subject}}{Subject of the email.}
-    \item{\code{body}}{Body of the email as text. If the parameter body refers to an existing file location, the text of the file is parsed as body of the email.}
     \item{\code{group}}{character name of column to be used for grouping/banding the data. Band color will change when column value changes.}
     \item{\code{currency}}{character vector of column to be used for grouping/banding the data. Band color will change when column value changes.}
     \item{\code{html}}{A boolean indicating whether the body of the email should be parsed as HTML.}

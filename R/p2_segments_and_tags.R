@@ -36,7 +36,7 @@ process.p2_segments_and_tags <- function(data,
                                          segment_regex = "^Segment of",
                                          tag_regex = "(?!.*RSVP|.*\\(Keep\\))\\d{6,}", ...) {
 
-  . <- name <- tag <- created_timestamp <- NULL
+  . <- name <- tag <- created_timestamp <- seriesid <- hidden <- id <- NULL
 
   data$segments <- data$segments[grepl(segment_regex,name, perl = T) &
                                    seriesid == 0 & hidden == 0,
@@ -58,11 +58,7 @@ output.p2_segments_and_tags <- function(data, emails = config::get("tessiflow.em
 
     send_email(subject = paste("P2 segments and tags",Sys.Date()),
                emails = emails,
-               body = body %||% paste("<p>Hi!
-               <p>Here are the first 50 segments and tags to review",emo::ji("sweat_smile"),
-               "<p>Please let me know if there are any that need to be saved.
-               <p>Thanks!
-               <p>Sky's computer"),
+               body = body %||% paste("Sent by", Sys.info()["nodename"]),
                attach.files = filenames,
                html = TRUE,
                file.names = paste0(c("segments","tags"),"_",Sys.Date(),".xlsx"), ...)
