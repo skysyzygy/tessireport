@@ -1,21 +1,26 @@
 #' @name iml
-#' @title interpretable machine learning for mlr_report
+#' @title Interpretable machine learning for mlr_report
 #' @description
-#' interpretable machine learning for mlr_report using [iml]
+#' Simple wrappers around [iml] classes to provide a more streamlined approach for generating
+#' interpretable plots and explanatory data.
+#' @return
+#' * `iml_predictor()`: [iml::Predictor]
+#' * `iml_featureimp()`: [iml::FeatureImp]
+#' * `iml_featureeffects()`: [iml::FeatureEffects]
+#' * `iml_shapley()`: [iml::Shapley]
 NULL
 
-#' @return [iml::Predictor]
 #' @importFrom iml Predictor
 #' @importFrom purrr reduce
 #'
-#' @describeIn iml Wrapper around [iml::Predictor] to subset the features of data and
+#' @describeIn iml wrapper for [iml::Predictor] to subset the features of data and
 #' provide a `predict.function` and `y` when the predictor can't identify
 #' them.
 #'
-#' @param model mlr3 model, pre-trained
-#' @param data data.table of a test dataset
-#' @param predict.function function the function to predict newdata. The first argument is the model, the second the newdata.
-#' @param y character/numeric/factor The target vector or (preferably) the name of the target column in the data argument. Predictor tries to infer the target automatically from the model.
+#' @param model [mlr3::Learner] model, pre-trained
+#' @param data [data.table] of a test dataset
+#' @param predict.function `function` function to predict newdata. The first argument is the model, the second the newdata.
+#' @param y `character(1)`|[numeric]|[factor] The target vector or (preferably) the name of the target column in the data argument. Predictor tries to infer the target automatically from the model.
 #'
 iml_predictor <- function(model, data, predict.function = NULL, y = NULL) {
 
@@ -40,6 +45,10 @@ iml_predictor <- function(model, data, predict.function = NULL, y = NULL) {
 
 }
 
+#' @describeIn iml wrapper for [iml::FeatureImp] that handles predictor creation and multiprocessing
+#' @param loss `character(1)`|[function]. The loss function. Either the name of a loss (e.g. "ce" for classification or "mse") or a function.
+#' @param compare `character(1)` Either "ratio" or "difference".
+#' @param n.repetitions `numeric(1)` How many shufflings of the features should be done?
 iml_featureimp <- function(model, data, loss = "logLoss", compare = "difference",
                            n.repetitions = 5, features = NULL) {
   future::plan("multisession")
@@ -48,6 +57,15 @@ iml_featureimp <- function(model, data, loss = "logLoss", compare = "difference"
                        n.repetitions = n.repetitions, features = features)
 }
 
+#' @describeIn iml wrapper for [iml::FeatureEffects] that handles data filtering, predictor creation and multiprocessing
+#' @param features `character` The names of the features for which to compute the feature effects/importance.
+#' @param method `character(1)`
+#' * 'ale' for accumulated local effects,
+#' * 'pdp' for partial dependence plot,
+#' * 'ice' for individual conditional expectation curves,
+#' * 'pdp+ice' for partial dependence plot and ice curves within the same plot.
+#' @param center.at `numeric(1)` Value at which the plot should be centered. Ignored in the case of two features.
+#' @param grid.size `numeric(1)` The size of the grid for evaluating the predictions.
 iml_featureeffects <- function(model, data, features = NULL, method = "ale",
                                center.at = NULL, grid.size = 20) {
   future::plan("sequential")
@@ -58,6 +76,9 @@ iml_featureeffects <- function(model, data, features = NULL, method = "ale",
                            center.at = center.at, grid.size = grid.size)
 }
 
+#' @describeIn iml wrapper for [iml::Shapley] that handles predictor creation and multiprocessing
+#' @param x.interest [data.frame] Single row with the instance to be explained.
+#' @param sample.size `numeric(1)` The number of Monte Carlo samples for estimating the Shapley value.
 iml_shapley <- function(model, data, x.interest = NULL, sample.size = 100) {
   future::plan("multisession")
   predictor <- iml_predictor(model$model, data)
