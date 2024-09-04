@@ -15,7 +15,7 @@ read.contributions_model_report <- function(report, ...) {
   . <- prob.TRUE <- truth <- score <- event <- timestamp <- expr_dt <- memb_amt <-
     group_customer_no <- tck_amt <- customer_no <- order_dt <- NULL
 
-  report$predictions <- read_cache("contributions_model_predictions","model") %>%
+  report$predictions <- read_cache("predictions","contributions_model") %>%
     collect %>% setDT %>%
     .[, .(score = max(prob.TRUE), event = any(truth == T)), by = "group_customer_no"] %>%
     .[score > .75 & !event]
