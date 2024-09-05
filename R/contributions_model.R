@@ -203,12 +203,12 @@ output.contributions_model <- function(model) {
   model$predictions <- mutate(model$predictions, date = as.Date(date))
 
   dataset_predictions <- inner_join(model$dataset,model$predictions,
-                                    by = c("group_customer_no","date")) %>% collect %>% setDT
+                                    by = c("group_customer_no","date","I")) %>% collect %>% setDT
 
   withr::local_options(future.globals.maxSize = 2*1024^3)
 
   # Feature importance
-  fi <- iml_featureimp(model$model, dataset_predictions[runif(nrow(dataset_predictions))<.01])
+  fi <- iml_featureimp(model$model, dataset_predictions[runif(.N)<.01])
   top_features <- fi$results[1:25,"feature"]
 
   pfi <- plot(fi) + coord_flip() +
