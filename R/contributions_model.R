@@ -183,7 +183,7 @@ train.contributions_model <- function(model, ...) {
 #' @describeIn contributions_model Predict using the trained model
 predict.contributions_model <- function(model, ...) {
   if(is.null(model$model))
-    model$model <- load_model(model_name = "contributions_model")
+    model$model <- load_model("contributions_model")
 
   model$predictions <-
     cbind(as.data.table(model$model$predict(model$task$internal_valid_task)),
