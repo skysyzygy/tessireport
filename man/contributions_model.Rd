@@ -49,7 +49,7 @@ or append new rows by calling \code{contributions_dataset(since=max_existing_dat
 
 \item{predict}{Not used, just here to prevent partial argument matching}
 
-\item{downsample}{\link{numeric(1)} the amount to downsample the test set by for feature importance and
+\item{downsample}{\code{numeric(1)} the amount to downsample the test set by for feature importance and
 Shapley explanations}
 }
 \description{
