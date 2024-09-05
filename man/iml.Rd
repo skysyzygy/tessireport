@@ -59,7 +59,7 @@ iml_shapley(model, data, x.interest = NULL, sample.size = 100)
 
 \item{grid.size}{\code{numeric(1)} The size of the grid for evaluating the predictions.}
 
-\item{x.interest}{\link{data.frame} Single row with the instance to be explained.}
+\item{x.interest}{\link{data.frame} data to be explained.}
 
 \item{sample.size}{\code{numeric(1)} The number of Monte Carlo samples for estimating the Shapley value.}
 }
