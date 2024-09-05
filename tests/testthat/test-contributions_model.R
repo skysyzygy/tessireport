@@ -120,7 +120,11 @@ test_that("output.contributions_model successfully interprets the model", {
   expect_file_exists(pdf_filename)
   expect_file_exists(exp_filename)
 
-  expect_equal(length(readRDS(exp_filename)),model$predictions[prob.TRUE>.75,.N])
+  explanations <- readRDS(exp_filename)
+  expect_equal(nrow(explanations),model$predictions[prob.TRUE>.75,.N])
+  setorder(explanations$explanation[[1]],-phi)
+  expect_equal(explanations$explanation[[1]][1,feature],"ticketTimestampMax")
+
 
 })
 
