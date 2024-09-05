@@ -72,12 +72,12 @@ iml_shapley(model, data, x.interest = NULL, sample.size = 100)
 }
 }
 \description{
-Simple wrappers around \link{iml} classes to provide a more streamlined approach for generating
+Simple wrappers around \link{iml-package} classes to provide a more streamlined approach for generating
 interpretable plots and explanatory data.
 }
 \section{Functions}{
 \itemize{
-\item \code{iml_predictor()}: wrapper around \link[iml:Predictor]{iml::Predictor} to subset the features of data and
+\item \code{iml_predictor()}: wrapper for \link[iml:Predictor]{iml::Predictor} to subset the features of data and
 provide a \code{predict.function} and \code{y} when the predictor can't identify
 them.
 

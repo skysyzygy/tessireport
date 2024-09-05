@@ -1,13 +1,14 @@
 #' @name iml
 #' @title Interpretable machine learning for mlr_report
 #' @description
-#' Simple wrappers around [iml] classes to provide a more streamlined approach for generating
+#' Simple wrappers around [iml-package] classes to provide a more streamlined approach for generating
 #' interpretable plots and explanatory data.
 #' @return
 #' * `iml_predictor()`: [iml::Predictor]
 #' * `iml_featureimp()`: [iml::FeatureImp]
 #' * `iml_featureeffects()`: [iml::FeatureEffects]
 #' * `iml_shapley()`: [iml::Shapley]
+#' @importFrom iml FeatureImp FeatureEffects Shapley
 NULL
 
 #' @importFrom iml Predictor
