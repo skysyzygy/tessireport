@@ -192,6 +192,51 @@ predict.contributions_model <- function(model, ...) {
   NextMethod()
 }
 
+#' @describeIn contributions_model create IML reports for contributions_model
+#' @importFrom dplyr inner_join
+#' @export
+output.contributions_model <- function(model) {
+
+  model <- NextMethod()
+
+  model$dataset <- mutate(model$dataset, date = as.Date(date))
+  model$predictions <- mutate(model$predictions, date = as.Date(date))
+
+  dataset_predictions <- inner_join(model$dataset,model$predictions,
+                                    by = c("group_customer_no","date")) %>% collect %>% setDT
+
+  withr::local_options(future.globals.maxSize = 2*1024^3)
+
+  # Feature importance
+  fi <- iml_featureimp(model$model, dataset_predictions[runif(nrow(dataset_predictions))<.01])
+  top_features <- fi$results[1:25,"feature"]
+
+  pfi <- plot(fi) + coord_flip() +
+    theme_minimal(base_size = 8) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_y_discrete(limits=rev)
+  # remove styling of points
+  walk(pfi$layers, \(.) .$aes_params <- list())
+
+  # Feature effects
+  fe <- iml_featureeffects(model$model, dataset_predictions[prob.TRUE > .75], top_features)
+  pfe <- plot(fe, fixed_y = F) &
+    theme_minimal(base_size = 8) + theme(axis.title.y = element_blank())
+
+  pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
+  write_pdf({
+    pdf_plot(pfi, "Global feature importance","First contributions model")
+    pdf_plot(pfe, "Local feature effects","First contributions model, prob.TRUE > .75")
+  }, .title = "Contributions model", output_file = pdf_filename)
+
+  medians <- dataset_predictions[,lapply(.SD,median,na.rm=T),.SDcols = names(fi$features)]
+
+  ex <- iml_shapley(model$model, rbind(dataset_predictions[prob.TRUE>.99],
+                                       medians, fill = T), sample.size = 10)
+  saveRDS(ex, cache_primary_path("shapley.Rds", "contributions_model"))
+
+}
+
 #' arrow_to_mlr3
 #'
 #' Converts arrow Table/Dataset to mlr3 Backend
