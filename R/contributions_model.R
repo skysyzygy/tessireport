@@ -229,11 +229,13 @@ output.contributions_model <- function(model) {
     pdf_plot(pfe, "Local feature effects","First contributions model, prob.TRUE > .75")
   }, .title = "Contributions model", output_file = pdf_filename)
 
-  medians <- dataset_predictions[,lapply(.SD,median,na.rm=T),.SDcols = names(fi$features)]
+  # Shapley explanations
+  to_explain <- dataset_predictions[prob.TRUE>.75]
+  ex <- iml_shapley(model$model, dataset_predictions[runif(.N)<.01],
+                    x.interest = to_explain, sample.size = 10)
 
-  ex <- iml_shapley(model$model, rbind(dataset_predictions[prob.TRUE>.99],
-                                       medians, fill = T), sample.size = 10)
-  saveRDS(ex, cache_primary_path("shapley.Rds", "contributions_model"))
+  to_explain[1:8,explanation := map(ex,"results")]
+  saveRDS(to_explain, cache_primary_path("shapley.Rds", "contributions_model"))
 
 }
 

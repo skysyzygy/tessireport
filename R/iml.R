@@ -73,27 +73,23 @@ iml_featureeffects <- function(model, data, features = NULL, method = "ale",
   predictor <- iml_predictor(model, data)
 
   # filter out rows with missing data
-  features = features %||% reduce(model$model,\(f,m) c(f,m$intasklayout$id)) %>% unlist %>% unique
-  data <- data[ data[,apply(.SD,1,\(.) !any(is.na(.))), .SDcols = features] ]
+  data <- data[ data[,apply(.SD,1,\(.) !any(is.na(.))), .SDcols = predictor$data$feature.names] ]
 
   fe <- FeatureEffects$new(predictor, features = features, method = method,
                            center.at = center.at, grid.size = grid.size)
 }
 
 #' @describeIn iml wrapper for [iml::Shapley] that handles predictor creation and multiprocessing
-#' @param x.interest [data.frame] Single row with the instance to be explained.
+#' @param x.interest [data.frame] data to be explained.
 #' @param sample.size `numeric(1)` The number of Monte Carlo samples for estimating the Shapley value.
 iml_shapley <- function(model, data, x.interest = NULL, sample.size = 100) {
   future::plan("multisession")
   predictor <- iml_predictor(model, data)
 
-  # features used in the model
-  features <- reduce(model$model,\(f,m) c(f,m$intasklayout$id)) %>% unlist %>% unique %>%
-    intersect(colnames(data))
-
-  s <- Shapley$new(predictor, sample.size = sample.size, x.interest = x.interest)
-  explanations <- data[,features,with=F] %>% split(seq_len(nrow(.))) %>%
-    future_map(\(.) {s$explain(as.data.frame(.)); s})
+  s <- Shapley$new(predictor, sample.size = sample.size)
+  explanations <- x.interest[,predictor$data$feature.names,with=F] %>%
+    split(seq_len(nrow(.))) %>%
+    future_map(\(.) {s$explain(as.data.frame(.)); s$clone()})
 }
 
 
