@@ -113,10 +113,24 @@ test_that("predict.contributions_model successfully predicts new data", {
 
 test_that("output.contributions_model successfully interprets the model", {
 
+  # predict the whole thing
+  model$predictions <-
+    cbind(as.data.table(model$model$predict(model$task)),
+          model$task$data(cols = c("I","group_customer_no","date")))
+
+  # downgrade some predictions
+  model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
+
+  stub(output.mlr_report, "read_cache",mock(
+       arrow::read_parquet("test-contributions_model.parquet", as_data_frame = F) %>%
+         # fill in missing data because the test set is largely missing
+         collect %>% setDT %>% setnafill(fill=0, cols = which(sapply(.,is.numeric))),
+       model$predictions))
+
   output(model)
 
   pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
-  exp_filename <- cache_primary_path("explanations.Rds","contributions_model")
+  exp_filename <- cache_primary_path("shapley.Rds","contributions_model")
   expect_file_exists(pdf_filename)
   expect_file_exists(exp_filename)
 
@@ -124,7 +138,6 @@ test_that("output.contributions_model successfully interprets the model", {
   expect_equal(nrow(explanations),model$predictions[prob.TRUE>.75,.N])
   setorder(explanations$explanation[[1]],-phi)
   expect_equal(explanations$explanation[[1]][1,feature],"ticketTimestampMax")
-
 
 })
 
