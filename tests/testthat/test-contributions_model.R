@@ -18,7 +18,7 @@ test_that("contributions_dataset reads from an ffdf and adds an event indicator"
 
   contributions_dataset()
 
-  dataset <- read_cache("contributions_dataset","model") %>% collect
+  dataset <- read_cache("dataset","contributions_model") %>% collect
   expect_equal(nrow(dataset),2)
   expect_equal(dataset[,"event"][[1]],c(F,T))
 
@@ -40,7 +40,7 @@ test_that("contributions_dataset censors and subsets", {
 
   contributions_dataset(since = Sys.Date()-1)
 
-  dataset <- read_cache("contributions_dataset","model") %>% collect
+  dataset <- read_cache("dataset","contributions_model") %>% collect
   expect_equal(nrow(dataset),1)
   expect_equal(dataset[1,"event"][[1]],TRUE)
   expect_equal(dataset[1,"group_customer_no"][[1]],2)
