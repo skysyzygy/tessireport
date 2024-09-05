@@ -36,11 +36,11 @@ iml_predictor <- function(model, data, predict.function = NULL, y = NULL) {
   }
 
   # features used in the model
-  features <- reduce(model$model,\(f,m) c(f,m$intasklayout$id)) %>% unlist %>% unique
+  features <- reduce(model$model,\(f,m) c(f,m$intasklayout$id)) %>% unlist %>% unique %>%
+  # plus the output variable, filtering out non-existent columns
+    c(y) %>% intersect(colnames(data))
 
-  Predictor$new(model, data[,intersect(c(features,y),
-                                       colnames(data)),
-                            with=F],
+  Predictor$new(model, data[,features,with=F],
                 predict.function = predict.function,
                 y = y)
 
