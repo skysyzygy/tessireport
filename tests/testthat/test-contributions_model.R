@@ -109,6 +109,22 @@ test_that("predict.contributions_model successfully predicts new data", {
 })
 
 
+# output.contributions_model ---------------------------------------------
+
+test_that("output.contributions_model successfully interprets the model", {
+
+  output(model)
+
+  pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
+  exp_filename <- cache_primary_path("explanations.Rds","contributions_model")
+  expect_file_exists(pdf_filename)
+  expect_file_exists(exp_filename)
+
+  expect_equal(length(readRDS(exp_filename)),model$predictions[prob.TRUE>.75,.N])
+
+})
+
+
 # stream_rollback_event ---------------------------------------------------
 
 test_that("stream_rollback_event rolls back data matching `columns`", {
