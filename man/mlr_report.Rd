@@ -43,9 +43,11 @@ save_model(model, subdir = "model", model_name = "model.Rds", sync = TRUE)
 
 \item{predict}{boolean whether to run the predictions}
 
-\item{subdir}{character name of subdirectory to store data in, defaults to the primary class of \code{mlr_report}}
+\item{subdir}{\code{character(1)} location where the model is stored}
 
 \item{sync}{boolean whether to sync data across storages}
+
+\item{model_name}{\code{character(1)} filename of the model}
 }
 \description{
 Base class for training/running a machine learning model

@@ -197,10 +197,12 @@ predict.contributions_model <- function(model, ...) {
 #' @importFrom ggplot2 coord_flip theme_minimal theme scale_y_discrete element_text element_blank
 #' @importFrom purrr walk
 #' @importFrom tessilake cache_primary_path
+#' @importFrom stats runif
 #' @param downsample [numeric(1)] the amount to downsample the test set by for feature importance and
 #' Shapley explanations
 #' @export
 output.contributions_model <- function(model, downsample = .01, ...) {
+  prob.TRUE <- explanation <- NULL
 
   model <- NextMethod()
 

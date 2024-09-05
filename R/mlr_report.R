@@ -77,6 +77,8 @@ write.mlr_report <- function(mlr_report, subdir = class(mlr_report)[1], sync = T
 }
 
 #' @describeIn mlr_report load serialized mlr model from disk
+#' @param subdir `character(1)` location where the model is stored
+#' @param model_name `character(1)` filename of the model
 load_model <- function(subdir = "model", model_name = "model.Rds") {
   path_name = cache_primary_path("", subdir)
   readRDS(file.path(path_name,model_name))

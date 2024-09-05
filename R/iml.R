@@ -82,7 +82,9 @@ iml_featureeffects <- function(model, data, features = NULL, method = "ale",
 #' @describeIn iml wrapper for [iml::Shapley] that handles predictor creation and multiprocessing
 #' @param x.interest [data.frame] data to be explained.
 #' @param sample.size `numeric(1)` The number of Monte Carlo samples for estimating the Shapley value.
+#' @importFrom furrr future_map
 iml_shapley <- function(model, data, x.interest = NULL, sample.size = 100) {
+  . <- NULL
   future::plan("multisession")
   predictor <- iml_predictor(model, data)
 
