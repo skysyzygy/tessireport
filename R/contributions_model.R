@@ -194,8 +194,13 @@ predict.contributions_model <- function(model, ...) {
 
 #' @describeIn contributions_model create IML reports for contributions_model
 #' @importFrom dplyr inner_join
+#' @importFrom ggplot2 coord_flip theme_minimal theme scale_y_discrete element_text element_blank
+#' @importFrom purrr walk
+#' @importFrom tessilake cache_primary_path
+#' @param downsample [numeric(1)] the amount to downsample the test set by for feature importance and
+#' Shapley explanations
 #' @export
-output.contributions_model <- function(model) {
+output.contributions_model <- function(model, downsample = .01, ...) {
 
   model <- NextMethod()
 
@@ -208,7 +213,7 @@ output.contributions_model <- function(model) {
   withr::local_options(future.globals.maxSize = 2*1024^3)
 
   # Feature importance
-  fi <- iml_featureimp(model$model, dataset_predictions[runif(.N)<.01])
+  fi <- iml_featureimp(model$model, dataset_predictions[runif(.N)<downsample])
   top_features <- fi$results[1:25,"feature"]
 
   pfi <- plot(fi) + coord_flip() +
@@ -231,10 +236,10 @@ output.contributions_model <- function(model) {
 
   # Shapley explanations
   to_explain <- dataset_predictions[prob.TRUE>.75]
-  ex <- iml_shapley(model$model, dataset_predictions[runif(.N)<.01],
+  ex <- iml_shapley(model$model, dataset_predictions[runif(.N)<downsample],
                     x.interest = to_explain, sample.size = 10)
 
-  to_explain[1:8,explanation := map(ex,"results")]
+  to_explain[,explanation := map(ex,"results")]
   saveRDS(to_explain, cache_primary_path("shapley.Rds", "contributions_model"))
 
 }
