@@ -16,54 +16,70 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
   stream <- group_customer_no <- timestamp <- event_type <- event <- contributionAdjAmt <- n_event <-
     N <- partition <- NULL
 
-  #stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
-  ffbase::load.ffdf("E:/ffdb")
+  stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
+  unpack.ffdf(stream_path)
+  #ffbase::load.ffdf("E:/ffdb")
 
-  stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAdjAmt")] %>% setDT
+  stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAmt")] %>% setDT
   stream_key[,I:=.I]
   setkey(stream_key,group_customer_no,timestamp)
 
   # add event
-  stream_key[,event := event_type == "Contribution" & contributionAdjAmt>=50]
+  stream_key[,event := event_type == "Contribution" & contributionAmt>=50]
   stream_key[,`:=`(n_event = cumsum(event),
                    N = .N), by="group_customer_no"]
   # censor
   stream_key <- stream_key[n_event == 0 | event & n_event==1 & N>1]
   stream_key[,`:=`(n_event = NULL, N = NULL)]
   # subsample
-  month_subset <- stream_key[,last(I), by=list(group_customer_no,lubridate::floor_date(timestamp,"months"))]$V1
+  month_subset <- stream_key[,sample(I,1), by=list(group_customer_no,lubridate::floor_date(timestamp,"months"))]$V1
   stream_key <- stream_key[event | I %in% month_subset]
   stream_key <- stream_key[timestamp >= since & timestamp < until]
 
   # partition by year
   stream_key[,partition := year(timestamp)]
 
-  stream_chunk_write <- \(rows, partition) {
-    dataset <- stream[rows$I,]
-    setDT(dataset)
-
-    dataset <- cbind(dataset,rows[,setdiff(colnames(rows),
-                                           colnames(dataset)), with = F])
-
-    # normalize names for mlr3
-    setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))
-
-    stream_rollback_event(dataset, columns = grep("^contribution",names(dataset),value = T))
-
-    dataset[,date := timestamp]
-    stream_normalize_timestamps(dataset)
-
-    dataset[,partition := partition]
-
-    tessilake::write_cache(dataset, "dataset", "contributions_model", partition = "partition",
-                           incremental = TRUE, date_column = "date", sync = FALSE)
-
-  }
-
-  stream_key[, stream_chunk_write(.SD,partition), by = "partition"]
+  stream_key[, dataset_chunk_write(stream, partition,
+                                   dataset_name = "contributions_model",
+                                  rows = .SD,
+                                  cols = grep("Adj",colnames(stream),value=T,invert = T),
+                                  rollback = grep("^contribution|DiscountFee|DiscountMem",colnames(stream),value = T)),
+             by = "partition"]
   tessilake::sync_cache("dataset", "contributions_model", overwrite = TRUE)
 
   close(stream)
+  delete(stream)
+}
+
+dataset_chunk_write <- function(dataset, partition,
+                                dataset_name,
+                               rows = data.table(I=seq_len(nrow(dataset))),
+                               cols = colnames(dataset),
+                               rollback = NULL) {
+
+  assert_names(colnames(dataset), must.include = c("timestamp",cols,rollback))
+  assert_data_table(rows)
+  assert_character(cols)
+  assert_character(rollback)
+
+  dataset <- dataset[rows$I, ] %>% setDT
+  dataset <- cbind(dataset,rows[,setdiff(colnames(rows),
+                                         colnames(dataset)), with = F])
+
+  # normalize names for mlr3
+  setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))
+
+  if (!is.null(rollback))
+    stream_rollback_event(dataset, columns = rollback)
+
+  dataset[,date := timestamp]
+  stream_normalize_timestamps(dataset)
+
+  dataset[,partition := partition]
+
+  tessilake::write_cache(dataset, "dataset", dataset_name, partition = "partition",
+                         incremental = TRUE, date_column = "date", sync = FALSE)
+
 }
 
 #' @export
@@ -291,10 +307,8 @@ stream_rollback_event <- function(dataset, event = "event", columns = NULL, by =
 
   dataset[,i := seq_len(.N)]
   dataset[,by_i := seq_len(.N), by = by]
-  if (event %in% names(dataset)) {
     event_ <- event
     rm(event)
-  }
 
   setkeyv(dataset,by)
 
