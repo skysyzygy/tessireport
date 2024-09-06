@@ -18,10 +18,10 @@ dataset_chunk_write <- function(dataset, partition,
   setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))
 
   if (!is.null(rollback))
-    stream_rollback_event(dataset, columns = rollback)
+    dataset_rollback_event(dataset, columns = rollback)
 
   dataset[,date := timestamp]
-  stream_normalize_timestamps(dataset)
+  dataset_normalize_timestamps(dataset)
 
   dataset[,partition := partition]
 
@@ -31,7 +31,7 @@ dataset_chunk_write <- function(dataset, partition,
 }
 
 
-#' stream_rollback_event
+#' dataset_rollback_event
 #'
 #' Rolls back the data in `columns` for rows flagged by `event` to prevent data leaks during training.
 #'
@@ -43,7 +43,7 @@ dataset_chunk_write <- function(dataset, partition,
 #' @return rolled back data.table
 #' @importFrom checkmate assert_data_table assert_names assert_logical
 #' @importFrom dplyr lead lag
-stream_rollback_event <- function(dataset, event = "event", columns = NULL, by = "group_customer_no") {
+dataset_rollback_event <- function(dataset, event = "event", columns = NULL, by = "group_customer_no") {
 
   i <- by_i <- . <- NULL
 
@@ -68,7 +68,7 @@ stream_rollback_event <- function(dataset, event = "event", columns = NULL, by =
 
 }
 
-#' stream_normalize_timestamps
+#' dataset_normalize_timestamps
 #'
 #' Replaces the date-times in `columns` with integer offsets from the first `timestamp` per group identified by `by`.
 #'
@@ -77,7 +77,7 @@ stream_rollback_event <- function(dataset, event = "event", columns = NULL, by =
 #' @param by character column name to group the table by
 #' @importFrom checkmate assert_data_table assert_names
 #' @return normalized data.table
-stream_normalize_timestamps <- function(dataset,
+dataset_normalize_timestamps <- function(dataset,
                                         columns = grep("timestamp", colnames(dataset), value=T, ignore.case = T),
                                         by = "group_customer_no") {
   timestamp <- NULL
