@@ -95,3 +95,28 @@ save_model <- function(model, subdir = "model", model_name = "model.Rds", sync =
   saveRDS(model, file.path(path_name,model_name))
   if (sync) sync_cache(model_name, subdir, whole_file = TRUE)
 }
+
+
+#' arrow_to_mlr3
+#'
+#' Converts arrow Table/Dataset to mlr3 Backend
+#'
+#' @param dataset [arrow::Table] or [arrow::Dataset]
+#' @param primary_key character name of the column to use as a primary key
+#'
+#' @return [mlr3db::DataBackendDplyr]
+#' @importFrom duckdb duckdb duckdb_register_arrow
+#' @importFrom dplyr tbl
+#' @importFrom mlr3db DataBackendDplyr
+#' @importFrom checkmate assert_multi_class
+#' @importFrom DBI dbConnect
+arrow_to_mlr3 <- function(dataset, primary_key = "I") {
+  assert_multi_class(dataset,c("Table","Dataset","arrow_dplyr_query"))
+  assert_names(names(dataset), must.include = primary_key)
+
+  db <- dbConnect(duckdb())
+  duckdb_register_arrow(db, "dataset", dataset)
+  table <- tbl(db, "dataset")
+  backend <- DataBackendDplyr$new(table, primary_key, strings_as_factors = FALSE)
+}
+
