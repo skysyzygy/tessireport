@@ -1,9 +1,28 @@
 
+#' dataset_chunk_write
+#'
+#' Write out a chunk of a larger `dataset`, using Hadoop partition=`partition` nomenclature,
+#' saving it in the cache dir `dataset_name`. The chunk is identified by the I column in `rows`,
+#' which is attached to the columns of the dataset identified by `cols`. Features matching
+#' the regular expression in `rollback` are rolled back one row, and all timestamps are normalized
+#' by [dataset_normalize_timestamps].
+#'
+#' @param dataset `data.frameish` dataset to load from
+#' @param partition `character`|`integer` identifying the partition the chunk will be saved in
+#' @param dataset_name `character` cache directory where the partition will be saved in
+#' @param rows [data.table] identifying rows of the dataset to load; will be appended to dataset
+#' @param cols `character` columns of the dataset to add to partition
+#' @param rollback `character` passed on to [dataset_rollback_event]
+#' @param timestamp `character` passed on to [dataset_normalize_timestamps]
+#' @inheritDotParams dataset_rollback_event by event
+#' @return NULL
 dataset_chunk_write <- function(dataset, partition,
                                 dataset_name,
                                 rows = data.table(I=seq_len(nrow(dataset))),
                                 cols = colnames(dataset),
-                                rollback = NULL) {
+                                rollback = missing(),
+                                timestamp = missing(),
+                                ...) {
 
   assert_names(colnames(dataset), must.include = c("timestamp",cols,rollback))
   assert_data_table(rows)
@@ -18,10 +37,10 @@ dataset_chunk_write <- function(dataset, partition,
   setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))
 
   if (!is.null(rollback))
-    dataset_rollback_event(dataset, columns = rollback)
+    dataset_rollback_event(dataset, columns = rollback, ...)
 
   dataset[,date := timestamp]
-  dataset_normalize_timestamps(dataset)
+  dataset_normalize_timestamps(dataset, columns = timestamp, ...)
 
   dataset[,partition := partition]
 
