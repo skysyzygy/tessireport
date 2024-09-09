@@ -121,7 +121,7 @@ test_that("contributions_dataset only reads data when rebuild_dataset = F", {
 
 test_that("read.contributions_model creates a valid mlr3 classification task", {
   stub(read.contributions_model, "contributions_dataset",
-       \(...) {arrow::read_parquet("test-contributions_model.parquet", as_data_frame = F)})
+       \(...) {arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F)})
 
   stub(read.contributions_model,"cache_exists_any",TRUE)
 
@@ -143,8 +143,10 @@ test_that("read.contributions_model creates a valid mlr3 validation task", {
 # train.contributions_model -----------------------------------------------
 tessilake::local_cache_dirs()
 test_that("train.contributions_model successfully trains a model", {
+  future::plan("multisession")
 
   suppressWarnings(model <<- train(model))
+  saveRDS(model$model, here::here("tests/testthat/test-contributions_model.Rds"))
 
   expect_class(model$model, "Learner")
 
@@ -166,6 +168,8 @@ test_that("predict.contributions_model successfully predicts new data", {
 
 test_that("output.contributions_model successfully interprets the model", {
 
+  model$model <- readRDS(here::here("tests/testthat/test-contributions_model.Rds"))
+
   # predict the whole thing
   model$predictions <-
     cbind(as.data.table(model$model$predict(model$task)),
@@ -175,11 +179,12 @@ test_that("output.contributions_model successfully interprets the model", {
   model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
 
   stub(output.mlr_report, "read_cache",mock(
-       arrow::read_parquet("test-contributions_model.parquet", as_data_frame = F) %>%
+       arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F) %>%
          # fill in missing data because the test set is largely missing
          collect %>% setDT %>% setnafill(fill=0, cols = which(sapply(.,is.numeric))),
        model$predictions))
 
+  debugonce(output)
   output(model)
 
   pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
