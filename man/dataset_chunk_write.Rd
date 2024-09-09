@@ -10,8 +10,6 @@ dataset_chunk_write(
   dataset_name,
   rows = data.table(I = seq_len(nrow(dataset))),
   cols = colnames(dataset),
-  rollback = missing(),
-  timestamp = missing(),
   ...
 )
 }
@@ -26,15 +24,13 @@ dataset_chunk_write(
 
 \item{cols}{\code{character} columns of the dataset to add to partition}
 
-\item{rollback}{\code{character} passed on to \link{dataset_rollback_event}}
-
-\item{timestamp}{\code{character} passed on to \link{dataset_normalize_timestamps}}
-
 \item{...}{
-  Arguments passed on to \code{\link[=dataset_rollback_event]{dataset_rollback_event}}
+  Arguments passed on to \code{\link[=dataset_rollback_event]{dataset_rollback_event}}, \code{\link[=dataset_normalize_timestamps]{dataset_normalize_timestamps}}
   \describe{
+    \item{\code{rollback_cols}}{character vector of columns to roll back}
     \item{\code{event}}{character column name containing a logical feature that indicates events to rollback}
     \item{\code{by}}{character column name to group the table by}
+    \item{\code{timestamp_cols}}{character vector of columns to normalize; defaults to all columns with a name containing the word \code{timestamp}}
   }}
 }
 \description{

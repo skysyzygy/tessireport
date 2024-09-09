@@ -6,14 +6,14 @@
 \usage{
 dataset_normalize_timestamps(
   dataset,
-  columns = grep("timestamp", colnames(dataset), value = T, ignore.case = T),
+  timestamp_cols = grep("timestamp", colnames(dataset), value = T, ignore.case = T),
   by = "group_customer_no"
 )
 }
 \arguments{
 \item{dataset}{data.table of data to normalize}
 
-\item{columns}{character vector of columns to normalize; defaults to all columns with a name containing the word \code{timestamp}}
+\item{timestamp_cols}{character vector of columns to normalize; defaults to all columns with a name containing the word \code{timestamp}}
 
 \item{by}{character column name to group the table by}
 }

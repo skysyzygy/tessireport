@@ -7,7 +7,7 @@
 dataset_rollback_event(
   dataset,
   event = "event",
-  columns = NULL,
+  rollback_cols = setdiff(colnames(dataset), c(by, event)),
   by = "group_customer_no"
 )
 }
@@ -16,7 +16,7 @@ dataset_rollback_event(
 
 \item{event}{character column name containing a logical feature that indicates events to rollback}
 
-\item{columns}{character vector of columns to roll back}
+\item{rollback_cols}{character vector of columns to roll back}
 
 \item{by}{character column name to group the table by}
 }
