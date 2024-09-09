@@ -168,7 +168,7 @@ test_that("predict.contributions_model successfully predicts new data", {
 
 test_that("output.contributions_model successfully interprets the model", {
 
-  model$model <- readRDS(here::here("tests/testthat/test-contributions_model.RDs"))
+  model$model <- readRDS(here::here("tests/testthat/test-contributions_model.Rds"))
 
   # predict the whole thing
   model$predictions <-
