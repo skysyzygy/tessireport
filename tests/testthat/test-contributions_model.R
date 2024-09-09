@@ -184,7 +184,6 @@ test_that("output.contributions_model successfully interprets the model", {
          collect %>% setDT %>% setnafill(fill=0, cols = which(sapply(.,is.numeric))),
        model$predictions))
 
-  debugonce(output)
   output(model)
 
   pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
