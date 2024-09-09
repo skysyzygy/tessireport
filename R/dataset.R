@@ -34,10 +34,6 @@ dataset_chunk_write <- function(dataset, partition,
   # normalize names for mlr3
   setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))
 
-  if (!is.null(rollback))
-    rollback <-
-  if (!is.null(timestamp))
-
   dataset[,date := timestamp]
 
   dataset <- dataset_rollback_event(dataset = dataset, ...)
@@ -59,6 +55,7 @@ dataset_chunk_write <- function(dataset, partition,
 #' @param rollback_cols character vector of columns to roll back
 #' @param event character column name containing a logical feature that indicates events to rollback
 #' @param by character column name to group the table by
+#' @param ... not used
 #'
 #' @return rolled back data.table
 #' @importFrom checkmate assert_data_table assert_names assert_logical
@@ -66,7 +63,7 @@ dataset_chunk_write <- function(dataset, partition,
 dataset_rollback_event <- function(dataset, event = "event",
                                    rollback_cols = setdiff(colnames(dataset),
                                                      c(by,event)),
-                                   by = "group_customer_no") {
+                                   by = "group_customer_no", ...) {
 
   i <- by_i <- . <- NULL
 
@@ -105,11 +102,12 @@ dataset_rollback_event <- function(dataset, event = "event",
 #' @param dataset data.table of data to normalize
 #' @param timestamp_cols character vector of columns to normalize; defaults to all columns with a name containing the word `timestamp`
 #' @param by character column name to group the table by
+#' @param ... not used
 #' @importFrom checkmate assert_data_table assert_names
 #' @return normalized data.table
 dataset_normalize_timestamps <- function(dataset,
                                          timestamp_cols = grep("timestamp", colnames(dataset), value=T, ignore.case = T),
-                                        by = "group_customer_no") {
+                                        by = "group_customer_no", ...) {
   timestamp <- NULL
 
   # normalize names
