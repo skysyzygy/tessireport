@@ -1,7 +1,10 @@
+
+# dataset_chunk_write -----------------------------------------------------
+
 test_that("dataset_chunk_write writes out a chunk of data", {
   tessilake::local_cache_dirs()
 
-  dataset <- data.table(
+  dataset <- data.frame(
     group_customer_no = rep(1:2,each=3),
     event_type = c("Ticket","Contribution","Contribution"),
     contributionAmt = 50,
@@ -15,6 +18,83 @@ test_that("dataset_chunk_write writes out a chunk of data", {
   expect_equal(nrow(dataset),6)
   expect_equal(dataset[1,"event"][[1]],TRUE)
   expect_equal(dataset[1,"group_customer_no"][[1]],1)
+
+})
+
+test_that("dataset_chunk_write appends to existing data", {
+  tessilake::local_cache_dirs()
+
+  dataset <- data.frame(
+    group_customer_no = rep(1:2,each=3),
+    event_type = c("Ticket","Contribution","Contribution"),
+    contributionAmt = 1:6,
+    event = T,
+    timestamp = rep(c(Sys.Date()-10,Sys.Date()-.001),each=3))
+
+  dataset_chunk_write(dataset, "year", "test")
+
+  dataset <- data.frame(
+    group_customer_no = rep(1:2,each=3),
+    event_type = c("Ticket","Contribution","Contribution"),
+    contributionAmt = 1:6,
+    event = T,
+    timestamp = rep(c(Sys.Date()+10,Sys.Date()+.001),each=3))
+
+  expect_warning(dataset_chunk_write(dataset, "year", "test"),"primary_keys not given")
+
+  dataset <- read_cache("dataset","test") %>% collect
+
+  expect_equal(nrow(dataset),12)
+  expect_equal(dataset[1,"event"][[1]],TRUE)
+  expect_equal(dataset[1,"group_customer_no"][[1]],1)
+
+})
+
+
+test_that("dataset_chunk_write over multiple chunks produces the same results as run once", {
+  tessilake::local_cache_dirs()
+
+  dataset <- rbind(
+    data.frame(
+      group_customer_no = rep(1:2,each=3),
+      event_type = c("Ticket","Contribution","Contribution"),
+      contributionAmt = 1:6,
+      event = T,
+      timestamp = Sys.Date() + seq(6)),
+    data.frame(
+      group_customer_no = rep(1:2,each=3),
+      event_type = c("Ticket","Contribution","Contribution"),
+      contributionAmt = 1:6,
+      event = T,
+      timestamp = Sys.Date() + seq(7,12)))
+
+  dataset_chunk_write(dataset, "year", "test")
+
+  dataset_test <- read_cache("dataset","test") %>% collect
+
+  expect_equal(nrow(dataset_test),12)
+  setkey(dataset_test,group_customer_no,timestamp)
+  expect_equal(dataset_test[,contributionAmt],c(NA,1,2,3,1,2,NA,4,5,6,4,5))
+  expect_equal(dataset_test[,timestamp],rep(c(0,1,2,6,7,8)*86400,2))
+
+  dataset <- rbind(
+    data.frame(
+      group_customer_no = rep(1:2,each=3),
+      event_type = c("Ticket","Contribution","Contribution"),
+      contributionAmt = 1:6,
+      event = T,
+      timestamp = Sys.Date() + seq(6)),
+    data.frame(
+      group_customer_no = rep(1:2,each=3),
+      event_type = c("Ticket","Contribution","Contribution"),
+      contributionAmt = 1:6,
+      event = T,
+      timestamp = Sys.Date() + seq(7,12)))
+
+  expect_warning(dataset_chunk_write(dataset, "year", "test", rows = data.table(I=7:12)),"primary_keys not given")
+
+  expect_equal(read_cache("dataset","test") %>% collect %>% setkey(group_customer_no,timestamp),
+               dataset_test)
 
 })
 

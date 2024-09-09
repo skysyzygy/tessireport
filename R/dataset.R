@@ -29,19 +29,39 @@ dataset_chunk_write <- function(dataset, partition,
   assert_character(dataset_name, len = 1)
   assert_data_table(rows)
 
-  dataset <- dataset[rows$I, ] %>% setDT
-  dataset <- cbind(dataset,rows[,setdiff(colnames(rows),
-                                         colnames(dataset)), with = F])
+  # in order to do rollbacks and timestamp normalization we need the most recent previous row per customer
+  # and the first row per customer...
+  dataset_key <- dataset[,c("group_customer_no","timestamp")] %>% copy %>% setDT %>% .[,I := .I]
+  dataset_chunk <- dataset_key[rows$I, ]
+
+  dataset_chunk[,date := timestamp]
+  dataset_key[,date := timestamp + 1e-9]
+  setkey(dataset_key,group_customer_no,timestamp)
+
+  previous_rows <- dataset_key[dataset_chunk,.(I,timestamp,group_customer_no),on=c("group_customer_no","date"), roll = Inf]
+  first_rows <- dataset_key[,first(.SD),by=c("group_customer_no"),.SDcols = c("timestamp","I")]
+
+  # load and label rows of dataset
+  dataset_chunk <- rbind(first_rows,previous_rows,dataset_chunk,fill=T) %>%
+    .[!is.na(I),first(.SD),by="I"] %>%
+    setkey(group_customer_no,timestamp)
+  dataset <- dataset[dataset_chunk$I, ] %>% setDT
 
   # normalize names for mlr3
   setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))
 
-  dataset[,date := timestamp]
-
   dataset <- dataset_rollback_event(dataset = dataset, ...)
+  dataset[,date := timestamp]
   dataset <- dataset_normalize_timestamps(dataset = dataset, ...)
 
-  dataset[,partition := partition]
+  # remove added rows
+  dataset[,I := dataset_chunk$I]
+  dataset <- dataset[rows,on="I"]
+  # append incoming data
+  dataset <- cbind(dataset,rows[,setdiff(colnames(rows),
+                                         colnames(dataset)), with = F])
+  dataset[,`:=`(partition = partition,
+                I = NULL)]
 
   tessilake::write_cache(dataset, "dataset", dataset_name, partition = "partition",
                          incremental = TRUE, date_column = "date", sync = FALSE, prefer = "from")
@@ -64,7 +84,7 @@ dataset_chunk_write <- function(dataset, partition,
 #' @importFrom dplyr lead lag
 dataset_rollback_event <- function(dataset, event = "event",
                                    rollback_cols = setdiff(colnames(dataset),
-                                                     c(by,event)),
+                                                     c(by,event,"timestamp")),
                                    by = "group_customer_no", ...) {
 
   i <- by_i <- . <- NULL
