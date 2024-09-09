@@ -48,6 +48,8 @@ save_model(model, subdir = "model", model_name = "model.Rds", sync = TRUE)
 \item{sync}{boolean whether to sync data across storages}
 
 \item{model_name}{\code{character(1)} filename of the model}
+
+\item{model}{\link[mlr3:Learner]{mlr3::Learner} to be saved}
 }
 \description{
 Base class for training/running a machine learning model

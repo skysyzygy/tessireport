@@ -86,6 +86,7 @@ load_model <- function(subdir = "model", model_name = "model.Rds") {
 
 #' @describeIn mlr_report save serialized mlr model to disk
 #' @importFrom tessilake cache_primary_path
+#' @param model [mlr3::Learner] to be saved
 save_model <- function(model, subdir = "model", model_name = "model.Rds", sync = TRUE) {
   path_name = cache_primary_path("", subdir)
 

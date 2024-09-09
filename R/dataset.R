@@ -22,6 +22,8 @@ dataset_chunk_write <- function(dataset, partition,
                                 cols = colnames(dataset),
                                 ...) {
 
+  timestamp <- NULL
+
   assert_names(colnames(dataset), must.include = c("timestamp",cols))
   assert_vector(partition, len = 1)
   assert_character(dataset_name, len = 1)
@@ -108,7 +110,7 @@ dataset_rollback_event <- function(dataset, event = "event",
 dataset_normalize_timestamps <- function(dataset,
                                          timestamp_cols = grep("timestamp", colnames(dataset), value=T, ignore.case = T),
                                         by = "group_customer_no", ...) {
-  timestamp <- NULL
+  timestamp <- min_timestamp <- NULL
 
   # normalize names
   timestamp_cols <- gsub("\\W","_",timestamp_cols)

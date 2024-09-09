@@ -12,11 +12,12 @@ contributions_model <- report(class=c("contributions_model","mlr_report"))
 #' Data is written to the primary cache partitioned by year and then synced across storages
 #' @param since Date/POSIXct data on or after this date will be loaded and possibly used for training
 #' @param ... not used
+#' @importFrom ff delete
 contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
                                   rebuild_dataset = NULL, ...) {
 
 
-  stream <- group_customer_no <- timestamp <- event_type <- event <- contributionAdjAmt <- n_event <-
+  . <- stream <- group_customer_no <- timestamp <- event_type <- event <- contributionAmt <- n_event <-
     N <- partition <- NULL
 
   dataset_max_date <- NULL
@@ -44,10 +45,14 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
   # censor
   stream_key <- stream_key[n_event == 0 | event & n_event==1 & N>1]
   stream_key[,`:=`(n_event = NULL, N = NULL)]
+
+  # filter dates
+  stream_key <- stream_key[timestamp >= dataset_max_date %||% since & timestamp < until]
+
   # subsample
   stream_key[, date := as.Date(timestamp)]
-  stream_key <- stream_key[timestamp >= dataset_max_date %||% since & timestamp < until]
   setorder(stream_key, group_customer_no, date, -event)
+  stream_key <- stream_key[, first(.SD), by = c("group_customer_no", "date")]
 
   # partition by year
   stream_key[,partition := year(timestamp)]
@@ -159,7 +164,7 @@ train.contributions_model <- function(model, ...) {
       task = model$task,
       learner = stacked,
       resampling = rsmp("holdout"),
-      measure = msr("classif.auc"))
+      measures = msr("classif.auc"))
 
   stacked$param_set$values <- stacked_tuned$result_learner_param_vals
 

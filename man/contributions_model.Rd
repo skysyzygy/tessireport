@@ -27,6 +27,7 @@ contributions_dataset(
   since = Sys.Date() - 365 * 5,
   until = Sys.Date(),
   predict_since = Sys.Date() - 30,
+  rebuild_dataset = NULL,
   predict = NULL,
   ...
 )
