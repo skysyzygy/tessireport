@@ -15,11 +15,15 @@ An object of class \code{contributions_model} (inherits from \code{mlr_report}, 
 \usage{
 contributions_model
 
-contributions_dataset(since = Sys.Date() - 365 * 5, until = Sys.Date(), ...)
+contributions_dataset(
+  since = Sys.Date() - 365 * 5,
+  until = Sys.Date(),
+  rebuild_dataset = NULL,
+  ...
+)
 
 \method{read}{contributions_model}(
   model,
-  rebuild_dataset = NULL,
   since = Sys.Date() - 365 * 5,
   until = Sys.Date(),
   predict_since = Sys.Date() - 30,
@@ -38,12 +42,12 @@ contributions_dataset(since = Sys.Date() - 365 * 5, until = Sys.Date(), ...)
 
 \item{until}{Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today}
 
+\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset(since=since,until=until)} (TRUE), just read the existing one (FALSE),
+or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
+
 \item{...}{not used}
 
 \item{model}{\code{contributions_model} object}
-
-\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset(since=since,until=until)} (TRUE), just read the existing one (FALSE),
-or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
 
 \item{predict_since}{Date/POSIXct data on/after this date will be used to make predictions and not for training}
 

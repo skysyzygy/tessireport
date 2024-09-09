@@ -12,13 +12,26 @@ contributions_model <- report(class=c("contributions_model","mlr_report"))
 #' Data is written to the primary cache partitioned by year and then synced across storages
 #' @param since Date/POSIXct data on or after this date will be loaded and possibly used for training
 #' @param ... not used
-contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), ...) {
+contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
+                                  rebuild_dataset = NULL, ...) {
+
+
   stream <- group_customer_no <- timestamp <- event_type <- event <- contributionAdjAmt <- n_event <-
     N <- partition <- NULL
 
-  stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
-  ffbase::unpack.ffdf(stream_path)
-  #ffbase::load.ffdf("E:/ffdb")
+  dataset_max_date <- NULL
+  if (is.null(rebuild_dataset) && cache_exists_any("dataset","contributions_model") || !(rebuild_dataset %||% T)) {
+    dataset <- read_cache("dataset","contributions_model")
+    dataset_max_date <- summarise(dataset,max(date,na.rm = T)) %>% collect %>% .[[1]]
+
+    if(dataset_max_date >= until || !(rebuild_dataset %||% T))
+      return(dataset %>% filter(timestamp >= since & timestamp < until))
+  }
+
+
+  #stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
+  #ffbase::unpack.ffdf(stream_path)
+  ffbase::load.ffdf("E:/ffdb")
 
   stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAmt")] %>% setDT
   stream_key[,I:=.I]
@@ -32,23 +45,29 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
   stream_key <- stream_key[n_event == 0 | event & n_event==1 & N>1]
   stream_key[,`:=`(n_event = NULL, N = NULL)]
   # subsample
-  month_subset <- stream_key[,sample(I,1), by=list(group_customer_no,lubridate::floor_date(timestamp,"months"))]$V1
-  stream_key <- stream_key[event | I %in% month_subset]
-  stream_key <- stream_key[timestamp >= since & timestamp < until]
+  stream_key[, date := as.Date(timestamp)]
+  stream_key <- stream_key[timestamp >= dataset_max_date %||% since & timestamp < until]
+  setorder(stream_key, group_customer_no, date, -event)
 
   # partition by year
   stream_key[,partition := year(timestamp)]
 
-  stream_key[, dataset_chunk_write(stream, partition,
-                                   dataset_name = "contributions_model",
-                                  rows = .SD,
-                                  cols = grep("Adj",colnames(stream),value=T,invert = T),
-                                  rollback = grep("^contribution|DiscountFee|DiscountMem",colnames(stream),value = T)),
-             by = "partition"]
-  tessilake::sync_cache("dataset", "contributions_model", overwrite = TRUE)
+  if(nrow(stream_key) > 0) {
+    stream_key[,dataset_chunk_write(dataset = stream, partition = partition,
+                                    dataset_name = "contributions_model",
+                                    rows = .SD,
+                                    cols = grep("Adj",colnames(stream),value=T,invert = T),
+                                    rollback_cols = grep("^(contribution|ticket|email|address)",colnames(stream),value = T)),
+               by = "partition"]
+    tessilake::sync_cache("dataset", "contributions_model", overwrite = TRUE)
+  }
 
   close(stream)
   delete(stream)
+
+  return(read_cache("dataset","contributions_model") %>%
+           filter(timestamp >= since & timestamp < until))
+
 }
 
 #' @export
@@ -63,30 +82,20 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
 #' @param rebuild_dataset boolean rebuild the dataset by calling `contributions_dataset(since=since,until=until)` (TRUE), just read the existing one (FALSE),
 #' or append new rows by calling `contributions_dataset(since=max_existing_date,until=until)` (NULL, default)
 #' @note Data will be loaded in-memory, because *\[inaudible\]* mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
-read.contributions_model <- function(model, rebuild_dataset = NULL,
+read.contributions_model <- function(model,
                                      since = Sys.Date()-365*5,
                                      until = Sys.Date(),
                                      predict_since = Sys.Date() - 30,
+                                     rebuild_dataset = NULL,
                                      predict = NULL, ...) {
 
   . <- event <- TRUE
 
-  if(rebuild_dataset %||% F || !cache_exists_any("dataset","contributions_model")) {
-    contributions_dataset(since = since, until = until)
-  }
-
-  dataset <- read_cache("dataset","contributions_model")
-  dataset_max_date <- summarise(dataset,max(date,na.rm = T)) %>% collect %>% .[[1]]
-
-  if (rebuild_dataset %||% T && dataset_max_date < until) {
-    contributions_dataset(since = dataset_max_date, until = until)
-  }
-
-  dataset <- dataset %>%
-    filter(date >= since & date < until) %>%
+  dataset <- contributions_dataset(since = since, until = until,
+                                   rebuild_dataset = rebuild_dataset) %>%
     collect %>% setDT %>%
     .[,`:=`(date = as.POSIXct(date),
-           event = as.factor(event))]
+            event = as.factor(event))]
 
   model$task <- TaskClassif$new(id = "contributions",
                                 target = "event",
