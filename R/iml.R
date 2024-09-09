@@ -70,10 +70,12 @@ iml_featureimp <- function(model, data, loss = "logLoss", compare = "difference"
 iml_featureeffects <- function(model, data, features = NULL, method = "ale",
                                center.at = NULL, grid.size = 20) {
   future::plan("sequential")
-  predictor <- iml_predictor(model, data)
 
-  # filter out rows with missing data
-  data <- data[ data[,apply(.SD,1,\(.) !any(is.na(.))), .SDcols = predictor$data$feature.names] ]
+  # replace missing data
+  for (col in which(is.numeric(data)))
+    setnafill(data, "const", data[,min(get(col),na.rm=T)], cols = col)
+
+  predictor <- iml_predictor(model, data)
 
   fe <- FeatureEffects$new(predictor, features = features, method = method,
                            center.at = center.at, grid.size = grid.size)
