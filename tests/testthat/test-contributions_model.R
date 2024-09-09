@@ -168,7 +168,7 @@ test_that("predict.contributions_model successfully predicts new data", {
 
 test_that("output.contributions_model successfully interprets the model", {
 
-  model$model <- readRDS(here::here("tests/testthat/test-contributions_model.Rds"))
+  model$model <- readRDS(here::here("tests/testthat/test-contributions_model.RDs"))
 
   # predict the whole thing
   model$predictions <-
@@ -178,11 +178,13 @@ test_that("output.contributions_model successfully interprets the model", {
   # downgrade some predictions
   model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
 
-  stub(output.mlr_report, "read_cache",mock(
-       arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F) %>%
-         # fill in missing data because the test set is largely missing
-         collect %>% setDT %>% setnafill(fill=0, cols = which(sapply(.,is.numeric))),
-       model$predictions))
+  # dataset
+  d <- arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F) %>% collect %>% setDT
+  # fill in missing data because the test set is largely missing and add some random noise
+  cols <- setdiff(colnames(d)[which(sapply(d,is.numeric))],c("group_customer_no","date","I"))
+  d[,(cols) := lapply(.SD, \(.) coalesce(.,0) + runif(.N,min=-1,max=1)),.SDcols = cols]
+
+  stub(output.mlr_report, "read_cache", d)
 
   output(model)
 
