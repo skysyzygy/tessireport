@@ -170,9 +170,6 @@ train.contributions_model <- function(model, ...) {
 
   model$model <- stacked$train(model$task)
 
-  # save state
-  write(model, sync = FALSE)
-
   NextMethod()
 }
 
