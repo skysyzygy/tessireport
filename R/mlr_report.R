@@ -21,9 +21,10 @@ read.mlr_report <- function(mlr_report, ...) {
 #' should define a `train.mlr_model` and `predict.mlr_model` function, which should load from
 #' `mlr_report$task` and store their results in `mlr_report$model` and `mlr_report$predictions`
 process.mlr_report <- function(mlr_report, train = TRUE, predict = TRUE, ...) {
+  report_name <- class(mlr_report)[1]
   if (train) {
     mlr_report <- train(mlr_report, ...)
-    save_model(model = mlr_report$model, model_name = "model.Rds", subdir = subdir, sync = FALSE)
+    save_model(model = mlr_report$model, model_name = "model.Rds", subdir = report_name, sync = FALSE)
   }
 
   if (predict) mlr_report <- predict(mlr_report, ...)
