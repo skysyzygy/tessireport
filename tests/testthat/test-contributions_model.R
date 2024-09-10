@@ -186,7 +186,7 @@ test_that("output.contributions_model successfully interprets the model", {
 
   stub(output.mlr_report, "read_cache", d)
 
-  output(model)
+  suppressWarnings(output(model))
 
   pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
   exp_filename <- cache_primary_path("shapley.Rds","contributions_model")
