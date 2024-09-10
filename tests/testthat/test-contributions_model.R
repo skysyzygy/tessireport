@@ -185,6 +185,7 @@ test_that("output.contributions_model successfully interprets the model", {
   d[,(cols) := lapply(.SD, \(.) coalesce(.,0) + runif(.N,min=-1,max=1)),.SDcols = cols]
 
   stub(output.mlr_report, "read_cache", d)
+  dir.create(cache_primary_path("","contributions_model"))
 
   suppressWarnings(output(model))
 
