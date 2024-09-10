@@ -32,7 +32,7 @@ dataset_chunk_write <- function(dataset, partition,
   # in order to do rollbacks and timestamp normalization we need the most recent previous row per customer
   # and the first row per customer...
   dataset_key <- dataset[,c("group_customer_no","timestamp")] %>% copy %>% setDT %>% .[,I := .I]
-  dataset_chunk <- dataset_key[rows$I, ]
+  dataset_chunk <- dataset_key[rows, on = "I"]
 
   dataset_chunk[,date := timestamp]
   dataset_key[,date := timestamp + 1e-9]
@@ -41,11 +41,12 @@ dataset_chunk_write <- function(dataset, partition,
   previous_rows <- dataset_key[dataset_chunk,.(I,timestamp,group_customer_no),on=c("group_customer_no","date"), roll = Inf]
   first_rows <- dataset_key[,first(.SD),by=c("group_customer_no"),.SDcols = c("timestamp","I")]
 
-  # load and label rows of dataset
+  # load rows of dataset
   dataset_chunk <- rbind(first_rows,previous_rows,dataset_chunk,fill=T) %>%
-    .[!is.na(I),first(.SD),by="I"] %>%
+    .[!is.na(I),last(.SD),by="I"] %>%
     setkey(group_customer_no,timestamp)
-  dataset <- dataset[dataset_chunk$I, ] %>% setDT
+  dataset <- dataset[dataset_chunk$I, ] %>% setDT %>%
+    cbind(dataset_chunk[,setdiff(colnames(dataset_chunk),colnames(dataset)),with=F])
 
   # normalize names for mlr3
   setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))
@@ -55,11 +56,11 @@ dataset_chunk_write <- function(dataset, partition,
   dataset <- dataset_normalize_timestamps(dataset = dataset, ...)
 
   # remove added rows
-  dataset[,I := dataset_chunk$I]
+  dataset[, I := dataset_chunk$I]
   dataset <- dataset[rows,on="I"]
-  # append incoming data
-  dataset <- cbind(dataset,rows[,setdiff(colnames(rows),
-                                         colnames(dataset)), with = F])
+
+  # limit to input columns
+  dataset <- dataset[,union(colnames(dataset),colnames(rows)),with=F]
   dataset[,`:=`(partition = partition,
                 I = NULL)]
 
