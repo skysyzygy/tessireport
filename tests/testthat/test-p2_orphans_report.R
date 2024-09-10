@@ -1,6 +1,5 @@
 withr::local_package("checkmate")
 withr::local_package("mockery")
-withr::local_package("dplyr")
 
 # run.p2_orphans_report -------------------------------------------------------
 

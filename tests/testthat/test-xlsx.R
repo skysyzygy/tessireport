@@ -1,6 +1,5 @@
 test_that("write_xlsx writes a readable file", {
   withr::local_package("openxlsx")
-  withr::local_package("dplyr")
 
   bunch_of_data <- data.frame(A = letters,
                               B = runif(26),
@@ -19,7 +18,6 @@ test_that("write_xlsx writes a readable file", {
 
 test_that("write_xlsx titlecases the column names", {
   withr::local_package("openxlsx")
-  withr::local_package("dplyr")
 
   bunch_of_data <- data.frame(a_lot_of_letters = letters,
                               thisIsCamelCase = runif(26))
