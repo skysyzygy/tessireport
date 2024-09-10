@@ -7,7 +7,7 @@
 dataset_rollback_event(
   dataset,
   event = "event",
-  rollback_cols = setdiff(colnames(dataset), c(by, event)),
+  rollback_cols = setdiff(colnames(dataset), c(by, event, "timestamp")),
   by = "group_customer_no",
   ...
 )
