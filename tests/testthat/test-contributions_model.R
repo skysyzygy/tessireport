@@ -196,7 +196,7 @@ test_that("output.contributions_model successfully interprets the model", {
 
   explanations <- readRDS(exp_filename)
   expect_equal(nrow(explanations),model$predictions[prob.TRUE>.75,.N])
-  expect_gte(explanations$explanation[[1]][feature == "ticketTimestampMax",phi],0)
+  expect_gte(setDT(explanations$explanation[[1]])[feature == "ticketTimestampMax",phi],0)
 
 })
 
