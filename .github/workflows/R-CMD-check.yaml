@@ -32,7 +32,7 @@ jobs:
           use-public-rspm: true
 
       - name: Install additional dependencies
-        run: sudo apt-get install -y libcurl4-openssl-dev r-cran-java libsodium-dev
+        run: sudo apt-get install -y libcurl4-openssl-dev default-jre default-jdk libsodium-dev
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
