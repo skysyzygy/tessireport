@@ -31,8 +31,8 @@ jobs:
         with:
           use-public-rspm: true
 
-      - name: Install libcurl
-        run: sudo apt-get install -y libcurl4-openssl-dev
+      - name: Install additional dependencies
+        run: sudo apt-get install -y libcurl4-openssl-dev default-jre default-jdk
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
