@@ -32,7 +32,7 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
 
   #stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
   #ffbase::unpack.ffdf(stream_path)
-  ffbase::load.ffdf("E:/ffdb")
+  ffbase::load.ffdf(file.path(tempdir(),"unpack4c54251f20eb"))
 
   stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAmt")] %>% setDT
   stream_key[,I:=.I]
