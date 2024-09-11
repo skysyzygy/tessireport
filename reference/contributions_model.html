@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tessireport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,6 +16,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-developer" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Developer</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-developer"><li><a class="dropdown-item" href="../../dataAtBAM/index.html">data @ BAM</a></li>
@@ -48,15 +49,21 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="va">contributions_model</span></span>
 <span></span>
-<span><span class="fu">contributions_dataset</span><span class="op">(</span>since <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">5</span>, until <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">contributions_dataset</span><span class="op">(</span></span>
+<span>  since <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">5</span>,</span>
+<span>  until <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  rebuild_dataset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'contributions_model'</span></span>
 <span><span class="fu"><a href="report.html">read</a></span><span class="op">(</span></span>
 <span>  <span class="va">model</span>,</span>
-<span>  rebuild_dataset <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  since <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">365</span> <span class="op">*</span> <span class="fl">5</span>,</span>
 <span>  until <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  predict_since <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">30</span>,</span>
+<span>  rebuild_dataset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  predict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -64,7 +71,10 @@
 <span><span class="fu"><a href="mlr_report.html">train</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'contributions_model'</span></span>
-<span><span class="fu"><a href="mlr_report.html">predict</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="mlr_report.html">predict</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'contributions_model'</span></span>
+<span><span class="fu"><a href="report.html">output</a></span><span class="op">(</span><span class="va">model</span>, downsample <span class="op">=</span> <span class="fl">0.01</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -83,6 +93,11 @@
 <dd><p>Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today</p></dd>
 
 
+<dt id="arg-rebuild-dataset">rebuild_dataset<a class="anchor" aria-label="anchor" href="#arg-rebuild-dataset"></a></dt>
+<dd><p>boolean rebuild the dataset by calling <code>contributions_dataset(since=since,until=until)</code> (TRUE), just read the existing one (FALSE),
+or append new rows by calling <code>contributions_dataset(since=max_existing_date,until=until)</code> (NULL, default)</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>not used</p></dd>
 
@@ -91,13 +106,17 @@
 <dd><p><code>contributions_model</code> object</p></dd>
 
 
-<dt id="arg-rebuild-dataset">rebuild_dataset<a class="anchor" aria-label="anchor" href="#arg-rebuild-dataset"></a></dt>
-<dd><p>boolean rebuild the dataset by calling <code>contributions_dataset(since=since,until=until)</code> (TRUE), just read the existing one (FALSE),
-or append new rows by calling <code>contributions_dataset(since=max_existing_date,until=until)</code> (NULL, default)</p></dd>
-
-
 <dt id="arg-predict-since">predict_since<a class="anchor" aria-label="anchor" href="#arg-predict-since"></a></dt>
 <dd><p>Date/POSIXct data on/after this date will be used to make predictions and not for training</p></dd>
+
+
+<dt id="arg-predict">predict<a class="anchor" aria-label="anchor" href="#arg-predict"></a></dt>
+<dd><p>Not used, just here to prevent partial argument matching</p></dd>
+
+
+<dt id="arg-downsample">downsample<a class="anchor" aria-label="anchor" href="#arg-downsample"></a></dt>
+<dd><p><code>numeric(1)</code> the amount to downsample the test set by for feature importance and
+Shapley explanations</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -106,6 +125,7 @@ or append new rows by calling <code>contributions_dataset(since=max_existing_dat
 <ul><li><p><code>read(contributions_model)</code>: Read in contribution data and prepare a mlr3 training task and a prediction/validation task</p></li>
 <li><p><code>train(contributions_model)</code>: Tune and train a stacked log-reg/ranger model on the data</p></li>
 <li><p><code>predict(contributions_model)</code>: Predict using the trained model</p></li>
+<li><p><code>output(contributions_model)</code>: create IML reports for contributions_model</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>

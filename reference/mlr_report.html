@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tessireport</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,6 +16,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-developer" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Developer</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-developer"><li><a class="dropdown-item" href="../../dataAtBAM/index.html">data @ BAM</a></li>
@@ -59,10 +60,14 @@
 <span><span class="fu">predict</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'mlr_report'</span></span>
-<span><span class="fu"><a href="report.html">output</a></span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu"><a href="report.html">output</a></span><span class="op">(</span><span class="va">mlr_report</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'mlr_report'</span></span>
-<span><span class="fu"><a href="report.html">write</a></span><span class="op">(</span><span class="va">mlr_report</span>, subdir <span class="op">=</span> <span class="st">"model"</span>, sync <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="report.html">write</a></span><span class="op">(</span><span class="va">mlr_report</span>, subdir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">mlr_report</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, sync <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">load_model</span><span class="op">(</span>subdir <span class="op">=</span> <span class="st">"model"</span>, model_name <span class="op">=</span> <span class="st">"model.Rds"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">save_model</span><span class="op">(</span><span class="va">model</span>, subdir <span class="op">=</span> <span class="st">"model"</span>, model_name <span class="op">=</span> <span class="st">"model.Rds"</span>, sync <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -90,11 +95,19 @@
 
 
 <dt id="arg-subdir">subdir<a class="anchor" aria-label="anchor" href="#arg-subdir"></a></dt>
-<dd><p>character name of subdirectory to store data in, defaults to "model"</p></dd>
+<dd><p><code>character(1)</code> location where the model is stored</p></dd>
 
 
 <dt id="arg-sync">sync<a class="anchor" aria-label="anchor" href="#arg-sync"></a></dt>
 <dd><p>boolean whether to sync data across storages</p></dd>
+
+
+<dt id="arg-model-name">model_name<a class="anchor" aria-label="anchor" href="#arg-model-name"></a></dt>
+<dd><p><code>character(1)</code> filename of the model</p></dd>
+
+
+<dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
+<dd><p><a href="https://mlr3.mlr-org.com/reference/Learner.html" class="external-link">mlr3::Learner</a> to be saved</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -106,7 +119,7 @@ and is in charge of labeling column roles (i.e. feature, target, group, weight)<
 should define a <code>train.mlr_model</code> and <code>predict.mlr_model</code> function, which should load from
 <code>mlr_report$task</code> and store their results in <code>mlr_report$model</code> and <code>mlr_report$predictions</code></p></li>
 <li><p><code>output(mlr_report)</code>: Analyze the input set and the sensitivity of the training using
-some standard heuristics. TBD</p></li>
+some standard heuristics.</p></li>
 <li><p><code>write(mlr_report)</code>: Save the trained model and model output for future use. Writes the model to the
 <a href="https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessilake/reference/cache_path.html" class="external-link">tessilake::cache_primary_path</a> under the subdirectory <code>subdir</code> and then syncs them across storages.</p></li>
 </ul></div>
@@ -115,6 +128,8 @@ some standard heuristics. TBD</p></li>
 
 <ul><li><p><code>train()</code>: Train the model</p></li>
 <li><p><code>predict()</code>: Predict the model</p></li>
+<li><p><code>load_model()</code>: load serialized mlr model from disk</p></li>
+<li><p><code>save_model()</code>: save serialized mlr model to disk</p></li>
 </ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

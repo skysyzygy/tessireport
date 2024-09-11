@@ -4,11 +4,16 @@
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/LICENSE.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/authors.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/index.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/news/index.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/arrow_to_mlr3.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/contributions_model.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/contributions_model_report.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/dataset_chunk_write.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/dataset_normalize_timestamps.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/dataset_rollback_event.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/dot-__TaskSurv__initialize.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/duplicates_report.html</loc></url>
+<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/iml.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/index.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/make_unsubscribe_report_fixtures.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/mlr_report.html</loc></url>
@@ -21,8 +26,6 @@
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/send_unsubscribe_report_table.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/send_xlsx.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/sql_report.html</loc></url>
-<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/stream_normalize_timestamps.html</loc></url>
-<url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/stream_rollback_event.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/tessireport-package.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/unsubscribe_report.html</loc></url>
 <url><loc>https://bamorg-my.sharepoint.com/personal/ssyzygy_bam_org/Documents/documentation/tessireport/reference/write_pdf.html</loc></url>
