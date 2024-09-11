@@ -1,8 +1,5 @@
 comment: false
 
-ignore:
-  - R/test-helpers.R
-
 coverage:
   status:
     project:

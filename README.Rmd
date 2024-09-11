@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 # tessireport
 
 <!-- badges: start -->
-[![Codecov test coverage](https://codecov.io/gh/skysyzygy/tessireport/branch/master/graph/badge.svg)](https://codecov.io/gh/skysyzygy/tessireport?branch=master)
+[![Codecov test coverage](https://codecov.io/gh/skysyzygy/tessireport/branch/main/graph/badge.svg)](https://app.codecov.io/gh/skysyzygy/tessireport?branch=main)
 [![R-CMD-check](https://github.com/skysyzygy/tessireport/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/skysyzygy/tessireport/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
