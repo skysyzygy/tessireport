@@ -8,7 +8,7 @@ test_that("contributions_dataset reads from an ffdf and adds an event indicator"
   tessilake::local_cache_dirs()
 
   stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.table(
+    assign("stream",data.frame(
       group_customer_no = 1,
       event_type = c("Ticket","Contribution"),
       contributionAmt = 50,
@@ -29,7 +29,7 @@ test_that("contributions_dataset rebuilds all data when rebuild_dataset = T", {
   tessilake::local_cache_dirs()
 
   stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.table(
+    assign("stream",data.frame(
       group_customer_no = 1,
       event_type = c("Ticket","Contribution"),
       contributionAmt = 50,
@@ -41,7 +41,7 @@ test_that("contributions_dataset rebuilds all data when rebuild_dataset = T", {
   contributions_dataset()
 
   stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.table(
+    assign("stream",data.frame(
       group_customer_no = 1:4,
       event_type = c("Ticket","Contribution"),
       contributionAmt = 50,
@@ -62,7 +62,7 @@ test_that("contributions_dataset only appends data when rebuild_dataset = TRUE",
   tessilake::local_cache_dirs()
 
   stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.table(
+    assign("stream",data.frame(
       group_customer_no = 1,
       event_type = c("Ticket","Contribution"),
       contributionAmt = 50,
@@ -74,7 +74,7 @@ test_that("contributions_dataset only appends data when rebuild_dataset = TRUE",
   contributions_dataset()
 
   stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.table(
+    assign("stream",data.frame(
       group_customer_no = 1:4,
       event_type = c("Ticket","Contribution"),
       contributionAmt = 50,
@@ -98,7 +98,7 @@ test_that("contributions_dataset only reads data when rebuild_dataset = F", {
   tessilake::local_cache_dirs()
 
   stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.table(
+    assign("stream",data.frame(
       group_customer_no = 1,
       event_type = c("Ticket","Contribution"),
       contributionAmt = 50,
