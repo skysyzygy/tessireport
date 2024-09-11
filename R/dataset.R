@@ -45,8 +45,8 @@ dataset_chunk_write <- function(dataset, partition,
   dataset_chunk <- rbind(first_rows,previous_rows,dataset_chunk,fill=T) %>%
     .[!is.na(I),last(.SD),by="I"] %>%
     setkey(group_customer_no,timestamp)
-  dataset <- dataset[dataset_chunk$I, ] %>% setDT %>%
-    cbind(dataset_chunk[,setdiff(colnames(dataset_chunk),colnames(dataset)),with=F])
+  dataset <- dataset[dataset_chunk$I, cols] %>% setDT %>%
+    cbind(dataset_chunk[,setdiff(colnames(dataset_chunk),colnames(.)),with=F])
 
   # normalize names for mlr3
   setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))
