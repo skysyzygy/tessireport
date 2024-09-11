@@ -12,57 +12,67 @@ contributions_model <- report(class=c("contributions_model","mlr_report"))
 #' Data is written to the primary cache partitioned by year and then synced across storages
 #' @param since Date/POSIXct data on or after this date will be loaded and possibly used for training
 #' @param ... not used
-contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), ...) {
-  stream <- group_customer_no <- timestamp <- event_type <- event <- contributionAdjAmt <- n_event <-
+#' @importFrom ff delete
+contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
+                                  rebuild_dataset = NULL, ...) {
+
+
+  . <- stream <- group_customer_no <- timestamp <- event_type <- event <- contributionAmt <- n_event <-
     N <- partition <- NULL
 
-  stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
-  ffbase::unpack.ffdf(stream_path)
+  dataset_max_date <- NULL
+  if (is.null(rebuild_dataset) && cache_exists_any("dataset","contributions_model") || !(rebuild_dataset %||% T)) {
+    dataset <- read_cache("dataset","contributions_model")
+    dataset_max_date <- summarise(dataset,max(date,na.rm = T)) %>% collect %>% .[[1]]
 
-  stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAdjAmt")] %>% setDT
+    if(dataset_max_date >= until || !(rebuild_dataset %||% T))
+      return(dataset %>% filter(timestamp >= since & timestamp < until))
+  }
+
+
+  #stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
+  #ffbase::unpack.ffdf(stream_path)
+  ffbase::load.ffdf("E:/ffdb")
+
+  stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAmt")] %>% setDT
   stream_key[,I:=.I]
   setkey(stream_key,group_customer_no,timestamp)
 
   # add event
-  stream_key[,event := event_type == "Contribution" & contributionAdjAmt>=50]
+  stream_key[,event := event_type == "Contribution" & contributionAmt>=50]
   stream_key[,`:=`(n_event = cumsum(event),
                    N = .N), by="group_customer_no"]
   # censor
   stream_key <- stream_key[n_event == 0 | event & n_event==1 & N>1]
   stream_key[,`:=`(n_event = NULL, N = NULL)]
+
+  # filter dates
+  stream_key <- stream_key[timestamp >= dataset_max_date %||% since & timestamp < until]
+
   # subsample
-  month_subset <- stream_key[,last(I), by=list(group_customer_no,lubridate::floor_date(timestamp,"months"))]$V1
-  stream_key <- stream_key[event | I %in% month_subset]
-  stream_key <- stream_key[timestamp >= since & timestamp < until]
+  stream_key[, date := as.Date(timestamp)]
+  setorder(stream_key, group_customer_no, date, -event)
+  stream_key <- stream_key[, first(.SD), by = c("group_customer_no", "date")]
 
   # partition by year
   stream_key[,partition := year(timestamp)]
 
-  stream_chunk_write <- \(rows, partition) {
-    dataset <- stream[rows$I,]
-    setDT(dataset)
-
-    dataset <- cbind(dataset,rows[,setdiff(colnames(rows),
-                                           colnames(dataset)), with = F])
-
-    # normalize names for mlr3
-    setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))
-
-    stream_rollback_event(dataset, columns = grep("^contribution",names(dataset),value = T))
-
-    dataset[,date := timestamp]
-    stream_normalize_timestamps(dataset)
-
-    dataset[,partition := partition]
-
-    tessilake::write_cache(dataset, "contributions_dataset", "model", partition = "partition",
-                           incremental = TRUE, date_column = "date", sync = FALSE)
-
+  if(nrow(stream_key) > 0) {
+    stream_key[,dataset_chunk_write(dataset = stream, partition = partition,
+                                    dataset_name = "contributions_model",
+                                    rows = .SD,
+                                    cols = grep("Adj",colnames(stream),value=T,invert = T),
+                                    rollback_cols = grep("^(contribution|ticket|email|address)",colnames(stream),value = T)),
+               by = "partition"]
+    tessilake::sync_cache("dataset", "contributions_model", overwrite = TRUE)
   }
 
-  stream_key[, stream_chunk_write(.SD,partition), by = "partition"]
+  close(stream)
+  delete(stream)
 
-  ff::delete(stream)
+  return(read_cache("dataset","contributions_model") %>%
+           filter(timestamp >= since & timestamp < until))
+
 }
 
 #' @export
@@ -72,33 +82,25 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(), 
 #' @describeIn contributions_model Read in contribution data and prepare a mlr3 training task and a prediction/validation task
 #' @param model `contributions_model` object
 #' @param predict_since Date/POSIXct data on/after this date will be used to make predictions and not for training
+#' @param predict Not used, just here to prevent partial argument matching
 #' @param until Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today
 #' @param rebuild_dataset boolean rebuild the dataset by calling `contributions_dataset(since=since,until=until)` (TRUE), just read the existing one (FALSE),
 #' or append new rows by calling `contributions_dataset(since=max_existing_date,until=until)` (NULL, default)
 #' @note Data will be loaded in-memory, because *\[inaudible\]* mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
-read.contributions_model <- function(model, rebuild_dataset = NULL,
+read.contributions_model <- function(model,
                                      since = Sys.Date()-365*5,
                                      until = Sys.Date(),
-                                     predict_since = Sys.Date() - 30, ...) {
+                                     predict_since = Sys.Date() - 30,
+                                     rebuild_dataset = NULL,
+                                     predict = NULL, ...) {
 
   . <- event <- TRUE
 
-  if(rebuild_dataset %||% F || !cache_exists_any("contributions_dataset","model")) {
-    contributions_dataset(since = since, until = Sys.Date())
-  }
-
-  dataset <- read_cache("contributions_dataset","model")
-  dataset_max_date <- summarise(dataset,max(date,na.rm = T)) %>% collect %>% .[[1]]
-
-  if (rebuild_dataset %||% T && dataset_max_date < until && until <= Sys.Date()) {
-    contributions_dataset(since = dataset_max_date, until = Sys.Date())
-  }
-
-  dataset <- dataset %>%
-    filter(date >= since & date < until) %>%
-    collect %>%
-    mutate(date = as.POSIXct(date),
-           event = as.factor(event))
+  dataset <- contributions_dataset(since = since, until = until,
+                                   rebuild_dataset = rebuild_dataset) %>%
+    collect %>% setDT %>%
+    .[,`:=`(date = as.POSIXct(date),
+            event = as.factor(event))]
 
   model$task <- TaskClassif$new(id = "contributions",
                                 target = "event",
@@ -162,14 +164,11 @@ train.contributions_model <- function(model, ...) {
       task = model$task,
       learner = stacked,
       resampling = rsmp("holdout"),
-      measure = msr("classif.auc"))
+      measures = msr("classif.auc"))
 
   stacked$param_set$values <- stacked_tuned$result_learner_param_vals
 
   model$model <- stacked$train(model$task)
-
-  # save state
-  write(model, sync = FALSE)
 
   NextMethod()
 }
@@ -180,7 +179,7 @@ train.contributions_model <- function(model, ...) {
 #' @describeIn contributions_model Predict using the trained model
 predict.contributions_model <- function(model, ...) {
   if(is.null(model$model))
-    model$model <- readRDS(cache_primary_path("contributions.model","model"))
+    model$model <- load_model("contributions_model")
 
   model$predictions <-
     cbind(as.data.table(model$model$predict(model$task$internal_valid_task)),
@@ -189,86 +188,57 @@ predict.contributions_model <- function(model, ...) {
   NextMethod()
 }
 
-#' arrow_to_mlr3
-#'
-#' Converts arrow Table/Dataset to mlr3 Backend
-#'
-#' @param dataset [arrow::Table] or [arrow::Dataset]
-#' @param primary_key character name of the column to use as a primary key
-#'
-#' @return [mlr3db::DataBackendDplyr]
-#' @importFrom duckdb duckdb duckdb_register_arrow
-#' @importFrom dplyr tbl
-#' @importFrom mlr3db DataBackendDplyr
-#' @importFrom checkmate assert_multi_class
-#' @importFrom DBI dbConnect
-arrow_to_mlr3 <- function(dataset, primary_key = "I") {
-  assert_multi_class(dataset,c("Table","Dataset","arrow_dplyr_query"))
-  assert_names(names(dataset), must.include = primary_key)
+#' @describeIn contributions_model create IML reports for contributions_model
+#' @importFrom dplyr inner_join
+#' @importFrom ggplot2 coord_flip theme_minimal theme scale_y_discrete element_text element_blank
+#' @importFrom purrr walk
+#' @importFrom tessilake cache_primary_path
+#' @importFrom stats runif
+#' @param downsample `numeric(1)` the amount to downsample the test set by for feature importance and
+#' Shapley explanations
+#' @export
+output.contributions_model <- function(model, downsample = .01, ...) {
+  prob.TRUE <- explanation <- NULL
 
-  db <- dbConnect(duckdb())
-  duckdb_register_arrow(db, "dataset", dataset)
-  table <- tbl(db, "dataset")
-  backend <- DataBackendDplyr$new(table, primary_key, strings_as_factors = FALSE)
-}
+  model <- NextMethod()
 
-#' stream_rollback_event
-#'
-#' Rolls back the data in `columns` for rows flagged by `event` to prevent data leaks during training.
-#'
-#' @param dataset data.table of data to roll back
-#' @param columns character vector of columns to roll back
-#' @param event character column name containing a logical feature that indicates events to rollback
-#' @param by character column name to group the table by
-#'
-#' @return rolled back data.table
-#' @importFrom checkmate assert_data_table assert_names assert_logical
-#' @importFrom dplyr lead lag
-stream_rollback_event <- function(dataset, event = "event", columns = NULL, by = "group_customer_no") {
+  model$dataset <- mutate(model$dataset, date = as.Date(date))
+  model$predictions <- mutate(model$predictions, date = as.Date(date))
 
-  i <- by_i <- . <- NULL
+  dataset_predictions <- inner_join(model$dataset,model$predictions,
+                                    by = c("group_customer_no","date","I")) %>% collect %>% setDT
 
-  assert_data_table(dataset)
-  assert_names(names(dataset),must.include = c(event,columns,by))
-  assert_logical(dataset[,event,with=F][[1]])
+  withr::local_options(future.globals.maxSize = 2*1024^3)
 
-  dataset[,i := seq_len(.N)]
-  dataset[,by_i := seq_len(.N), by = by]
-  if (event %in% names(dataset)) {
-    event_ <- event
-    rm(event)
-  }
+  # Feature importance
+  fi <- iml_featureimp(model$model, dataset_predictions[runif(.N)<downsample])
+  top_features <- fi$results[1:25,"feature"]
 
-  setkeyv(dataset,by)
+  pfi <- plot(fi) + coord_flip() +
+    theme_minimal(base_size = 8) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    scale_y_discrete(limits=rev)
+  # remove styling of points
+  walk(pfi$layers, \(.) .$aes_params <- list())
 
-  rollback <- dataset[lead(get(event_)) == T, c(columns,by,"by_i"),with=F] %>% .[,by_i := by_i+1] %>%
-    rbind(dataset[get(event_) == T & by_i == 1, c(by, "by_i"), with = F], fill = T)
-  dataset[rollback, (columns) := mget(paste0("i.",columns)), on = c(by, "by_i")]
+  # Feature effects
+  fe <- iml_featureeffects(model$model, dataset_predictions[prob.TRUE > .75], top_features)
+  pfe <- plot(fe, fixed_y = F) &
+    theme_minimal(base_size = 8) + theme(axis.title.y = element_blank())
 
-  setkey(dataset,i)
+  pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
+  write_pdf({
+    pdf_plot(pfi, "Global feature importance","First contributions model")
+    pdf_plot(pfe, "Local feature effects","First contributions model, prob.TRUE > .75")
+  }, .title = "Contributions model", output_file = pdf_filename)
 
-  dataset[,`:=`(by_i = NULL, i = NULL)]
+  # Shapley explanations
+  to_explain <- dataset_predictions[prob.TRUE>.75]
+  ex <- iml_shapley(model$model, dataset_predictions[runif(.N)<downsample],
+                    x.interest = to_explain, sample.size = 10)
+
+  to_explain[,explanation := map(ex,"results")]
+  saveRDS(to_explain, cache_primary_path("shapley.Rds", "contributions_model"))
 
 }
 
-#' stream_normalize_timestamps
-#'
-#' Replaces the date-times in `columns` with integer offsets from the first `timestamp` per group identified by `by`.
-#'
-#' @param dataset data.table of data to normalize
-#' @param columns character vector of columns to normalize; defaults to all columns with a name containing the word `timestamp`
-#' @param by character column name to group the table by
-#' @importFrom checkmate assert_data_table assert_names
-#' @return normalized data.table
-stream_normalize_timestamps <- function(dataset,
-                                        columns = grep("timestamp", colnames(dataset), value=T, ignore.case = T),
-                                        by = "group_customer_no") {
-  timestamp <- NULL
-
-  assert_data_table(dataset)
-  assert_names(names(dataset), must.include = c("timestamp",columns,by))
-  assert_data_table(dataset[,c("timestamp",columns), with = F],types=c("Date","POSIXct"))
-
-  dataset[,(columns) := lapply(.SD, \(c) c-min(timestamp, na.rm = T)), by = by, .SDcols = columns]
-  dataset[,(columns) := lapply(.SD, \(c) as.numeric(c)), .SDcols = columns]
-}

@@ -7,6 +7,7 @@
 \alias{read.contributions_model}
 \alias{train.contributions_model}
 \alias{predict.contributions_model}
+\alias{output.contributions_model}
 \title{contributions_model}
 \format{
 An object of class \code{contributions_model} (inherits from \code{mlr_report}, \code{report}, \code{list}) of length 0.
@@ -14,34 +15,47 @@ An object of class \code{contributions_model} (inherits from \code{mlr_report}, 
 \usage{
 contributions_model
 
-contributions_dataset(since = Sys.Date() - 365 * 5, until = Sys.Date(), ...)
+contributions_dataset(
+  since = Sys.Date() - 365 * 5,
+  until = Sys.Date(),
+  rebuild_dataset = NULL,
+  ...
+)
 
 \method{read}{contributions_model}(
   model,
-  rebuild_dataset = NULL,
   since = Sys.Date() - 365 * 5,
   until = Sys.Date(),
   predict_since = Sys.Date() - 30,
+  rebuild_dataset = NULL,
+  predict = NULL,
   ...
 )
 
 \method{train}{contributions_model}(model, ...)
 
 \method{predict}{contributions_model}(model, ...)
+
+\method{output}{contributions_model}(model, downsample = 0.01, ...)
 }
 \arguments{
 \item{since}{Date/POSIXct data on or after this date will be loaded and possibly used for training}
 
 \item{until}{Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today}
 
+\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset(since=since,until=until)} (TRUE), just read the existing one (FALSE),
+or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
+
 \item{...}{not used}
 
 \item{model}{\code{contributions_model} object}
 
-\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset(since=since,until=until)} (TRUE), just read the existing one (FALSE),
-or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
-
 \item{predict_since}{Date/POSIXct data on/after this date will be used to make predictions and not for training}
+
+\item{predict}{Not used, just here to prevent partial argument matching}
+
+\item{downsample}{\code{numeric(1)} the amount to downsample the test set by for feature importance and
+Shapley explanations}
 }
 \description{
 mlr3 model for predicting a customer's first contribution
@@ -53,6 +67,8 @@ mlr3 model for predicting a customer's first contribution
 \item \code{train(contributions_model)}: Tune and train a stacked log-reg/ranger model on the data
 
 \item \code{predict(contributions_model)}: Predict using the trained model
+
+\item \code{output(contributions_model)}: create IML reports for contributions_model
 
 }}
 \section{Functions}{

@@ -1,6 +1,6 @@
 Package: tessireport
 Title: Data hygiene tools for Tessitura
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person(given = "Sky",
            family = "Syzygy",
@@ -32,8 +32,10 @@ Imports:
     ff,
     ffbase,
     furrr,
+    future,
     ggplot2,
     httr,
+    iml,
     keyring,
     knitr,
     lubridate,
@@ -43,13 +45,15 @@ Imports:
     mlr3db,
     mlr3verse,
     openxlsx,
+    patchwork,
     purrr,
     ranger,
     rlang,
     rmarkdown,
     stats,
     tessilake,
-    tessistream
+    tessistream,
+    withr
 Suggests: 
     arrow,
     here,
@@ -57,8 +61,7 @@ Suggests:
     pdftools,
     png,
     rprojroot,
-    testthat (>= 3.0.0),
-    withr
+    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Remotes: 
     skysyzygy/tessilake,

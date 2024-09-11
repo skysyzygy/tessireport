@@ -9,6 +9,8 @@
 \alias{predict}
 \alias{output.mlr_report}
 \alias{write.mlr_report}
+\alias{load_model}
+\alias{save_model}
 \title{mlr_report}
 \format{
 An object of class \code{mlr_report} (inherits from \code{report}, \code{list}) of length 0.
@@ -24,9 +26,13 @@ train(...)
 
 predict(...)
 
-\method{output}{mlr_report}(...)
+\method{output}{mlr_report}(mlr_report, ...)
 
-\method{write}{mlr_report}(mlr_report, subdir = "model", sync = TRUE, ...)
+\method{write}{mlr_report}(mlr_report, subdir = class(mlr_report)[1], sync = TRUE, ...)
+
+load_model(subdir = "model", model_name = "model.Rds")
+
+save_model(model, subdir = "model", model_name = "model.Rds", sync = TRUE)
 }
 \arguments{
 \item{mlr_report}{The report object}
@@ -37,9 +43,13 @@ predict(...)
 
 \item{predict}{boolean whether to run the predictions}
 
-\item{subdir}{character name of subdirectory to store data in, defaults to "model"}
+\item{subdir}{\code{character(1)} location where the model is stored}
 
 \item{sync}{boolean whether to sync data across storages}
+
+\item{model_name}{\code{character(1)} filename of the model}
+
+\item{model}{\link[mlr3:Learner]{mlr3::Learner} to be saved}
 }
 \description{
 Base class for training/running a machine learning model
@@ -54,7 +64,7 @@ should define a \code{train.mlr_model} and \code{predict.mlr_model} function, wh
 \code{mlr_report$task} and store their results in \code{mlr_report$model} and \code{mlr_report$predictions}
 
 \item \code{output(mlr_report)}: Analyze the input set and the sensitivity of the training using
-some standard heuristics. TBD
+some standard heuristics.
 
 \item \code{write(mlr_report)}: Save the trained model and model output for future use. Writes the model to the
 \link[tessilake:cache_path]{tessilake::cache_primary_path} under the subdirectory \code{subdir} and then syncs them across storages.
@@ -65,6 +75,10 @@ some standard heuristics. TBD
 \item \code{train()}: Train the model
 
 \item \code{predict()}: Predict the model
+
+\item \code{load_model()}: load serialized mlr model from disk
+
+\item \code{save_model()}: save serialized mlr model to disk
 
 }}
 \keyword{datasets}

@@ -6,69 +6,122 @@ withr::local_package("mockery")
 
 test_that("contributions_dataset reads from an ffdf and adds an event indicator", {
   tessilake::local_cache_dirs()
-  stub(contributions_dataset, "ffbase::unpack.ffdf", function(...) {
+
+  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
     assign("stream",data.table(
       group_customer_no = 1,
       event_type = c("Ticket","Contribution"),
-      contributionAdjAmt = 50,
+      contributionAmt = 50,
       timestamp = Sys.Date()+c(-60,-.001)),
       envir = rlang::caller_env())
   })
-  stub(contributions_dataset, "ff::delete", TRUE)
+  stub(contributions_dataset, "close", TRUE)
 
   contributions_dataset()
 
-  dataset <- read_cache("contributions_dataset","model") %>% collect
+  dataset <- read_cache("dataset","contributions_model") %>% collect
   expect_equal(nrow(dataset),2)
   expect_equal(dataset[,"event"][[1]],c(F,T))
 
 })
 
-test_that("contributions_dataset censors and subsets", {
+test_that("contributions_dataset rebuilds all data when rebuild_dataset = T", {
   tessilake::local_cache_dirs()
-  stub(contributions_dataset, "ffbase::unpack.ffdf", function(...) {
+
+  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
     assign("stream",data.table(
-      # additional contibutions will be censored
-      group_customer_no = rep(1:2,each=3),
-      event_type = c("Ticket","Contribution","Contribution"),
-      contributionAdjAmt = 50,
-      # early dates will be removed and only one item per month will be returned (i.e. row 5)
-      timestamp = rep(c(Sys.Date()-10,Sys.Date()-.001),each=3)),
+      group_customer_no = 1,
+      event_type = c("Ticket","Contribution"),
+      contributionAmt = 50,
+      timestamp = Sys.Date()+c(-60,-.001)),
       envir = rlang::caller_env())
   })
-  stub(contributions_dataset, "ff::delete", TRUE)
+  stub(contributions_dataset, "close", TRUE)
 
-  contributions_dataset(since = Sys.Date()-1)
+  contributions_dataset()
 
-  dataset <- read_cache("contributions_dataset","model") %>% collect
-  expect_equal(nrow(dataset),1)
-  expect_equal(dataset[1,"event"][[1]],TRUE)
-  expect_equal(dataset[1,"group_customer_no"][[1]],2)
-  expect_equal(dataset[1,"I"][[1]],5)
+  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
+    assign("stream",data.table(
+      group_customer_no = 1:4,
+      event_type = c("Ticket","Contribution"),
+      contributionAmt = 50,
+      timestamp = Sys.Date()+c(-60,-.001,365,366)),
+      envir = rlang::caller_env())
+  })
+
+  dataset_chunk_write <- mock(T)
+  stub(contributions_dataset, "dataset_chunk_write", dataset_chunk_write)
+  contributions_dataset(rebuild_dataset = T)
+
+  expect_length(mock_args(dataset_chunk_write),1)
+  expect_equal(mock_args(dataset_chunk_write)[[1]][["partition"]], year(Sys.Date()))
 
 })
 
+test_that("contributions_dataset only appends data when rebuild_dataset = TRUE", {
+  tessilake::local_cache_dirs()
+
+  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
+    assign("stream",data.table(
+      group_customer_no = 1,
+      event_type = c("Ticket","Contribution"),
+      contributionAmt = 50,
+      timestamp = Sys.Date()+c(-60,-.001)),
+      envir = rlang::caller_env())
+  })
+  stub(contributions_dataset, "close", TRUE)
+
+  contributions_dataset()
+
+  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
+    assign("stream",data.table(
+      group_customer_no = 1:4,
+      event_type = c("Ticket","Contribution"),
+      contributionAmt = 50,
+      timestamp = Sys.Date()+c(-60,-.001,365,366)),
+      envir = rlang::caller_env())
+  })
+
+  dataset_chunk_write <- mock(T,cycle = T)
+  stub(contributions_dataset, "dataset_chunk_write", dataset_chunk_write)
+
+  contributions_dataset()
+  expect_length(mock_args(dataset_chunk_write),0)
+
+  contributions_dataset(until = Inf)
+  expect_length(mock_args(dataset_chunk_write),1)
+  expect_equal(mock_args(dataset_chunk_write)[[1]][["partition"]], year(Sys.Date())+1)
+
+})
+
+test_that("contributions_dataset only reads data when rebuild_dataset = F", {
+  tessilake::local_cache_dirs()
+
+  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
+    assign("stream",data.table(
+      group_customer_no = 1,
+      event_type = c("Ticket","Contribution"),
+      contributionAmt = 50,
+      timestamp = Sys.Date()+c(-60,-.001)),
+      envir = rlang::caller_env())
+  })
+  stub(contributions_dataset, "close", TRUE)
+
+  contributions_dataset()
+
+  dataset_chunk_write <- mock(T)
+  stub(contributions_dataset, "dataset_chunk_write", dataset_chunk_write)
+  contributions_dataset(rebuild_dataset = F)
+
+  expect_length(mock_args(dataset_chunk_write),0)
+
+})
 
 # read.contributions_model ------------------------------------------------
-test_that("read.contributions_model calls contributions_dataset if asked to or if necessary", {
-  stub(read.contributions_model,"cache_exists_any",TRUE)
-  contributions_dataset <- mock()
-  stub(read.contributions_model,"contributions_dataset",contributions_dataset)
-  stub(read.contributions_model,"read_cache",data.table(group_customer_no=1,timestamp=1,date=Sys.time(),event=factor(c(T,F))))
-
-  read(contributions_model,rebuild_dataset = T)
-  expect_length(mock_args(contributions_dataset),1)
-
-  stub(read.contributions_model,"cache_exists_any",FALSE)
-
-  read(contributions_model)
-  expect_length(mock_args(contributions_dataset),2)
-
-})
 
 test_that("read.contributions_model creates a valid mlr3 classification task", {
-  stub(read.contributions_model, "read_cache",
-       \(...) {arrow::read_parquet("test-contributions_model.parquet", as_data_frame = F)})
+  stub(read.contributions_model, "contributions_dataset",
+       \(...) {arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F)})
 
   stub(read.contributions_model,"cache_exists_any",TRUE)
 
@@ -90,8 +143,10 @@ test_that("read.contributions_model creates a valid mlr3 validation task", {
 # train.contributions_model -----------------------------------------------
 tessilake::local_cache_dirs()
 test_that("train.contributions_model successfully trains a model", {
+  future::plan("multisession")
 
   suppressWarnings(model <<- train(model))
+  saveRDS(model$model, here::here("tests/testthat/test-contributions_model.Rds"))
 
   expect_class(model$model, "Learner")
 
@@ -109,67 +164,41 @@ test_that("predict.contributions_model successfully predicts new data", {
 })
 
 
+# output.contributions_model ---------------------------------------------
 
-# stream_rollback_event ---------------------------------------------------
+test_that("output.contributions_model successfully interprets the model", {
 
-test_that("stream_rollback_event rolls back data matching `columns`", {
-  dataset <- data.table(event = runif(1000)<.1,
-                        leaky_data = seq(1000),
-                        other_data = seq(1000),
-                        by = 1)
-  dataset_e <- copy(dataset)
+  model$model <- readRDS(here::here("tests/testthat/test-contributions_model.Rds"))
 
-  stream_rollback_event(dataset, columns = "leaky_data", by = "by")
+  # predict the whole thing
+  model$predictions <-
+    cbind(as.data.table(model$model$predict(model$task)),
+          model$task$data(cols = c("I","group_customer_no","date")))
 
-  expect_equal(dataset[event != T], dataset_e[event != T])
-  expect_equal(dataset[event == T, leaky_data], dataset_e[event == T, ifelse(leaky_data-1 == 0, NA, leaky_data-1)])
-})
+  # downgrade some predictions
+  model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
 
-test_that("stream_rollback_event respects group boundaries", {
-  dataset <- data.table(event = runif(1000)<.1,
-                        leaky_data = seq(1000),
-                        other_data = seq(1000),
-                        by = sample(10,1000,replace = T))
-  dataset_e <- copy(dataset)
+  # dataset
+  d <- arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F) %>% collect %>% setDT
+  # fill in missing data because the test set is largely missing and add some random noise
+  cols <- setdiff(colnames(d)[which(sapply(d,is.numeric))],c("group_customer_no","date","I"))
+  d[,(cols) := lapply(.SD, \(.) coalesce(.,0) + runif(.N,min=-1,max=1)),.SDcols = cols]
 
-  stream_rollback_event(dataset, columns = "leaky_data", by = "by")
+  stub(output.mlr_report, "read_cache", d)
+  dir.create(cache_primary_path("","contributions_model"))
 
-  expect_equal(dataset[event != T], dataset_e[event != T])
-  expect_equal(dataset[event == T & leaky_data >= other_data],dataset[integer(0)])
-  for (i in seq(10)) {
-    expect_in(dataset[by == i, leaky_data], c(NA,dataset_e[by == i, leaky_data]))
-  }
-})
+  suppressWarnings(output(model))
 
+  pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
+  exp_filename <- cache_primary_path("shapley.Rds","contributions_model")
+  expect_file_exists(pdf_filename)
+  expect_file_exists(exp_filename)
 
-# stream_normalize_timestamp ----------------------------------------------
-
-test_that("stream_normalize_timestamps replaces all data matching `columns` with offsets", {
-  dataset <- data.table(timestamp = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day"),
-                        timestamp_max = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day")+1,
-                        by = 1)
-
-  stream_normalize_timestamps(dataset, by = "by")
-
-  expect_equal(dataset[,as.double(timestamp)], seq(0,nrow(dataset)-1)*86400)
-  expect_equal(dataset[,as.double(timestamp_max)], seq(0,nrow(dataset)-1)*86400+1)
+  explanations <- readRDS(exp_filename)
+  expect_equal(nrow(explanations),model$predictions[prob.TRUE>.75,.N])
+  expect_gte(setDT(explanations$explanation[[1]])[feature == "ticketTimestampMax",phi],0)
 
 })
 
-test_that("stream_normalize_timestamps respects group boundaries", {
-  dataset <- data.table(timestamp = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day"),
-                        timestamp_max = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day")+1)
 
-  dataset[,by := sample(10,.N,replace = T)]
-  dataset_e <- copy(dataset)
-
-  timestamp_mins <- dataset[,min(timestamp), by = by]
-  stream_normalize_timestamps(dataset, by = "by")
-
-  expect_equal(dataset[timestamp_mins,timestamp,on="by"],
-               dataset_e[timestamp_mins,as.double(timestamp-V1),on="by"])
-  expect_equal(dataset[timestamp_mins,as.double(timestamp_max),on="by"],
-               dataset_e[timestamp_mins,as.double(timestamp_max-V1),on="by"])
-
-})
 
