@@ -47,7 +47,8 @@ test_that("arrow_to_mlr3 converts an arrow table to an mlr3 backend that can be 
 
   expect_equal(tbl$data(1:10,cols = c("x","y"), data_format = "data.table") %>%
                .[,y := as.character(y)],
-               data.table(x = 1:10, y = letters[1:10]))
+               data.table(x = 1:10, y = letters[1:10]),
+               ignore_attr = "sorted")
 
 })
 
