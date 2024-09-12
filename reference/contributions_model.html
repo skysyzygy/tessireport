@@ -63,6 +63,7 @@
 <span>  until <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  predict_since <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">30</span>,</span>
 <span>  rebuild_dataset <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  downsample <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  predict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -110,13 +111,13 @@ or append new rows by calling <code>contributions_dataset(since=max_existing_dat
 <dd><p>Date/POSIXct data on/after this date will be used to make predictions and not for training</p></dd>
 
 
-<dt id="arg-predict">predict<a class="anchor" aria-label="anchor" href="#arg-predict"></a></dt>
-<dd><p>Not used, just here to prevent partial argument matching</p></dd>
-
-
 <dt id="arg-downsample">downsample<a class="anchor" aria-label="anchor" href="#arg-downsample"></a></dt>
 <dd><p><code>numeric(1)</code> the amount to downsample the test set by for feature importance and
 Shapley explanations</p></dd>
+
+
+<dt id="arg-predict">predict<a class="anchor" aria-label="anchor" href="#arg-predict"></a></dt>
+<dd><p>Not used, just here to prevent partial argument matching</p></dd>
 
 </dl></div>
     <div class="section level2">
