@@ -4,7 +4,7 @@
 \alias{arrow_to_mlr3}
 \title{arrow_to_mlr3}
 \usage{
-arrow_to_mlr3(dataset, primary_key = "I")
+arrow_to_mlr3(dataset)
 }
 \arguments{
 \item{dataset}{\link[arrow:Table-class]{arrow::Table} or \link[arrow:Dataset]{arrow::Dataset}}

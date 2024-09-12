@@ -120,9 +120,9 @@ arrow_to_mlr3 <- function(dataset, primary_key = "I") {
   assert_multi_class(dataset,c("Table","Dataset","arrow_dplyr_query"))
   assert_names(names(dataset), must.include = primary_key)
 
-  db <- dbConnect(duckdb())
-  duckdb_register_arrow(db, "dataset", dataset)
-  table <- tbl(db, "dataset")
-  backend <- DataBackendDplyr$new(table, primary_key, strings_as_factors = FALSE)
+  filename <- file.path(tempdir(),"duckdb.parquet")
+  arrow::write_parquet(dataset, filename)
+
+  backend <- mlr3db::as_duckdb_backend(filename, primary_key = primary_key)
 }
 

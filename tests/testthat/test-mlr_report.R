@@ -28,3 +28,27 @@ test_that("load_model deserilalizes a model from cache dir", {
 
   expect_equal(model,load_model("test_model"))
 })
+
+
+# arrow_to_mlr3 -----------------------------------------------------------
+
+test_that("arrow_to_mlr3 converts an arrow table to an mlr3 backend", {
+  table <-arrow::arrow_table(x = seq(26000), y = rep(letters,1000))
+
+  expect_class(arrow_to_mlr3(table, primary_key = "x"), "DataBackendDuckDB")
+})
+
+test_that("arrow_to_mlr3 converts an arrow table to an mlr3 backend that can be queried", {
+  table <- arrow::arrow_table(x = seq(26000), y = rep(letters,1000))
+  future::plan("multisession")
+  withr::defer(future::plan("sequential"))
+
+  tbl <- arrow_to_mlr3(table, primary_key = "x")
+
+  expect_equal(tbl$data(1:10,cols = c("x","y"), data_format = "data.table") %>%
+               .[,y := as.character(y)],
+               data.table(x = 1:10, y = letters[1:10]))
+
+})
+
+
