@@ -61,8 +61,7 @@ dataset_chunk_write <- function(dataset, partition,
 
   # limit to input columns
   dataset <- dataset[,union(colnames(dataset),colnames(rows)),with=F]
-  dataset[,`:=`(partition = partition,
-                I = NULL)]
+  dataset[,`:=`(partition = partition)]
 
   tessilake::write_cache(dataset, "dataset", dataset_name, partition = "partition",
                          incremental = TRUE, date_column = "date", sync = FALSE, prefer = "from")
