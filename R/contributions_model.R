@@ -26,13 +26,13 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
     dataset_max_date <- summarise(dataset,max(date,na.rm = T)) %>% collect %>% .[[1]]
 
     if(dataset_max_date >= until || !(rebuild_dataset %||% T))
-      return(dataset %>% filter(timestamp >= since & timestamp < until))
+      return(dataset %>% filter(date >= since & date < until))
   }
 
 
   #stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
   #ffbase::unpack.ffdf(stream_path)
-  ffbase::load.ffdf("E:/ffdb")
+  ffbase::load.ffdf("C:/ffdb")
 
   stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAmt")] %>% setDT
   stream_key[,I:=.I]
@@ -72,7 +72,7 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
   delete(stream)
 
   return(read_cache("dataset","contributions_model") %>%
-           filter(timestamp >= since & timestamp < until))
+           filter(date >= since & date < until))
 
 }
 
