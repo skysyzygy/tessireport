@@ -93,6 +93,7 @@ read.contributions_model <- function(model,
                                      until = Sys.Date(),
                                      predict_since = Sys.Date() - 30,
                                      rebuild_dataset = NULL,
+                                     downsample = .1,
                                      predict = NULL, ...) {
 
   . <- event <- TRUE
@@ -101,7 +102,7 @@ read.contributions_model <- function(model,
                                    rebuild_dataset = rebuild_dataset)
 
   dataset <- rbind(filter(dataset, date >= predict_since) %>% collect %>% setDT,
-                   filter(dataset, date < predict_since) %>% dplyr::slice_sample(prop = .1) %>%
+                   filter(dataset, date < predict_since) %>% dplyr::slice_sample(prop = downsample) %>%
                      collect %>% setDT)
 
   model$task <- TaskClassif$new(id = "contributions",

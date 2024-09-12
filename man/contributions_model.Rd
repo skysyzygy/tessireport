@@ -28,6 +28,7 @@ contributions_dataset(
   until = Sys.Date(),
   predict_since = Sys.Date() - 30,
   rebuild_dataset = NULL,
+  downsample = 0.1,
   predict = NULL,
   ...
 )
@@ -52,10 +53,10 @@ or append new rows by calling \code{contributions_dataset(since=max_existing_dat
 
 \item{predict_since}{Date/POSIXct data on/after this date will be used to make predictions and not for training}
 
-\item{predict}{Not used, just here to prevent partial argument matching}
-
 \item{downsample}{\code{numeric(1)} the amount to downsample the test set by for feature importance and
 Shapley explanations}
+
+\item{predict}{Not used, just here to prevent partial argument matching}
 }
 \description{
 mlr3 model for predicting a customer's first contribution
