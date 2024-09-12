@@ -93,7 +93,7 @@ read.contributions_model <- function(model,
                                      until = Sys.Date(),
                                      predict_since = Sys.Date() - 30,
                                      rebuild_dataset = NULL,
-                                     downsample = .1,
+                                     downsample = 1,
                                      predict = NULL, ...) {
 
   . <- event <- TRUE
