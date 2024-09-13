@@ -28,7 +28,7 @@ contributions_dataset(
   until = Sys.Date(),
   predict_since = Sys.Date() - 30,
   rebuild_dataset = NULL,
-  downsample = 1,
+  downsample_read = 1,
   predict = NULL,
   ...
 )
@@ -37,15 +37,14 @@ contributions_dataset(
 
 \method{predict}{contributions_model}(model, ...)
 
-\method{output}{contributions_model}(model, downsample = 0.01, ...)
+\method{output}{contributions_model}(model, downsample_output = 0.01, ...)
 }
 \arguments{
 \item{since}{Date/POSIXct data on or after this date will be loaded and possibly used for training}
 
 \item{until}{Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today}
 
-\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset(since=since,until=until)} (TRUE), just read the existing one (FALSE),
-or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
+\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset(since=since,until=until)} (TRUE), just read the existing one (FALSE),}
 
 \item{...}{not used}
 
@@ -53,10 +52,13 @@ or append new rows by calling \code{contributions_dataset(since=max_existing_dat
 
 \item{predict_since}{Date/POSIXct data on/after this date will be used to make predictions and not for training}
 
-\item{downsample}{\code{numeric(1)} the amount to downsample the test set by for feature importance and
-Shapley explanations}
+\item{downsample_read}{\code{numeric(1)} the amount to downsample the dataset on read
+or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
 
 \item{predict}{Not used, just here to prevent partial argument matching}
+
+\item{downsample_output}{\code{numeric(1)} the amount to downsample the test set by for feature importance and
+Shapley explanations}
 }
 \description{
 mlr3 model for predicting a customer's first contribution

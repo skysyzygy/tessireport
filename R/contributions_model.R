@@ -81,11 +81,13 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
 #' @importFrom dplyr filter select collect mutate summarise
 #' @importFrom mlr3 TaskClassif
 #' @describeIn contributions_model Read in contribution data and prepare a mlr3 training task and a prediction/validation task
+#'
 #' @param model `contributions_model` object
 #' @param predict_since Date/POSIXct data on/after this date will be used to make predictions and not for training
 #' @param predict Not used, just here to prevent partial argument matching
 #' @param until Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today
 #' @param rebuild_dataset boolean rebuild the dataset by calling `contributions_dataset(since=since,until=until)` (TRUE), just read the existing one (FALSE),
+#' @param downsample_read `numeric(1)` the amount to downsample the dataset on read
 #' or append new rows by calling `contributions_dataset(since=max_existing_date,until=until)` (NULL, default)
 #' @note Data will be loaded in-memory, because *\[inaudible\]* mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
 read.contributions_model <- function(model,
@@ -93,17 +95,19 @@ read.contributions_model <- function(model,
                                      until = Sys.Date(),
                                      predict_since = Sys.Date() - 30,
                                      rebuild_dataset = NULL,
-                                     downsample = 1,
+                                     downsample_read = 1,
                                      predict = NULL, ...) {
 
-  . <- event <- TRUE
+  . <- event <- date <- TRUE
 
   dataset <- contributions_dataset(since = since, until = until,
                                    rebuild_dataset = rebuild_dataset)
 
   dataset <- rbind(filter(dataset, date >= predict_since) %>% collect %>% setDT,
-                   filter(dataset, date < predict_since) %>% dplyr::slice_sample(prop = downsample) %>%
-                     collect %>% setDT)
+                   filter(dataset, date < predict_since) %>% dplyr::slice_sample(prop = downsample_read) %>%
+                     collect %>% setDT) %>%
+    .[,`:=`(event = as.factor(event),
+            date = as.POSIXct(date))]
 
   model$task <- TaskClassif$new(id = "contributions",
                                 target = "event",
@@ -197,10 +201,10 @@ predict.contributions_model <- function(model, ...) {
 #' @importFrom purrr walk
 #' @importFrom tessilake cache_primary_path
 #' @importFrom stats runif
-#' @param downsample `numeric(1)` the amount to downsample the test set by for feature importance and
+#' @param downsample_output `numeric(1)` the amount to downsample the test set by for feature importance and
 #' Shapley explanations
 #' @export
-output.contributions_model <- function(model, downsample = .01, ...) {
+output.contributions_model <- function(model, downsample_output = .01, ...) {
   prob.TRUE <- explanation <- NULL
 
   model <- NextMethod()
@@ -214,7 +218,7 @@ output.contributions_model <- function(model, downsample = .01, ...) {
   withr::local_options(future.globals.maxSize = 2*1024^3)
 
   # Feature importance
-  fi <- iml_featureimp(model$model, dataset_predictions[runif(.N)<downsample])
+  fi <- iml_featureimp(model$model, dataset_predictions[runif(.N)<downsample_output])
   top_features <- fi$results[1:25,"feature"]
 
   pfi <- plot(fi) + coord_flip() +
@@ -237,7 +241,7 @@ output.contributions_model <- function(model, downsample = .01, ...) {
 
   # Shapley explanations
   to_explain <- dataset_predictions[prob.TRUE>.75]
-  ex <- iml_shapley(model$model, dataset_predictions[runif(.N)<downsample],
+  ex <- iml_shapley(model$model, dataset_predictions[runif(.N)<downsample_output],
                     x.interest = to_explain, sample.size = 10)
 
   to_explain[,explanation := map(ex,"results")]
