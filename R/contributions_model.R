@@ -150,8 +150,7 @@ train.contributions_model <- function(model, ...) {
 
   preprocess <- po("select",selector = selector_invert(selector_grep("__1|Send"))) %>>%
                 po("classbalancing", reference = "minor",ratio = 10,adjust="downsample") %>>%
-                ppl("robustify") %>>%
-                po("removeconstants", ratio = 1/100) %>>%
+                po("imputehist") %>>%
                 po("yeojohnson", lower = to_tune(-2,0), upper = to_tune(0,2), eps = .1)
 
   importance_filter <- po("filter",
@@ -164,7 +163,7 @@ train.contributions_model <- function(model, ...) {
                            sample.fraction = to_tune(.1,1),
                            num.trees = to_tune(p_int(16,128,tags="budget"))), id = "ranger")
 
-  stacked <- as_learner(subsample %>>% preprocess %>>% ppl("stacking", c(logreg,ranger),
+  stacked <- as_learner(preprocess %>>% ppl("stacking", c(logreg,ranger),
                                                            lrn("classif.log_reg", predict_type = "prob"),
                                                            use_features = FALSE), id = "stacked")
   stacked_tuned <- tune(
