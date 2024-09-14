@@ -95,7 +95,8 @@
 
 
 <dt id="arg-rebuild-dataset">rebuild_dataset<a class="anchor" aria-label="anchor" href="#arg-rebuild-dataset"></a></dt>
-<dd><p>boolean rebuild the dataset by calling <code>contributions_dataset(since=since,until=until)</code> (TRUE), just read the existing one (FALSE),</p></dd>
+<dd><p>boolean rebuild the dataset by calling <code>contributions_dataset(since=since,until=until)</code> (TRUE), just read the existing one (FALSE),
+or append new rows by calling <code>contributions_dataset(since=max_existing_date,until=until)</code> (NULL, default)</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -111,8 +112,7 @@
 
 
 <dt id="arg-downsample-read">downsample_read<a class="anchor" aria-label="anchor" href="#arg-downsample-read"></a></dt>
-<dd><p><code>numeric(1)</code> the amount to downsample the dataset on read
-or append new rows by calling <code>contributions_dataset(since=max_existing_date,until=until)</code> (NULL, default)</p></dd>
+<dd><p><code>numeric(1)</code> the amount to downsample the dataset on read</p></dd>
 
 
 <dt id="arg-predict">predict<a class="anchor" aria-label="anchor" href="#arg-predict"></a></dt>
