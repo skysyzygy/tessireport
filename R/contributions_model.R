@@ -32,7 +32,7 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
 
   #stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
   #ffbase::unpack.ffdf(stream_path)
-  ffbase::load.ffdf("C:/ffdb")
+  ffbase::load.ffdf(file.path(tempdir(),"unpack46fc32c22cd8"))
 
   stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAmt")] %>% setDT
   stream_key[,I:=.I]
@@ -161,7 +161,7 @@ train.contributions_model <- function(model, ...) {
   ranger <- as_learner(lrn("classif.ranger", predict_type = "prob",
                            mtry.ratio = to_tune(.1,1),
                            sample.fraction = to_tune(.1,1),
-                           num.trees = to_tune(p_int(16,128,tags="budget"))), id = "ranger")
+                           num.trees = to_tune(p_int(64,512,tags="budget"))), id = "ranger")
 
   stacked <- as_learner(preprocess %>>% ppl("stacking", c(logreg,ranger),
                                                            lrn("classif.log_reg", predict_type = "prob"),
