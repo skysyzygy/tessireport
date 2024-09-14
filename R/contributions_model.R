@@ -103,8 +103,8 @@ read.contributions_model <- function(model,
   dataset <- contributions_dataset(since = since, until = until,
                                    rebuild_dataset = rebuild_dataset)
 
-  dataset <- rbind(filter(dataset, date >= predict_since) %>% collect %>% setDT,
-                   filter(dataset, date < predict_since) %>% dplyr::slice_sample(prop = downsample_read) %>%
+  dataset <- rbind(filter(dataset, date >= predict_since | event == "TRUE") %>% collect %>% setDT,
+                   filter(dataset, date < predict_since & event == "FALSE") %>% dplyr::slice_sample(prop = downsample_read) %>%
                      collect %>% setDT) %>%
     .[,`:=`(event = as.factor(event),
             date = as.POSIXct(date))]
@@ -149,17 +149,18 @@ train.contributions_model <- function(model, ...) {
   subsample <- po("subsample", frac = .1)
 
   preprocess <- po("select",selector = selector_invert(selector_grep("__1|Send"))) %>>%
-                po("yeojohnson", lower = to_tune(-2,0), upper = to_tune(0,2), eps = .1) %>>%
                 po("classbalancing", reference = "minor",ratio = 10,adjust="downsample") %>>%
-                ppl("robustify")
+                ppl("robustify") %>>%
+                po("removeconstants", ratio = 1/100) %>>%
+                po("yeojohnson", lower = to_tune(-2,0), upper = to_tune(0,2), eps = .1)
 
   importance_filter <- po("filter",
                    filter = flt("importance"),
-                   filter.frac = to_tune(0,.67))
+                   filter.frac = to_tune(.1,.67))
 
   logreg <- as_learner(importance_filter %>>% lrn("classif.log_reg", predict_type = "prob"), id = "logreg")
   ranger <- as_learner(lrn("classif.ranger", predict_type = "prob",
-                           mtry.ratio = to_tune(0,1),
+                           mtry.ratio = to_tune(.1,1),
                            sample.fraction = to_tune(.1,1),
                            num.trees = to_tune(p_int(16,128,tags="budget"))), id = "ranger")
 
@@ -214,8 +215,6 @@ output.contributions_model <- function(model, downsample_output = .01, ...) {
 
   dataset_predictions <- inner_join(model$dataset,model$predictions,
                                     by = c("group_customer_no","date","I")) %>% collect %>% setDT
-
-  withr::local_options(future.globals.maxSize = 2*1024^3)
 
   # Feature importance
   fi <- iml_featureimp(model$model, dataset_predictions[runif(.N)<downsample_output])
