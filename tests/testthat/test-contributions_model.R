@@ -180,9 +180,9 @@ test_that("output.contributions_model successfully interprets the model", {
 
   # dataset
   d <- arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F) %>% collect %>% setDT
-  # fill in missing data because the test set is largely missing and add some random noise
+  # fill in missing data because the test set is largely missing
   cols <- setdiff(colnames(d)[which(sapply(d,is.numeric))],c("group_customer_no","date","I"))
-  d[,(cols) := lapply(.SD, \(.) coalesce(.,0) + runif(.N,min=-1,max=1)),.SDcols = cols]
+  d[,(cols) := lapply(.SD, \(.) dplyr::coalesce(.,0)),.SDcols = cols]
 
   stub(output.mlr_report, "read_cache", d)
   dir.create(cache_primary_path("","contributions_model"))
