@@ -87,8 +87,8 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
 #' @param predict Not used, just here to prevent partial argument matching
 #' @param until Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today
 #' @param rebuild_dataset boolean rebuild the dataset by calling `contributions_dataset(since=since,until=until)` (TRUE), just read the existing one (FALSE),
-#' @param downsample_read `numeric(1)` the amount to downsample the dataset on read
 #' or append new rows by calling `contributions_dataset(since=max_existing_date,until=until)` (NULL, default)
+#' @param downsample_read `numeric(1)` the amount to downsample the dataset on read
 #' @note Data will be loaded in-memory, because *\[inaudible\]* mlr3 doesn't work well with factors encoded as dictionaries in arrow tables.
 read.contributions_model <- function(model,
                                      since = Sys.Date()-365*5,

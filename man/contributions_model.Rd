@@ -44,7 +44,8 @@ contributions_dataset(
 
 \item{until}{Date/POSIXct data after this date will not be used for training or predictions, defaults to the beginning of today}
 
-\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset(since=since,until=until)} (TRUE), just read the existing one (FALSE),}
+\item{rebuild_dataset}{boolean rebuild the dataset by calling \code{contributions_dataset(since=since,until=until)} (TRUE), just read the existing one (FALSE),
+or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
 
 \item{...}{not used}
 
@@ -52,8 +53,7 @@ contributions_dataset(
 
 \item{predict_since}{Date/POSIXct data on/after this date will be used to make predictions and not for training}
 
-\item{downsample_read}{\code{numeric(1)} the amount to downsample the dataset on read
-or append new rows by calling \code{contributions_dataset(since=max_existing_date,until=until)} (NULL, default)}
+\item{downsample_read}{\code{numeric(1)} the amount to downsample the dataset on read}
 
 \item{predict}{Not used, just here to prevent partial argument matching}
 
