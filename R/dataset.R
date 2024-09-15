@@ -105,7 +105,7 @@ dataset_rollback_event <- function(dataset, event = "event",
   event_ <- event
   rm(event)
 
-  setkeyv(dataset,by)
+  setkeyv(dataset,c(by,"by_i"))
 
   rollback <- dataset[lead(get(event_)) == T, c(rollback_cols,by,"by_i"),with=F] %>% .[,by_i := by_i+1] %>%
     rbind(dataset[get(event_) == T & by_i == 1, c(by, "by_i"), with = F], fill = T)
@@ -119,7 +119,8 @@ dataset_rollback_event <- function(dataset, event = "event",
 
 #' dataset_normalize_timestamps
 #'
-#' Replaces the date-times in `columns` with integer offsets from the first `timestamp` per group identified by `by`.
+#' Replaces the date-times in `columns` with integer offsets from `timestamp`, and replaces `timestamp`
+#' with the integer offset from the minimum `timestamp` per group identified by `by`.
 #'
 #' @param dataset data.table of data to normalize
 #' @param timestamp_cols character vector of columns to normalize; defaults to all columns with a name containing the word `timestamp`
@@ -133,14 +134,15 @@ dataset_normalize_timestamps <- function(dataset,
   timestamp <- min_timestamp <- NULL
 
   # normalize names
-  timestamp_cols <- gsub("\\W","_",timestamp_cols)
+  timestamp_cols <- gsub("\\W","_",timestamp_cols) %>% setdiff("timestamp")
 
   assert_data_table(dataset)
   assert_names(names(dataset), must.include = c("timestamp",timestamp_cols,by))
   assert_data_table(dataset[,c("timestamp",timestamp_cols), with = F],types=c("Date","POSIXct"))
 
-  dataset[,min_timestamp := min(timestamp, na.rm = T), by = by]
-  dataset[,(timestamp_cols) := lapply(.SD, \(c) as.numeric(as.POSIXct(c)-as.POSIXct(min_timestamp))), .SDcols = timestamp_cols]
+  dataset[,(timestamp_cols) := lapply(.SD, \(c) as.numeric(as.POSIXct(timestamp)-as.POSIXct(c))), .SDcols = timestamp_cols]
+  dataset[,min_timestamp := min(as.POSIXct(timestamp), na.rm = T), by = by]
+  dataset[,timestamp := as.numeric(as.POSIXct(timestamp) - min_timestamp)]
   dataset[,min_timestamp := NULL]
   dataset
 }

@@ -134,19 +134,19 @@ test_that("dataset_rollback_event respects group boundaries", {
 
 test_that("dataset_normalize_timestamps replaces all data matching `columns` with offsets", {
   dataset <- data.table(timestamp = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day"),
-                        timestamp_max = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day")+1,
+                        timestamp_max = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day")-1,
                         by = 1)
 
   dataset_normalize_timestamps(dataset, by = "by")
 
   expect_equal(dataset[,as.double(timestamp)], seq(0,nrow(dataset)-1)*86400)
-  expect_equal(dataset[,as.double(timestamp_max)], seq(0,nrow(dataset)-1)*86400+1)
+  expect_equal(dataset[,as.double(timestamp_max)], rep(1,nrow(dataset)))
 
 })
 
 test_that("dataset_normalize_timestamps respects group boundaries", {
   dataset <- data.table(timestamp = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day"),
-                        timestamp_max = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day")+1)
+                        timestamp_max = seq(as.POSIXct("2020-01-01"), Sys.time(), by = "day")-1)
 
   dataset[,by := sample(10,.N,replace = T)]
   dataset_e <- copy(dataset)
@@ -157,6 +157,6 @@ test_that("dataset_normalize_timestamps respects group boundaries", {
   expect_equal(dataset[timestamp_mins,timestamp,on="by"],
                dataset_e[timestamp_mins,as.double(timestamp-V1),on="by"])
   expect_equal(dataset[timestamp_mins,as.double(timestamp_max),on="by"],
-               dataset_e[timestamp_mins,as.double(timestamp_max-V1),on="by"])
+               rep(1,nrow(dataset)))
 
 })
