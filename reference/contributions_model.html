@@ -69,7 +69,7 @@
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'contributions_model'</span></span>
-<span><span class="fu"><a href="mlr_report.html">train</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu"><a href="mlr_report.html">train</a></span><span class="op">(</span><span class="va">model</span>, num_trees <span class="op">=</span> <span class="fl">512</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'contributions_model'</span></span>
 <span><span class="fu"><a href="mlr_report.html">predict</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">...</span><span class="op">)</span></span>
@@ -117,6 +117,10 @@ or append new rows by calling <code>contributions_dataset(since=max_existing_dat
 
 <dt id="arg-predict">predict<a class="anchor" aria-label="anchor" href="#arg-predict"></a></dt>
 <dd><p>Not used, just here to prevent partial argument matching</p></dd>
+
+
+<dt id="arg-num-trees">num_trees<a class="anchor" aria-label="anchor" href="#arg-num-trees"></a></dt>
+<dd><p><code>integer(1)</code> maximum number of trees to use for ranger model</p></dd>
 
 
 <dt id="arg-downsample-output">downsample_output<a class="anchor" aria-label="anchor" href="#arg-downsample-output"></a></dt>
