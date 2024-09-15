@@ -33,7 +33,7 @@ contributions_dataset(
   ...
 )
 
-\method{train}{contributions_model}(model, ...)
+\method{train}{contributions_model}(model, num_trees = 512, ...)
 
 \method{predict}{contributions_model}(model, ...)
 
@@ -56,6 +56,8 @@ or append new rows by calling \code{contributions_dataset(since=max_existing_dat
 \item{downsample_read}{\code{numeric(1)} the amount to downsample the dataset on read}
 
 \item{predict}{Not used, just here to prevent partial argument matching}
+
+\item{num_trees}{\code{integer(1)} maximum number of trees to use for ranger model}
 
 \item{downsample_output}{\code{numeric(1)} the amount to downsample the test set by for feature importance and
 Shapley explanations}

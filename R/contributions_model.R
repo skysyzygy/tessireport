@@ -145,7 +145,8 @@ read.contributions_model <- function(model,
 #' # Model:
 #' * stacked log-reg + ranger > log-reg model
 #' * tuned using a hyperband method on the AUC (sensitivity/specificity)
-train.contributions_model <- function(model, ...) {
+#' @param num_trees `integer(1)` maximum number of trees to use for ranger model
+train.contributions_model <- function(model, num_trees = 512, ...) {
   subsample <- po("subsample", frac = .1)
 
   preprocess <- po("select",selector = selector_invert(selector_grep("__1|Send"))) %>>%
@@ -161,7 +162,7 @@ train.contributions_model <- function(model, ...) {
   ranger <- as_learner(lrn("classif.ranger", predict_type = "prob",
                            mtry.ratio = to_tune(.1,1),
                            sample.fraction = to_tune(.1,1),
-                           num.trees = to_tune(p_int(64,512,tags="budget"))), id = "ranger")
+                           num.trees = to_tune(p_int(num_trees/8,num_trees,tags="budget"))), id = "ranger")
 
   stacked <- as_learner(preprocess %>>% ppl("stacking", c(logreg,ranger),
                                                            lrn("classif.log_reg", predict_type = "prob"),

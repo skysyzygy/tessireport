@@ -145,7 +145,7 @@ tessilake::local_cache_dirs()
 test_that("train.contributions_model successfully trains a model", {
   future::plan("multisession")
 
-  suppressWarnings(model <<- train(model))
+  suppressWarnings(model <<- train(model, num_trees = 128))
   saveRDS(model$model, here::here("tests/testthat/test-contributions_model.Rds"))
 
   expect_class(model$model, "Learner")
