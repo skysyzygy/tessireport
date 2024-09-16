@@ -32,7 +32,7 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
 
   #stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
   #ffbase::unpack.ffdf(stream_path)
-  ffbase::load.ffdf(file.path(tempdir(),"unpack46fc32c22cd8"))
+  ffbase::load.ffdf("C:/ffdb")
 
   stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAmt")] %>% setDT
   stream_key[,I:=.I]
@@ -149,9 +149,10 @@ read.contributions_model <- function(model,
 train.contributions_model <- function(model, num_trees = 512, ...) {
   subsample <- po("subsample", frac = .1)
 
-  preprocess <- po("select",selector = selector_invert(selector_grep("__1|Send"))) %>>%
+  preprocess <- po("select",selector = selector_invert(selector_grep("__1|Send", perl = T))) %>>%
                 po("classbalancing", reference = "minor",ratio = 10,adjust="downsample") %>>%
-                po("imputehist") %>>%
+                ppl("robustify") %>>%
+                po("filter", filter = flt("find_correlation"), filter.cutoff = .5) %>>%
                 po("yeojohnson", lower = to_tune(-2,0), upper = to_tune(0,2), eps = .1)
 
   importance_filter <- po("filter",
