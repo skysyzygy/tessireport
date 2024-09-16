@@ -26,6 +26,9 @@ read.contributions_model_report <- function(report, ...) {
   report$tickets <- read_tessi("tickets") %>% group_by(group_customer_no) %>%
     summarise(tck_amt = sum(tck_amt, na.rm=T), tck_dt = max(order_dt, na.rm=T))
 
+  report$explanations <- readRDS(cache_primary_path("shapley.Rds","contributions_model")) %>%
+    .[,.(group_customer_no,explanation = lapply(explanation,parse_shapley))]
+
   for (t in names(report))
     report[[t]] <- filter(report[[t]], group_customer_no %in% report$predictions$group_customer_no) %>%
       collect %>% setDT %>%
@@ -40,7 +43,7 @@ process.contributions_model_report <- function(report, ...) {
 
   . <- group_customer_no <- score <- display_name_short <- last_gift_dt <- tck_dt <- tck_amt <-
     postal_code <- memb_level <- expr_dt <- address_median_income_level <- address_pro_score_level <-
-    address_capacity_level <- address_properties_level <- address_donations_level <- NULL
+    address_capacity_level <- address_properties_level <- address_donations_level <- explanation <- NULL
 
   report$data <- purrr::reduce(report,merge,by="group_customer_no",all=T) %>%
     .[,.(household_no = group_customer_no, score, name = display_name_short, last_gift_dt, last_ticket_dt = tck_dt,
@@ -48,7 +51,8 @@ process.contributions_model_report <- function(report, ...) {
          membership_level = memb_level, membership_expr_dt = expr_dt,
          census_median_income = address_median_income_level,
          iwave_pro_score = address_pro_score_level, iwave_capacity = address_capacity_level,
-         iwave_properties = address_properties_level, iwave_donations = address_donations_level)] %>%
+         iwave_properties = address_properties_level, iwave_donations = address_donations_level,
+         explanation)] %>%
     setorder(-score)
 
   NextMethod()
