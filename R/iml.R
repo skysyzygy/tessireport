@@ -96,4 +96,29 @@ iml_shapley <- function(model, data, x.interest = NULL, sample.size = 100) {
     future_map(\(.) {s$explain(as.data.frame(.)); s$clone()})
 }
 
+#' parse_shapley
+#'
+#' Parse the data returned from [iml::Shapley] into a single single. Explanations are sorted by importance, filtered
+#' by `filter`, the top `n` are collected and formatted into a single string.
+#'
+#' @param explanation [data.frame] of explanations as returned by [iml::Shapley]
+#' @param filter `character(1)` regular expression of feature/value combinations to exclude
+#' @param n `integer(1)` maximum number of explanatory features to return
+#' @importFrom checkmate assert_data_frame assert_names
+#' @return string explaining the feature values
+parse_shapley <- function(explanation, filter = "=0|=NA", n = 3) {
 
+  assert_data_frame(explanation)
+  assert_names(colnames(explanation), must.include = c("phi","phi.var","feature.value"))
+
+  setDT(explanation)
+  explanation[, rank := phi - 1.98*phi.var]
+  setorder(explanation, -rank)
+  features <- explanation[!grepl(filter,feature.value,perl=t)] %>% head(n = n) %>%
+    .[,value := as.numeric(stringr::str_split_i(feature.value,"=",2))] %>%
+    .[grepl("timestamp",feature,ignore.case=T), value_fmt := format(as.difftime(round(value/86400), units = "days"),
+                                                                    trim = T, big.mark = ",")] %>%
+    .[!grepl("timestamp",feature,ignore.case=T), value_fmt := format(value, trim = T, big.mark = ",")] %>%
+    .[,paste0(feature, ": ", value_fmt, collapse = "; ")]
+
+}
