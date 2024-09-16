@@ -51,6 +51,7 @@ Imports:
     rlang,
     rmarkdown,
     stats,
+    stringr,
     tessilake,
     tessistream,
     withr

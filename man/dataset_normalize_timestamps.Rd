@@ -24,5 +24,6 @@ dataset_normalize_timestamps(
 normalized data.table
 }
 \description{
-Replaces the date-times in \code{columns} with integer offsets from the first \code{timestamp} per group identified by \code{by}.
+Replaces the date-times in \code{columns} with integer offsets from \code{timestamp}, and replaces \code{timestamp}
+with the integer offset from the minimum \code{timestamp} per group identified by \code{by}.
 }
