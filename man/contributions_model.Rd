@@ -28,7 +28,7 @@ contributions_dataset(
   until = Sys.Date(),
   predict_since = Sys.Date() - 30,
   rebuild_dataset = NULL,
-  downsample_read = 1,
+  downsample_read = 0.1,
   predict = NULL,
   ...
 )

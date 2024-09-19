@@ -30,9 +30,9 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
   }
 
 
-  #stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
-  #ffbase::unpack.ffdf(stream_path)
-  ffbase::load.ffdf("C:/ffdb")
+  stream_path <- file.path(tessilake::cache_path("","deep",".."),"stream","stream.gz")
+  ffbase::unpack.ffdf(stream_path)
+  #ffbase::load.ffdf("C:/ffdb")
 
   stream_key <- stream[,c("group_customer_no","timestamp","event_type","contributionAmt")] %>% setDT
   stream_key[,I:=.I]
@@ -95,7 +95,7 @@ read.contributions_model <- function(model,
                                      until = Sys.Date(),
                                      predict_since = Sys.Date() - 30,
                                      rebuild_dataset = NULL,
-                                     downsample_read = 1,
+                                     downsample_read = .1,
                                      predict = NULL, ...) {
 
   . <- event <- date <- TRUE

@@ -125,7 +125,8 @@ test_that("read.contributions_model creates a valid mlr3 classification task", {
 
   stub(read.contributions_model,"cache_exists_any",TRUE)
 
-  model <<- read(contributions_model, predict_since = as.Date("2024-06-01"), rebuild_dataset = F)
+  model <<- read(contributions_model, predict_since = as.Date("2024-06-01"),
+                 downsample_read = 1, rebuild_dataset = F)
 
   expect_class(model$task, "TaskClassif")
 
