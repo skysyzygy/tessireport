@@ -169,6 +169,8 @@ test_that("predict.contributions_model successfully predicts new data", {
 
 test_that("output.contributions_model successfully interprets the model", {
 
+  withr::local_options(future.globals.maxSize = 1024^3)
+
   model$model <- readRDS(here::here("tests/testthat/test-contributions_model.Rds"))
 
   # predict the whole thing
