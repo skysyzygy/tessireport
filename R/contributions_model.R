@@ -228,15 +228,21 @@ output.contributions_model <- function(model, downsample_output = .01, ...) {
   # remove styling of points
   walk(pfi$layers, \(.) .$aes_params <- list())
 
-  # Feature effects
-  fe <- iml_featureeffects(model$model, dataset_predictions[prob.TRUE > .75], top_features)
-  pfe <- plot(fe, fixed_y = F) &
+  # Feature effects across whole population
+  fe1 <- iml_featureeffects(model$model, dataset_predictions[runif(.N)<downsample_output], top_features)
+  pfe1 <- plot(fe1, fixed_y = F) &
+    theme_minimal(base_size = 8) + theme(axis.title.y = element_blank())
+
+  # Feature effects for top picks
+  fe2 <- iml_featureeffects(model$model, dataset_predictions[prob.TRUE > .75], top_features)
+  pfe2 <- plot(fe2, fixed_y = F) &
     theme_minimal(base_size = 8) + theme(axis.title.y = element_blank())
 
   pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
   write_pdf({
     pdf_plot(pfi, "Global feature importance","First contributions model")
-    pdf_plot(pfe, "Local feature effects","First contributions model, prob.TRUE > .75")
+    pdf_plot(pfe1, "Local feature effects","First contributions model, full dataset")
+    pdf_plot(pfe2, "Local feature effects","First contributions model, likelihood > .75")
   }, .title = "Contributions model", output_file = pdf_filename)
 
   # Shapley explanations
