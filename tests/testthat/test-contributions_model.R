@@ -179,13 +179,13 @@ test_that("output.contributions_model successfully interprets the model", {
           model$task$data(cols = c("I","group_customer_no","date")))
 
   # downgrade some predictions
-  #model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
+  model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
 
   # dataset
   d <- arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F) %>% collect %>% setDT
-  # fill in missing data because the test set is largely missing
+  # fill in missing data because the test set is largely missing and add a bit of noise
   cols <- setdiff(colnames(d)[which(sapply(d,is.numeric))],c("group_customer_no","date","I"))
-  d[,(cols) := lapply(.SD, \(.) dplyr::coalesce(.,0)),.SDcols = cols]
+  d[,(cols) := lapply(.SD, \(.) dplyr::coalesce(.,0) + runif(.N,-1e9,1e9)),.SDcols = cols]
 
   stub(output.mlr_report, "read_cache", d)
   dir.create(cache_primary_path("","contributions_model"))
