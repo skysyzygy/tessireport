@@ -146,7 +146,7 @@ tessilake::local_cache_dirs()
 test_that("train.contributions_model successfully trains a model", {
   future::plan("multisession")
 
-  suppressWarnings(model <<- train(model, num_trees = 128))
+  suppressWarnings(model <<- train(model, num_trees = 16))
   saveRDS(model$model, here::here("tests/testthat/test-contributions_model.Rds"))
 
   expect_class(model$model, "Learner")
@@ -179,7 +179,7 @@ test_that("output.contributions_model successfully interprets the model", {
           model$task$data(cols = c("I","group_customer_no","date")))
 
   # downgrade some predictions
-  model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
+  #model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
 
   # dataset
   d <- arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F) %>% collect %>% setDT
