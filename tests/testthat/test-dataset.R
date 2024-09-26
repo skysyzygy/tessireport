@@ -66,7 +66,7 @@ test_that("dataset_chunk_write over multiple chunks produces the same results as
       event_type = c("Ticket","Contribution","Contribution"),
       contributionAmt = 1:6,
       event = T,
-      timestamp = Sys.Date() + seq(7,12)))
+      timestamp = Sys.Date() + seq(7,12))) %>% arrow::as_arrow_table()
 
   dataset_chunk_write(dataset, "year", "test")
 
@@ -89,7 +89,7 @@ test_that("dataset_chunk_write over multiple chunks produces the same results as
       event_type = c("Ticket","Contribution","Contribution"),
       contributionAmt = 1:6,
       event = T,
-      timestamp = Sys.Date() + seq(7,12)))
+      timestamp = Sys.Date() + seq(7,12))) %>% arrow::as_arrow_table()
 
   expect_warning(dataset_chunk_write(dataset, "year", "test", rows = data.table(I=7:12)),"primary_keys not given")
 

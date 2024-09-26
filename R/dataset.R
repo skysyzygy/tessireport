@@ -7,7 +7,7 @@
 #' the regular expression in `rollback` are rolled back one row, and all timestamps are normalized
 #' by [dataset_normalize_timestamps].
 #'
-#' @param dataset `data.frameish` dataset to load from
+#' @param dataset `data.frameish` dataset to load from, must contain an index column
 #' @param partition `character`|`integer` identifying the partition the chunk will be saved in
 #' @param dataset_name `character` cache directory where the partition will be saved in
 #' @param rows [data.table] identifying rows of the dataset to load; will be appended to dataset
@@ -31,7 +31,9 @@ dataset_chunk_write <- function(dataset, partition,
 
   # in order to do rollbacks and timestamp normalization we need the most recent previous row per customer
   # and the first row per customer...
-  dataset_key <- dataset[,c("group_customer_no","timestamp")] %>% copy %>% setDT %>% .[,I := .I]
+  dataset <- dataset %>% cbind(I = seq_len(nrow(dataset)))
+  dataset_key <- dataset %>% select(all_of(c("group_customer_no","timestamp","I"))) %>%
+    collect %>% setDT
   dataset_chunk <- dataset_key[rows, on = "I"]
 
   dataset_chunk[,date := timestamp]
@@ -45,8 +47,9 @@ dataset_chunk_write <- function(dataset, partition,
   dataset_chunk <- rbind(first_rows,previous_rows,dataset_chunk,fill=T) %>%
     .[!is.na(I),last(.SD),by="I"] %>%
     setkey(group_customer_no,timestamp)
-  dataset <- dataset[dataset_chunk$I, cols] %>% setDT %>%
-    cbind(dataset_chunk[,setdiff(colnames(dataset_chunk),colnames(.)),with=F])
+  dataset <- dataset %>% filter(I %in% dataset_chunk$I) %>%
+    select(all_of(c("I",cols))) %>% collect %>% setDT %>%
+    .[dataset_chunk, on = "I"]
 
   # normalize names for mlr3
   setnames(dataset, names(dataset), \(.) gsub("\\W","_",.))

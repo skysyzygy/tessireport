@@ -4,21 +4,22 @@ withr::local_package("mockery")
 
 # contributions_dataset ------------------------------------------------
 
-test_that("contributions_dataset reads from an ffdf and adds an event indicator", {
+test_that("contributions_dataset reads from cache and adds an event indicator", {
   tessilake::local_cache_dirs()
 
-  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.frame(
-      group_customer_no = 1,
-      event_type = c("Ticket","Contribution"),
-      contributionAmt = 50,
-      timestamp = Sys.Date()+c(-60,-.001)),
-      envir = rlang::caller_env())
-  })
-  stub(contributions_dataset, "close", TRUE)
+  read_cache <- mock(arrow::arrow_table(
+    group_customer_no = 1,
+    event_type = c("Ticket","Contribution"),
+    contributionAmt = 50,
+    timestamp = Sys.Date()+c(-60,-.001)),
+    arrow::arrow_table(date = lubridate::POSIXct())
+  )
+
+  stub(contributions_dataset, "read_cache", read_cache)
 
   contributions_dataset()
 
+  rm(read_cache)
   dataset <- read_cache("dataset","contributions_model") %>% collect
   expect_equal(nrow(dataset),2)
   expect_equal(dataset[,"event"][[1]],c(F,T))
@@ -28,26 +29,23 @@ test_that("contributions_dataset reads from an ffdf and adds an event indicator"
 test_that("contributions_dataset rebuilds all data when rebuild_dataset = T", {
   tessilake::local_cache_dirs()
 
-  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.frame(
-      group_customer_no = 1,
-      event_type = c("Ticket","Contribution"),
-      contributionAmt = 50,
-      timestamp = Sys.Date()+c(-60,-.001)),
-      envir = rlang::caller_env())
-  })
-  stub(contributions_dataset, "close", TRUE)
+  read_cache <- mock(arrow::arrow_table(
+    group_customer_no = 1,
+    event_type = c("Ticket","Contribution"),
+    contributionAmt = 50,
+    timestamp = Sys.Date()+c(-60,-.001)),
+    arrow::arrow_table(date = lubridate::POSIXct())
+  )
 
+  stub(contributions_dataset, "read_cache", read_cache)
   contributions_dataset()
 
-  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.frame(
+  stub(contributions_dataset, "read_cache", mock(arrow::arrow_table(
       group_customer_no = 1:4,
-      event_type = c("Ticket","Contribution"),
+      event_type = rep(c("Ticket","Contribution"),2),
       contributionAmt = 50,
       timestamp = Sys.Date()+c(-60,-.001,365,366)),
-      envir = rlang::caller_env())
-  })
+      arrow::arrow_table(date = lubridate::POSIXct())))
 
   dataset_chunk_write <- mock(T)
   stub(contributions_dataset, "dataset_chunk_write", dataset_chunk_write)
@@ -61,26 +59,24 @@ test_that("contributions_dataset rebuilds all data when rebuild_dataset = T", {
 test_that("contributions_dataset only appends data when rebuild_dataset = TRUE", {
   tessilake::local_cache_dirs()
 
-  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.frame(
-      group_customer_no = 1,
-      event_type = c("Ticket","Contribution"),
-      contributionAmt = 50,
-      timestamp = Sys.Date()+c(-60,-.001)),
-      envir = rlang::caller_env())
-  })
-  stub(contributions_dataset, "close", TRUE)
+  stub(contributions_dataset, "read_cache", mock(arrow::arrow_table(
+    group_customer_no = 1,
+    event_type = c("Ticket","Contribution"),
+    contributionAmt = 50,
+    timestamp = Sys.Date()+c(-60,-.001)),
+    arrow::arrow_table(date = lubridate::POSIXct())
+  ))
 
   contributions_dataset()
 
-  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.frame(
+  stub(contributions_dataset, "read_cache", mock(
+    read_cache("dataset","contributions_model"),
+    arrow::arrow_table(
       group_customer_no = 1:4,
-      event_type = c("Ticket","Contribution"),
+      event_type = rep(c("Ticket","Contribution"),2),
       contributionAmt = 50,
       timestamp = Sys.Date()+c(-60,-.001,365,366)),
-      envir = rlang::caller_env())
-  })
+      arrow::arrow_table(date = lubridate::POSIXct()), cycle = T))
 
   dataset_chunk_write <- mock(T,cycle = T)
   stub(contributions_dataset, "dataset_chunk_write", dataset_chunk_write)
@@ -97,20 +93,21 @@ test_that("contributions_dataset only appends data when rebuild_dataset = TRUE",
 test_that("contributions_dataset only reads data when rebuild_dataset = F", {
   tessilake::local_cache_dirs()
 
-  stub(contributions_dataset, "ffbase::load.ffdf", function(...) {
-    assign("stream",data.frame(
-      group_customer_no = 1,
-      event_type = c("Ticket","Contribution"),
-      contributionAmt = 50,
-      timestamp = Sys.Date()+c(-60,-.001)),
-      envir = rlang::caller_env())
-  })
-  stub(contributions_dataset, "close", TRUE)
+  stub(contributions_dataset, "read_cache", mock(arrow::arrow_table(
+    group_customer_no = 1,
+    event_type = c("Ticket","Contribution"),
+    contributionAmt = 50,
+    timestamp = Sys.Date()+c(-60,-.001)),
+    arrow::arrow_table(date = lubridate::POSIXct()),
+    read_cache("dataset","contributions_model"),
+    cycle = T
+  ))
 
   contributions_dataset()
 
   dataset_chunk_write <- mock(T)
   stub(contributions_dataset, "dataset_chunk_write", dataset_chunk_write)
+
   contributions_dataset(rebuild_dataset = F)
 
   expect_length(mock_args(dataset_chunk_write),0)
