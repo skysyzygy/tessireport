@@ -141,7 +141,7 @@ test_that("read.contributions_model creates a valid mlr3 validation task", {
 # train.contributions_model -----------------------------------------------
 tessilake::local_cache_dirs()
 test_that("train.contributions_model successfully trains a model", {
-  future::plan("multisession")
+  future::plan("sequential")
 
   suppressWarnings(model <<- train(model, num_trees = 16))
 
