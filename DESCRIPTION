@@ -41,7 +41,7 @@ Imports:
     lubridate,
     magrittr,
     mailR,
-    mlr3,
+    mlr3 (>= 0.21.0),
     mlr3db,
     mlr3verse,
     openxlsx,
