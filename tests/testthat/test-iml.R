@@ -1,5 +1,5 @@
 test_that("parse_shapley returns a human-redable version of a shapley analysis", {
-  exp_filename <- here::here("tests/testthat/test-iml_shapley.Rds")
+  exp_filename <- rprojroot::find_testthat_root_file("test-iml_shapley.Rds")
   explanations <- readRDS(exp_filename)
 
   expect_snapshot(lapply(explanations,parse_shapley))
