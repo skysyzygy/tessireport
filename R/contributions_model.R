@@ -118,7 +118,7 @@ read.contributions_model <- function(model,
   model$task$col_roles$group <- "group_customer_no"
   model$task$positive <- "TRUE"
 
-  model$task$divide(ids = dataset[date >= predict_since,which=T])
+  model$task$internal_valid_task <- dataset[date >= predict_since,which=T]
 
   NextMethod()
 }
