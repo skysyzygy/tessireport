@@ -118,7 +118,7 @@ test_that("contributions_dataset only reads data when rebuild_dataset = F", {
 
 test_that("read.contributions_model creates a valid mlr3 classification task", {
   stub(read.contributions_model, "contributions_dataset",
-       \(...) {arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F)})
+       \(...) {arrow::read_parquet(rprojroot::find_testthat_root_file("test-contributions_model.parquet"), as_data_frame = F)})
 
   stub(read.contributions_model,"cache_exists_any",TRUE)
 
@@ -144,7 +144,6 @@ test_that("train.contributions_model successfully trains a model", {
   future::plan("multisession")
 
   suppressWarnings(model <<- train(model, num_trees = 16))
-  saveRDS(model$model, here::here("tests/testthat/test-contributions_model.Rds"))
 
   expect_class(model$model, "Learner")
 
@@ -168,8 +167,6 @@ test_that("output.contributions_model successfully interprets the model", {
 
   withr::local_options(future.globals.maxSize = 1024^3)
 
-  model$model <- readRDS(here::here("tests/testthat/test-contributions_model.Rds"))
-
   # predict the whole thing
   model$predictions <-
     cbind(as.data.table(model$model$predict(model$task)),
@@ -179,7 +176,7 @@ test_that("output.contributions_model successfully interprets the model", {
   model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
 
   # dataset
-  d <- arrow::read_parquet(here::here("tests/testthat/test-contributions_model.parquet"), as_data_frame = F) %>% collect %>% setDT
+  d <- arrow::read_parquet(rprojroot::find_testthat_root_file("test-contributions_model.parquet"), as_data_frame = F) %>% collect %>% setDT
   # fill in missing data because the test set is largely missing and add a bit of noise
   cols <- setdiff(colnames(d)[which(sapply(d,is.numeric))],c("group_customer_no","date","I"))
   d[,(cols) := lapply(.SD, \(.) dplyr::coalesce(.,0) + runif(.N,-1e9,1e9)),.SDcols = cols]
