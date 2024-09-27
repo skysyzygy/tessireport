@@ -14,7 +14,7 @@ dataset_chunk_write(
 )
 }
 \arguments{
-\item{dataset}{\code{data.frameish} dataset to load from}
+\item{dataset}{\code{data.frameish} dataset to load from, must contain an index column}
 
 \item{partition}{\code{character}|\code{integer} identifying the partition the chunk will be saved in}
 
