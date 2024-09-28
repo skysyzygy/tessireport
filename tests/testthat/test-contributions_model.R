@@ -180,7 +180,7 @@ test_that("output.contributions_model successfully interprets the model", {
                            as_data_frame = F) %>% collect %>% setDT
   # add noise to dummy row so that all features aren't identical
   dummy <- d[I == model$predictions[prob.TRUE>.75,I[1]]]
-  dummy <- map_if(dummy,is.integer,\(.). + 1L) %>% map_if(is.double,\(.). + .1)
+  dummy <- purrr::map_if(dummy,is.integer,\(.). + 1L) %>% purrr::map_if(is.double,\(.). + .1)
   # downsample deterministically
   d <- rbind(d[seq_len(.N)<.01*.N],dummy)
 
