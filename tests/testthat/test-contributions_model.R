@@ -172,19 +172,22 @@ test_that("output.contributions_model successfully interprets the model", {
     cbind(as.data.table(model$model$predict(model$task)),
           model$task$data(cols = c("I","group_customer_no","date")))
 
-  # downgrade some predictions
-  model$predictions[,prob.TRUE := runif(.N)^2*prob.TRUE]
+  # downgrade some predictions to speed up test
+  model$predictions[,prob.TRUE := prob.TRUE^2]
 
   # dataset
-  d <- arrow::read_parquet(rprojroot::find_testthat_root_file("test-contributions_model.parquet"), as_data_frame = F) %>% collect %>% setDT
-  # fill in missing data because the test set is largely missing and add a bit of noise
-  cols <- setdiff(colnames(d)[which(sapply(d,is.numeric))],c("group_customer_no","date","I"))
-  d[,(cols) := lapply(.SD, \(.) dplyr::coalesce(.,0) + runif(.N,-1e6,1e6)),.SDcols = cols]
+  d <- arrow::read_parquet(rprojroot::find_testthat_root_file("test-contributions_model.parquet"),
+                           as_data_frame = F) %>% collect %>% setDT
+  # add noise to dummy row so that all features aren't identical
+  dummy <- d[I == model$predictions[prob.TRUE>.75,I[1]]]
+  dummy <- map_if(dummy,is.integer,\(.). + 1L) %>% map_if(is.double,\(.). + .1)
+  # downsample deterministically
+  d <- rbind(d[seq_len(.N)<.01*.N],dummy)
 
   stub(output.mlr_report, "read_cache", d)
   dir.create(cache_primary_path("","contributions_model"))
 
-  suppressWarnings(output(model))
+  suppressWarnings(output(model,downsample_output = 1))
 
   pdf_filename <- cache_primary_path("contributions_model.pdf","contributions_model")
   exp_filename <- cache_primary_path("shapley.Rds","contributions_model")
