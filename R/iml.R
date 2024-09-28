@@ -72,8 +72,8 @@ iml_featureeffects <- function(model, data, features = NULL, method = "ale",
   future::plan("sequential")
 
   # replace missing data
-  for (col in names(which(sapply(data,is.numeric))))
-    setnafill(data, "const", data[,min(get(col),na.rm=T)], cols = col)
+  for (col in names(which(sapply(data, \(.) is.numeric(.) & !all(is.na(.))))))
+    setnafill(data, "const", min(data[,col,with=F],na.rm=T), cols = col)
 
   predictor <- iml_predictor(model, data)
 
