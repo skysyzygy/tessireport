@@ -188,7 +188,7 @@ test_that("output.contributions_model successfully interprets the model", {
   expect_file_exists(exp_filename)
 
   explanations <- readRDS(exp_filename)
-  expect_equal(nrow(explanations),model$predictions[prob.TRUE>.75,.N])
+  expect_equal(nrow(explanations),model$predictions[model$dataset,on="I"][prob.TRUE>.75,.N])
 
 })
 
