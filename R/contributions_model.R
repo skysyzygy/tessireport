@@ -100,11 +100,17 @@ read.contributions_model <- function(model,
   dataset <- contributions_dataset(since = since, until = until,
                                    rebuild_dataset = rebuild_dataset)
 
-  dataset <- rbind(filter(dataset, date >= predict_since | event == "TRUE") %>% collect %>% setDT,
-                   filter(dataset, date < predict_since & event == "FALSE") %>% dplyr::slice_sample(prop = downsample_read) %>%
+  dataset <- rbind(filter(dataset, date >= predict_since | event == "TRUE") %>%
+                     collect %>% setDT,
+                   filter(dataset, date < predict_since & event == "FALSE") %>%
+                     dplyr::slice_sample(prop = downsample_read) %>%
                      collect %>% setDT) %>%
     .[,`:=`(event = as.factor(event),
             date = as.POSIXct(date))]
+
+
+  numeric_cols <- names(sapply(dataset, is.numeric)) %>% setdiff(c("event","date"))
+  dataset[,(numeric_cols) := lapply(.SD,as.numeric), .SDcols = numeric_cols]
 
   model$task <- TaskClassif$new(id = "contributions",
                                 target = "event",
