@@ -18,3 +18,24 @@ make_unsubscribe_report_fixtures <- function() {
 
   saveRDS(report,rprojroot::find_testthat_root_file("unsubscribe_report.Rds"))
 }
+
+make_contributions_model_fixtures <- function(n = 10000) {
+
+  withr::local_envvar(R_CONFIG_FILE="")
+
+  stream <- read_cache("stream","stream")
+
+  fixture <- stream %>% dplyr::slice_sample(n = n) %>%
+    collect %>% setDT
+
+  # anonymize
+  fixture[,`:=`(group_customer_no = .I,
+                customer_no = .I,
+                email = NULL,
+                street1 = NULL,
+                street2 = NULL,
+                subscriberid = NULL
+                )] %>%
+    arrow::write_parquet("tests/testthat/test-contributions_model.parquet")
+
+}
