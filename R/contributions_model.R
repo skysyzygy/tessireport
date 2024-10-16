@@ -17,7 +17,7 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
                                   rebuild_dataset = NULL, ...) {
 
 
-  . <- stream <- group_customer_no <- timestamp <- event_type <- event <- contributionAmt <- n_event <-
+  . <- stream <- group_customer_no <- timestamp <- event_type <- event <- contribution_amt <- n_event <-
     N <- partition <- NULL
 
   dataset_max_date <- NULL
@@ -31,14 +31,14 @@ contributions_dataset <- function(since = Sys.Date()-365*5, until = Sys.Date(),
 
   stream <- read_cache("stream","stream")
   stream_key <- stream %>%
-    select(all_of(c("group_customer_no","timestamp","event_type","contributionAmt"))) %>%
+    select(all_of(c("group_customer_no","timestamp","event_type","contribution_amt"))) %>%
     collect %>% setDT
 
   stream_key[,I:=.I]
   setkey(stream_key,group_customer_no,timestamp)
 
   # add event
-  stream_key[,event := event_type == "Contribution" & contributionAmt>=50]
+  stream_key[,event := event_type == "Contribution" & contribution_amt>=50]
   stream_key[,`:=`(n_event = cumsum(event),
                    N = .N), by="group_customer_no"]
   # censor
