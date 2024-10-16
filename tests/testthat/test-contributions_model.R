@@ -10,7 +10,7 @@ test_that("contributions_dataset reads from cache and adds an event indicator", 
   read_cache <- mock(arrow::arrow_table(
     group_customer_no = 1,
     event_type = c("Ticket","Contribution"),
-    contributionAmt = 50,
+    contribution_amt = 50,
     timestamp = Sys.Date()+c(-60,-.001)),
     arrow::arrow_table(date = lubridate::POSIXct())
   )
@@ -32,7 +32,7 @@ test_that("contributions_dataset rebuilds all data when rebuild_dataset = T", {
   read_cache <- mock(arrow::arrow_table(
     group_customer_no = 1,
     event_type = c("Ticket","Contribution"),
-    contributionAmt = 50,
+    contribution_amt = 50,
     timestamp = Sys.Date()+c(-60,-.001)),
     arrow::arrow_table(date = lubridate::POSIXct())
   )
@@ -43,7 +43,7 @@ test_that("contributions_dataset rebuilds all data when rebuild_dataset = T", {
   stub(contributions_dataset, "read_cache", mock(arrow::arrow_table(
       group_customer_no = 1:4,
       event_type = rep(c("Ticket","Contribution"),2),
-      contributionAmt = 50,
+      contribution_amt = 50,
       timestamp = Sys.Date()+c(-60,-.001,365,366)),
       arrow::arrow_table(date = lubridate::POSIXct())))
 
@@ -62,7 +62,7 @@ test_that("contributions_dataset only appends data when rebuild_dataset = TRUE",
   stub(contributions_dataset, "read_cache", mock(arrow::arrow_table(
     group_customer_no = 1,
     event_type = c("Ticket","Contribution"),
-    contributionAmt = 50,
+    contribution_amt = 50,
     timestamp = Sys.Date()+c(-60,-.001)),
     arrow::arrow_table(date = lubridate::POSIXct())
   ))
@@ -74,7 +74,7 @@ test_that("contributions_dataset only appends data when rebuild_dataset = TRUE",
     arrow::arrow_table(
       group_customer_no = 1:4,
       event_type = rep(c("Ticket","Contribution"),2),
-      contributionAmt = 50,
+      contribution_amt = 50,
       timestamp = Sys.Date()+c(-60,-.001,365,366)),
       arrow::arrow_table(date = lubridate::POSIXct()), cycle = T))
 
@@ -96,7 +96,7 @@ test_that("contributions_dataset only reads data when rebuild_dataset = F", {
   stub(contributions_dataset, "read_cache", mock(arrow::arrow_table(
     group_customer_no = 1,
     event_type = c("Ticket","Contribution"),
-    contributionAmt = 50,
+    contribution_amt = 50,
     timestamp = Sys.Date()+c(-60,-.001)),
     arrow::arrow_table(date = lubridate::POSIXct()),
     read_cache("dataset","contributions_model"),
